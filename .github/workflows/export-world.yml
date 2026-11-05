@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: liminal-unity-license
+  cancel-in-progress: false
+
 jobs:
   export:
     runs-on: ubuntu-22.04
@@ -17,10 +21,10 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - platform: StandaloneWindows64
-            edition: PC
           - platform: Android
             edition: Quest
+          - platform: StandaloneWindows64
+            edition: PC
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,8 +43,13 @@ jobs:
           fi
       - name: Restore official checksummed VRChat packages
         run: python3 Tools/CI/restore_vpm.py
+      - name: Make room for the Unity editor on the hosted runner
+        run: |
+          # The build container supplies its own Android SDK and editor tools.
+          sudo rm -rf -- /usr/local/lib/android/sdk /usr/share/dotnet /usr/local/.ghcup
+          df -h /
       - name: Build VRChat world with Unity and the SDK
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
@@ -51,27 +60,16 @@ jobs:
           buildMethod: LiminalExport.Build
           allowDirtyBuild: true
           versioning: None
-      - name: Check the actual SDK bundle
+      - name: Measure the SDK bundle and check the platform upload limit
         env:
           EDITION: ${{ matrix.edition }}
-        run: |
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-          edition = os.environ['EDITION']
-          bundle = Path('Builds') / edition / 'liminal-uwu.vrcw'
-          with bundle.open('rb') as f:
-              if f.read(8) != b'UnityFS\0':
-                  raise ValueError('SDK export is missing its UnityFS header')
-          size = bundle.stat().st_size
-          if edition == 'Quest' and size > 100_000_000:
-              raise ValueError('Quest export exceeds the 100 MB world download budget')
-          print(f'{edition}: {size:,} bytes')
-          PY
+        run: python3 Tools/CI/check_bundle.py "$EDITION"
       - uses: actions/upload-artifact@v4
         with:
           name: liminal-uwu-${{ matrix.edition }}
-          path: Builds/${{ matrix.edition }}/liminal-uwu.vrcw
+          path: |
+            Builds/${{ matrix.edition }}/liminal-uwu.vrcw
+            Builds/${{ matrix.edition }}/size-report.json
           if-no-files-found: error
           retention-days: 14
       - name: Stage PC ClientSim harness in the runner checkout
@@ -82,7 +80,7 @@ jobs:
       - name: Verify the gravity ride in PC ClientSim
         if: matrix.edition == 'PC'
         timeout-minutes: 15
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
