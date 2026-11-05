@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
+from shutil import copytree
 import tempfile
 from urllib.request import Request, urlopen
 from zipfile import ZipFile
@@ -54,6 +55,11 @@ def restore():
                 raise FileExistsError(f"{destination} exists. Restore into a clean checkout.")
             extracted.rename(destination)
             print(f"Restored {name} {version} ({expected[:12]})")
+    # The SDK installs these scripts on first editor startup. In a single
+    # batch-mode invocation their MonoScripts otherwise precede the reload
+    # of Assembly-CSharp, which prevents UdonSharp from resolving the types.
+    utilities = PACKAGES / "com.vrchat.worlds/Integrations/UdonSharp/Samples~/Utilities"
+    copytree(utilities, Path("Assets/UdonSharp/UtilityScripts"))
 
 
 if __name__ == "__main__":
