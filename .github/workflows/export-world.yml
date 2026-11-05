@@ -74,4 +74,23 @@ jobs:
           path: Builds/${{ matrix.edition }}/liminal-uwu.vrcw
           if-no-files-found: error
           retention-days: 14
-
+      - name: Stage PC ClientSim harness in the runner checkout
+        if: matrix.edition == 'PC'
+        run: |
+          mkdir -p Assets/Editor
+          cp Tools/CI/GravityRideSmoke.cs Assets/Editor/GravityRideSmoke.cs
+      - name: Verify the gravity ride in PC ClientSim
+        if: matrix.edition == 'PC'
+        timeout-minutes: 15
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          buildMethod: GravityRideSmoke.Begin
+          manualExit: true
+          allowDirtyBuild: true
+          versioning: None

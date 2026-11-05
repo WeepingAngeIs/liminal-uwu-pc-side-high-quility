@@ -2,6 +2,7 @@
 import collections
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -64,6 +65,30 @@ def media():
         require(path.read_bytes()[:2] == b"\xff\xd8", f"Missing original print {i}")
 
 
+def check_captured_sky():
+    """Inspect the rendered +Y cubemap face above the observatory, including its ring."""
+    source = read(ROOT / "Generated/PC/Finishes/observatory reflection.asset")
+    width = int(value(source, "m_Width"))
+    stride = int(value(source, "m_CompleteImageSize"))
+    require(value(source, "m_TextureFormat") == "4", "Expected a readable RGBA32 sky capture")
+    pixels = bytes.fromhex(value(source, "_typelessdata"))[stride*2:stride*3]
+    interior, annulus = [], []
+    elevation = math.radians(48)
+    for y in range(width):
+        for x in range(width):
+            dx, dz = (2*x+1)/width-1, (2*y+1)/width-1
+            along = (math.sin(elevation)+dz*math.cos(elevation)) / math.sqrt(1+dx*dx+dz*dz)
+            angle = math.acos(max(-1, min(1, along)))
+            offset = (y*width+x)*4
+            peak = max(pixels[offset:offset+3])
+            if angle < .14:
+                interior.append(peak)
+            if .183 < angle < .207:
+                annulus.append(peak)
+    require(len(interior) > 100 and max(interior) == 0, "Rendered observatory aperture contains light")
+    require(annulus and max(annulus) > 160, "Rendered observatory is missing the luminous rim")
+
+
 def check_scene(edition):
     scene = ROOT / "Scenes" / f"liminal uwu - {edition}.unity"
     yaml = read(scene)
@@ -108,6 +133,16 @@ def check_scene(edition):
     require(asset_guid(ROOT / "Shaders/Eclipse.shader") in read(sky), "Skybox requires the ring shader")
     assert_black = re.search(r"if\s*\(\s*radius\s*<\s*edge\s*\)\s*return\s+half4\(0,0,0,1\)", read(ROOT / "Shaders/Eclipse.shader"))
     require(assert_black, "The sky aperture must sample absolute black before the annular emission pass")
+    if edition == "PC":
+        for path in (target / "Finishes").glob("* reflection.asset"):
+            data = bytes.fromhex(value(read(path), "_typelessdata"))
+            # Unity's fallback on a missing shader is exact saturated magenta.
+            require(data.count(bytes((255, 0, 255, 255))) < 30, f"Broken shader color in {path.name}")
+        hub_floor = target / "Finishes/hub wet.mat"
+        floor_yaml = read(hub_floor)
+        require(asset_guid(hub_floor) in source_guids and "SW_PROBE" in floor_yaml
+                and asset_guid(target / "Finishes/hub reflection.asset") in floor_yaml,
+                "Hub floor requires its own captured architecture reflection")
     for room in ROOMS:
         clip = ROOT / "Media/Audio" / (room + ".wav")
         sources = [body for oid, body in by_kind[82] if names[file_id(value(body, "m_GameObject"))] == room + " / room tone"]
@@ -120,10 +155,12 @@ def check_scene(edition):
     coach_count = sum(bool(re.fullmatch("Coach [1-9]", n)) for n in names.values())
     require(coach_count == (5 if edition == "PC" else 4), f"Wrong train consist for {edition}")
     require("m_LoopTime: 1" in read(target / "SpiralService.anim"), "Rail return working must loop")
+    pipelines = [body for _, body in by_kind[114] if "  blueprintId:" in body]
+    require(len(pipelines) == 1 and value(pipelines[0], "contentType") == "1", "Pipeline must identify this scene as a VRChat world")
     descriptors = [body for _, body in by_kind[114] if re.search(r"^  spawns:$", body, re.M)]
     require(len(descriptors) == 1 and re.search(r"  spawns:\n  - \{fileID: [1-9]", descriptors[0]), "Missing arrival")
     udon = [body for _, body in by_kind[114] if "  programSource:" in body]
-    require(len(udon) >= 5, "Missing compiled interaction behaviours")
+    require(len(udon) == 13, "Expected the departure board, eight gravity terminals and four gravity shortcuts")
     for body in udon:
         name = names[file_id(value(body, "m_GameObject"))]
         program = guid(value(body, "programSource"))
@@ -156,6 +193,7 @@ def check_scene(edition):
 if __name__ == "__main__":
     PROGRAMS = {asset_guid(path): path for path in Path("Assets").rglob("*.asset") if Path(str(path) + ".meta").is_file()}
     media()
+    check_captured_sky()
     results = {platform: check_scene(platform) for platform in ("PC", "Quest")}
     require(results["Quest"]["unique_landmark_vertices"] < results["PC"]["unique_landmark_vertices"],
             "Quest must use reduced geometry")

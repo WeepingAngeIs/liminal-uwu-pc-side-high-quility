@@ -21,6 +21,9 @@ public static class LiminalExport
         if(!UpdateLayers.AreLayersSetup())UpdateLayers.SetupEditorLayers();
         if(!UpdateLayers.IsCollisionLayerMatrixSetup())UpdateLayers.SetupCollisionLayerMatrix();
         GravityValidation.Validate();
+        // Bake visibility offline on the runner so rooms behind solid walls can be skipped.
+        StaticOcclusionCulling.Compute();
+        EditorSceneManager.SaveOpenScenes();
         string target=Path.GetFullPath("Builds/"+(quest?"Quest":"PC")+"/liminal-uwu.vrcw");
         Directory.CreateDirectory(Path.GetDirectoryName(target));
         if(!VRCBuildPipelineCallbacks.OnVRCSDKBuildRequested(VRCSDKRequestedBuildType.Scene))

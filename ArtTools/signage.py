@@ -7,9 +7,9 @@ OUT.mkdir(parents=True, exist_ok=True)
 def font(size, face="bahnschrift"):
     return ImageFont.truetype("C:/Windows/Fonts/" + face + ".ttf", size)
 
-names = ["Rain Exchange","Spiral Line","Long-haul Annex","Hanging Orchard","Motor Baths","Ceiling Ward","Event Horizon","Print Arcade","Service Wing","liminal uwu","Any platform","North gallery"]
-captions = ["CENTRAL EXCHANGE","VERTICAL RAILWAY","AIR TERMINAL","SHRINE GARDEN","MUNICIPAL GARAGE","GRAVITY TRANSFER","OBSERVATORY","MUNICIPAL ART HALL","MAINTENANCE","NIGHT TRANSIT AUTHORITY","RANDOM DEPARTURE","UPPER WALK"]
-colors = ["#65e4d5","#ff9d5f","#80c8ec","#92d5aa","#f6a568","#ddabff","#f6ce81","#f399ad","#d6c778","#f0a5ce","#f4ce78","#9cdbe3"]
+names = ["Rain Exchange","Spiral Line","Long-haul Annex","Hanging Orchard","Motor Baths","Ceiling Ward","Event Horizon","Print Arcade","Service Wing","liminal uwu","Any platform","North gallery","Ceiling walk","Hanging Orchard","Wall walk","Event Horizon"]
+captions = ["CENTRAL EXCHANGE","VERTICAL RAILWAY","AIR TERMINAL","SHRINE GARDEN","MUNICIPAL GARAGE","GRAVITY TRANSFER","OBSERVATORY","MUNICIPAL ART HALL","MAINTENANCE","NIGHT TRANSIT AUTHORITY","RANDOM DEPARTURE","UPPER WALK","SOFFIT TRANSFER","GARDEN EXIT","FACADE TRANSFER","OBSERVATORY EXIT"]
+colors = ["#65e4d5","#ff9d5f","#80c8ec","#92d5aa","#f6a568","#ddabff","#f6ce81","#f399ad","#d6c778","#f0a5ce","#f4ce78","#9cdbe3","#ddabff","#92d5aa","#ddabff","#f6ce81"]
 atlas = Image.new("RGB",(2048,2048),"#0e2026")
 for i,(name,caption,col) in enumerate(zip(names,captions,colors)):
     card = Image.new("RGB",(1024,256),"#112329")
@@ -19,7 +19,7 @@ for i,(name,caption,col) in enumerate(zip(names,captions,colors)):
     g.text((49,20),"LU  /  METROGRAPH",font=font(30,"consolab"),fill=col)
     g.text((971,20),caption,font=font(27,"consola"),fill="#b1caca",anchor="ra")
     g.text((46,89),name,font=font(92),fill="#f7edda",stroke_width=0)
-    g.text((981,103),f"{i:02}" if i<9 else "↗",font=font(73),fill=col,anchor="ra")
+    g.text((981,103),f"{i:02}" if i<9 else "LU",font=font(73),fill=col,anchor="ra")
     for u in range(20):
         x=53+u*8
         g.line((x,224,x,232 if u%4 else 238),fill=col,width=2)

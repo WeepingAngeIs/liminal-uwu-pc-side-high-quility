@@ -24,6 +24,7 @@ EXPECTED_LANDINGS = {
     "Gallery landing": 1,
     "Northern corridor landing": 1,
     "Arrival on rotated architecture": 2,
+    "Arrival on approach": 4,
     "Weightless starting position": 1,
 }
 HEADER = re.compile(r"^--- !u!(\d+) &(-?\d+)(?: stripped)?\r?$", re.MULTILINE)

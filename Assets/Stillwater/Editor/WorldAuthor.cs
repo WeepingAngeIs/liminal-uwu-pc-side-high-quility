@@ -45,11 +45,14 @@ public static class WorldAuthor
     public static void Author()
     {
         if(!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+        if(!UpdateLayers.AreLayersSetup()) UpdateLayers.SetupEditorLayers();
+        if(!UpdateLayers.IsCollisionLayerMatrixSetup()) UpdateLayers.SetupCollisionLayerMatrix();
         BuildScene(false); BuildScene(true);
         EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(PCScene,true),new EditorBuildSettingsScene(QuestScene,false)};
         EditorSceneManager.OpenScene(PCScene);
         AssetDatabase.SaveAssets();
         Debug.Log("LIMINAL_UWU_SCENES_AUTHORED");
+        if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LIMINAL_PHOTOS"))) WorldPhotography.Capture();
     }
     static void BuildScene(bool quest)
     {
@@ -57,6 +60,13 @@ public static class WorldAuthor
         Directory.CreateDirectory(gen+"/Architecture");
         Directory.CreateDirectory(Root+"/Scenes");
         AssetDatabase.Refresh();
+        string scenePath=quest?QuestScene:PCScene;
+        string blueprint="";
+        if(File.Exists(scenePath)){
+            EditorSceneManager.OpenScene(scenePath);
+            var old=UnityEngine.Object.FindObjectOfType<PipelineManager>();
+            if(old)blueprint=old.blueprintId;
+        }
         var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
         Surface.Prepare(quest); Surface.SetSky();
         plates=Printed("Station plates");map=Printed("Walking routes");
@@ -68,9 +78,11 @@ public static class WorldAuthor
             var mesh=new StationMesh(t,gen+"/Architecture");
             Shell(mesh,r);
             Furnish(mesh,r);
+            NightArchitecture.Add(mesh,r.id,gen,plates,quest);
             mesh.Finish();
             Landmarks.Populate(t,r.id,quest);
             Surface.Ambience(t,r.id,quest);
+            if(quest) CullDistantProps(t);
         }
         foreach(var r in Places)
         foreach(var k in new[]{0,1}){
@@ -78,11 +90,19 @@ public static class WorldAuthor
         }
         CeilingWalk.Install(rooms["gravity"],quest);
         Departure(rooms);
+        GravityLinks.Install(root,quest);
+        foreach(var area in rooms.Values) BakingVolume(area,new Vector3(78,34,78));
+        foreach(Transform zone in root)
+            if(zone.name=="Soffit gallery" || zone.name=="Western facade gallery" || zone.name=="Six axis field chamber")
+                BakingVolume(zone,new Vector3(62,54,65));
         var focus=Child(root,"World descriptor");
         var desc=focus.gameObject.AddComponent<VRCSceneDescriptor>();
         if(!focus.GetComponent<PipelineManager>())focus.gameObject.AddComponent<PipelineManager>();
+        var pipeline=focus.GetComponent<PipelineManager>();
+        pipeline.contentType=PipelineManager.ContentType.world;
+        if(!string.IsNullOrWhiteSpace(blueprint))pipeline.blueprintId=blueprint;
         var spawn=Child(focus,"Arrival");spawn.position=new Vector3(0,.12f,-15);
-        desc.spawns=new[]{spawn};desc.RespawnHeightY=-35;
+        desc.spawns=new[]{spawn};desc.spawnRadius=1f;desc.RespawnHeightY=-35;
         // An edit-time lens is tagged EditorOnly and will be stripped from uploads.
         var lens=Child(root,"Editor arrival view");lens.gameObject.tag="EditorOnly";
         lens.position=spawn.position+new Vector3(0,1.55f,0);lens.rotation=Quaternion.Euler(-12,0,0);
@@ -92,6 +112,24 @@ public static class WorldAuthor
         EditorSceneManager.MarkSceneDirty(scene);
         if(!EditorSceneManager.SaveScene(scene,quest?QuestScene:PCScene))throw new IOException("Could not save scene.");
         AssetDatabase.SaveAssets();
+    }
+    static void BakingVolume(Transform parent,Vector3 size)
+    {
+        var volume=Child(parent,"Occlusion bake volume");
+        volume.localPosition=new Vector3(0,size.y*.5f-1,0);
+        volume.gameObject.AddComponent<OcclusionArea>().size=size;
+    }
+    static void CullDistantProps(Transform room)
+    {
+        foreach(Transform obj in room){
+            if(!obj.name.StartsWith("Landmark-"))continue;
+            var renderer=obj.GetComponent<Renderer>();
+            if(!renderer)continue;
+            var group=obj.gameObject.AddComponent<LODGroup>();
+            group.SetLODs(new[]{new LOD(.17f,new[]{renderer})});
+            group.localReferencePoint=obj.InverseTransformPoint(renderer.bounds.center);
+            group.size=29f;
+        }
     }
     static Material Printed(string name)
     {
@@ -107,7 +145,7 @@ public static class WorldAuthor
         int dx=k==1?1:k==3?-1:0, dz=k==0?1:k==2?-1:0;
         return Places.FirstOrDefault(n=>n.x==r.x+dx && n.z==r.z+dz);
     }
-    static void Plate(StationMesh m,int index,float x,float y,float z,float width)
+    internal static void Plate(StationMesh m,int index,float x,float y,float z,float width)
     {
         float h=width/4;
         m.Box("metal",x,y,z+.06f,width+.11f,h+.10f,.12f);
@@ -137,7 +175,8 @@ public static class WorldAuthor
             if(gap>0){
                 m.Box("concrete",0,(h+doorH)/2,.2f,gap,h-doorH,.46f,true);
                 m.Box("metal",0,doorH-.06f,.06f,gap+.42f,.22f,.75f);
-                Plate(m,n.number,0,doorH+.72f,-.43f,r.id=="service"?5:6);
+                if(r.id=="service") Plate(m,n.number,7.2f,2.41f,-.43f,4.5f);
+                else Plate(m,n.number,0,doorH+.72f,-.43f,6);
                 foreach(int j in new[]{-1,1}){
                     m.Box("metal",j*(gap/2+.11f),doorH/2,0,.22f,doorH,.78f);
                     m.Box(k%2==0?"amber":"ice",j*(gap/2+.11f),1.95f,-.42f,.085f,2.65f,.07f);
@@ -145,15 +184,19 @@ public static class WorldAuthor
             }
             if(r.id!="service"){
                 bool facade=r.id=="hub"||r.id=="air"||r.id=="rail";
-                float step=facade?4.6f:6.5f;
+                float step=facade?(mobile && r.id!="hub"?6.25f:4.6f):6.5f;
                 for(float x=-w/2+2.6f;x<w/2-1;x+=step){
                     bool nearOpening=Mathf.Abs(x)<6.1f && n!=null;
                     float low=nearOpening?doorH+2.35f:3.35f;
                     if(facade){
                         for(float y=low;y<h-1;y+=3.3f){
+                            if(mobile && r.id!="hub"){
+                                m.Print(Surface.Get("glass"),x,y,-.075f,3.15f,1.90f,Full);
+                                continue;
+                            }
                             m.Box("metal",x,y,-.08f,3.35f,2.18f,.24f);
                             m.Box("glass",x,y+.06f,-.22f,2.96f,1.76f,.075f);
-                            m.Box("metal",x,y+.06f,-.28f,.13f,1.8f,.06f);
+                            if(!mobile || r.id=="hub") m.Box("metal",x,y+.06f,-.28f,.13f,1.8f,.06f);
                             m.Box("concrete",x,y-1.1f,-.29f,3.59f,.2f,.6f);
                         }
                     }else if(!nearOpening){
@@ -284,6 +327,9 @@ public static class WorldAuthor
             m.Box("plaster",s*4.7f,height/2,0,.38f,height,len+.18f,true);
             m.Box((a.number+b.number)%2==0?"teal":"tile",s*4.46f,.84f,0,.15f,1.68f,len);
             m.Box("brass",s*4.36f,1.69f,0,.09f,.08f,len);
+            if((a.number+b.number)%3!=0){
+                for(int pipe=0;pipe<(mobile?1:3);pipe++)m.Rod(pipe==0?"rust":"metal",new Vector3(s*(3.94f-pipe*.22f),height-.38f,-len/2),new Vector3(s*(3.94f-pipe*.22f),height-.38f,len/2),.095f,8);
+            }
             for(float d=-len/2+1;d<len/2;d+=3.8f)
                 m.Box("metal",s*4.41f,height/2,d,.15f,height,.21f);
         }

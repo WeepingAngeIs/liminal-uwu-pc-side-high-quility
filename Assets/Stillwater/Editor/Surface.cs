@@ -76,6 +76,7 @@ public static class Surface
         m.enableInstancing = true;
         m.shaderKeywords = Array.Empty<string>();
         if (mobile) m.EnableKeyword("SW_MOBILE");
+        if (key == "glass") m.EnableKeyword("SW_GLASS");
         if (key == "wet" || key == "pool") m.EnableKeyword("SW_WET");
         ColorUtility.TryParseHtmlString("#" + pigment, out Color color);
         m.SetColor("_Color", color);
@@ -106,13 +107,13 @@ public static class Surface
         }
         RenderSettings.skybox = sky;
         RenderSettings.ambientMode = AmbientMode.Trilight;
-        RenderSettings.ambientSkyColor = new Color(.34f, .43f, .52f);
-        RenderSettings.ambientEquatorColor = new Color(.27f, .30f, .32f);
-        RenderSettings.ambientGroundColor = new Color(.18f, .18f, .16f);
+        RenderSettings.ambientSkyColor = new Color(.20f, .28f, .43f);
+        RenderSettings.ambientEquatorColor = new Color(.16f, .18f, .25f);
+        RenderSettings.ambientGroundColor = new Color(.09f, .09f, .12f);
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogDensity = .0065f;
-        RenderSettings.fogColor = new Color(.125f, .186f, .208f);
+        RenderSettings.fogColor = new Color(.060f, .099f, .155f);
         RenderSettings.reflectionIntensity = .8f;
         RenderSettings.defaultReflectionMode = DefaultReflectionMode.Skybox;
         RenderSettings.defaultReflectionResolution = 64;
@@ -235,6 +236,7 @@ public static class Surface
             probe.center = new Vector3(0, 18, 0);
             probe.blendDistance = 3;
             probe.importance = 2;
+            ApplyRoomReflection(room, id, old, camera.transform.position);
         }
         finally
         {
@@ -246,6 +248,58 @@ public static class Surface
             if (cube && !AssetDatabase.Contains(cube)) UnityEngine.Object.DestroyImmediate(cube);
         }
     }
+    private static void ApplyRoomReflection(Transform room, string id, Cubemap map, Vector3 cameraPosition)
+    {
+        // Combined geometry can span an entire room. Bind the captured cube explicitly
+        // so automatic per-renderer probe selection never assigns a neighbouring room.
+        var halfRoom = new Vector3(31,15,31);
+        switch (id)
+        {
+            case "rail": halfRoom = new Vector3(34,45,34); break;
+            case "air": halfRoom = new Vector3(31,28,30); break;
+            case "grove": halfRoom = new Vector3(29,31,29); break;
+            case "motor": halfRoom = new Vector3(28,20,26); break;
+            case "gravity": halfRoom = new Vector3(26,21,27); break;
+            case "observatory": halfRoom = new Vector3(30,16,30); break;
+            case "gallery": halfRoom = new Vector3(28,14,28); break;
+            case "service": halfRoom = new Vector3(24,4,23); break;
+        }
+        Vector3 bottom = room.position + new Vector3(-halfRoom.x, -.45f, -halfRoom.z);
+        Vector3 top = room.position + halfRoom;
+        var variants = new Dictionary<Material, Material>();
+        foreach (var renderer in room.GetComponentsInChildren<MeshRenderer>())
+        {
+            var slots = renderer.sharedMaterials;
+            bool changed = false;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var baseMaterial = slots[i];
+                if (baseMaterial != Get("wet") && baseMaterial != Get("pool")) continue;
+                if (!variants.TryGetValue(baseMaterial, out var local))
+                {
+                    string path = output + "/Finishes/" + id + " " + baseMaterial.name + ".mat";
+                    local = AssetDatabase.LoadAssetAtPath<Material>(path);
+                    if (!local)
+                    {
+                        local = new Material(baseMaterial);
+                        AssetDatabase.CreateAsset(local, path);
+                    }
+                    else local.CopyPropertiesFromMaterial(baseMaterial);
+                    local.SetTexture("_RoomProbe", map);
+                    local.SetVector("_ProbeOrigin", cameraPosition);
+                    local.SetVector("_RoomMin", bottom);
+                    local.SetVector("_RoomMax", top);
+                    local.EnableKeyword("SW_PROBE");
+                    EditorUtility.SetDirty(local);
+                    variants.Add(baseMaterial, local);
+                }
+                slots[i] = local;
+                changed = true;
+            }
+            if (changed) renderer.sharedMaterials = slots;
+        }
+    }
+
 }
 
 public class StationMediaImporter : AssetPostprocessor

@@ -31,6 +31,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 71ac7860d6648c742af312a0011a7199, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RoomProbe:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Emission: 0
@@ -39,4 +43,7 @@ Material:
     - _Sheen: 0
     m_Colors:
     - _Color: {r: 0.81960785, g: 0.78039217, b: 0.6862745, a: 1}
+    - _ProbeOrigin: {r: 0, g: 0, b: 0, a: 0}
+    - _RoomMax: {r: 30, g: 18, b: 30, a: 0}
+    - _RoomMin: {r: -30, g: 0, b: -30, a: 0}
   m_BuildTextureStacks: []

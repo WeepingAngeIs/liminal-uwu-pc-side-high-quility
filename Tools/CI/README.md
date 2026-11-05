@@ -12,3 +12,5 @@ git push origin refs/tags/liminal-build-review-01
 ```
 
 Once the workflow is on the default branch, you can alternatively select **Actions → Export PC and Quest world bundles → Run workflow** and choose a branch. Each successful matrix job publishes a downloadable `.vrcw` artifact. The workflow checks the Unity bundle signature and the Quest download size. Publishing to a VRChat account is a separate step.
+
+The licensed PC job also enters Play mode with VRChat ClientSim to check both walkable orientations, six velocity directions, return travel, jump cancellation and respawn. Its simulation step reports its own result after the bundle artifact is saved.
