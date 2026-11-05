@@ -26,6 +26,10 @@ EXPECTED_LANDINGS = {
     "Arrival on rotated architecture": 2,
     "Arrival on approach": 4,
     "Weightless starting position": 1,
+    "Dock safe exit": 1,
+    "Coach 1 exit": 1,
+    "Coach 2 exit": 1,
+    "Coach 3 exit": 1,
 }
 HEADER = re.compile(r"^--- !u!(\d+) &(-?\d+)(?: stripped)?\r?$", re.MULTILINE)
 FIELD = re.compile(r"^  (m_\w+): (.*)$", re.MULTILINE)
@@ -267,7 +271,9 @@ def draw_map(output, platform, grid, centers, routes):
 def review(scene_path, platform, output):
     scene = Scene(scene_path)
     centers = {key: scene.single(key) for key in ROOMS}
-    grid = GroundGrid(scene, list(centers.values()))
+    branches = {"gallery": ("Bath bay 06", "Bath bay 10"), "service": ("Reception bay 05", "Reception bay 10")}
+    ends = [scene.single(name) for limits in branches.values() for name in limits]
+    grid = GroundGrid(scene, list(centers.values()) + ends)
     failures, routes, links = [], [], []
     connections = []
     for a, p in centers.items():
@@ -289,6 +295,16 @@ def review(scene_path, platform, output):
         links.append({"from": a, "to": b, "pass": bool(points), "sampled_path_m": max(0, len(points)-1)*STEP})
         if not points:
             failures.append(f"{passage} has no clear path through its midpoint.")
+    side_routes = []
+    for room, (standing_bay, miniature_bay) in branches.items():
+        start = grid.index(centers[room])
+        turn = grid.index(scene.single(standing_bay))
+        far = grid.index(scene.single(miniature_bay))
+        route = grid.path(start, turn)
+        if not route or grid.walk[far]:
+            failures.append(f"{room} must lead into {standing_bay} and close to standing height by {miniature_bay}.")
+        routes.append(route)
+        side_routes.append({"from": room, "turnaround": standing_bay, "walk_m": max(0, len(route)-1)*STEP})
     trips = []
     for name, expected in EXPECTED_LANDINGS.items():
         anchors = scene.named.get(name, [])
@@ -306,7 +322,7 @@ def review(scene_path, platform, output):
     return {
         "platform": platform, "scene": scene_path.name, "active_solid_boxes": len(scene.boxes),
         "sampled_walkable_area_m2": float(grid.walk.sum())*STEP**2, "links": links,
-        "landings": trips, "failures": failures,
+        "landings": trips, "side_routes": side_routes, "failures": failures,
     }
 
 

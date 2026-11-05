@@ -1,46 +1,50 @@
 # liminal uwu
 
-![Rain Exchange, photographed inside the PC world](Preview/Rain%20Exchange.jpg)
+![Rain Exchange photographed in the PC scene](Preview/Rain%20Exchange.jpg)
 
-Walk out under the pink **uwu** streetlights and pick a platform. All nine districts connect on foot. The ticket machine marked **Any platform** sends you to one of eight destinations and remembers your last stop so that the next departure takes you somewhere different.
+The signs under the pink **uwu** streetlights give you the next stop. Pick a passage or take a chance on the **Any platform** ticket machine. Twelve walking passages connect the nine main districts. Two side wings grow smaller until you have to turn back.
 
-## A walk through the interchange
+## Catch the Aperture Express
 
-Take the north passage to **Spiral Line**. The train climbs a suspended helix, slows at the top and runs backward down the same track. Turn east to **Hanging Orchard**, where a procession of torii gates starts upright, turns sideways and ends beneath the roots of suspended trees. The shrine’s field gate opens onto the ceiling of an archive.
+Follow **Spiral Line** north from the exchange. At Platform 01, press **Call train down** if the train is overhead. It finishes the climb and can leave the summit early. When the doors open, walk aboard and interact with a window seat. Three carriages carry up to six seated passengers. The train climbs two turns through a ribbed tunnel, pauses facing the black hole and reverses down the same track. Exiting a seat puts you back on the platform. The ride and seat positions match on PC and Quest.
 
-To the west, **Event Horizon** has a leaning lattice Eiffel Tower and an open view of the black hole. Its rim lights the edge of a pitch-black disk. The field gate here leads to a walk along the archive wall. South of the station there is a wet motor court, an elevated print gallery and one short fluorescent service wing. A stretched airliner hangs above the eastern terminal.
+| Inside the train | At the aperture |
+| --- | --- |
+| ![Carriage interior](Preview/Aperture%20Express%20interior.jpg) | ![The circular shadow and its luminous edge](Preview/Photon%20ring.jpg) |
+
+## Around the exchange
+
+**Hanging Orchard** leads through a procession of torii to a five-storey pagoda. A broadcast tower rises behind the shrine. The beds of the **Diminishing Baths** catch light from overhead fixtures. In **Night Reception**, the desks, telephones, doorways and ceiling shrink together. The observatory has a leaning Eiffel Tower. A stretched jet hangs over the air terminal. The train platforms, art hall, service wing and rain courts each have their own quieter soundscape.
+
+| Hanging Orchard | Diminishing Baths |
+| --- | --- |
+| ![The pagoda and illuminated paper screens](Preview/Pagoda%20court.jpg) | ![Decreasing tiled vaults](Preview/Diminishing%20Baths.jpg) |
+| **Night Reception** | **The Embankment broadcast** |
+| ![Shrinking waiting room](Preview/Night%20Reception.jpg) | ![Gallery transmission](Preview/Embankment%20broadcast.jpg) |
+
+The exchange kiosk, art gallery and archive windows share a 24-second city broadcast. The buildings lift off the waterfront, spiral into the shadow and disappear. The last image holds before the screen goes black for two seconds and starts over. [Watch the original film loop](Preview/Embankment%20transmission.webp)
 
 ## Gravity travel
 
-- **Ceiling Ward** offers a ceiling walk, a wall walk and a six-direction ride. Use the lit reader on a terminal to travel.
-- The two walks use full-size copies of the archive and its skyline rotated through 180° and 90°. You walk on the room's ceiling or side wall using normal VRChat locomotion with a stable headset horizon. Other players in the same gallery can walk with you.
-- Inside either gallery, the two archive terminals go back to the ward. The marked arch takes you out into the shrine garden or tower court. Each arch also works in reverse.
-- **Six direction ride** changes local player gravity and carries you up, right, forward, down, left and back through the chamber. Jump to exit early. Finishing or leaving the ride restores your previous gravity.
+The ceiling and wall terminals in **Ceiling Ward** open into full-size versions of the archive rotated through 180° and 90°. Your feet meet the former ceiling or wall while your headset horizon stays level. Other visitors can walk beside you. Four return terminals and two reversible arches connect the archive, shrine garden and tower court.
 
-## Open the project
+The **Six direction ride** changes player gravity and carries you up, right, forward, down, left and back. Jump to leave early. Completing or exiting the ride restores your previous gravity.
 
-1. In VRChat Creator Companion, choose **Add Existing Project** and select the folder containing **Assets**, **Packages** and **ProjectSettings**.
-2. Resolve the pinned Worlds SDK packages, then open the project with **Unity 2022.3.22f1**.
-3. Open **Assets → Stillwater → Scenes → liminal uwu - PC** or **liminal uwu - Quest**. The scenes, meshes, art, animations, Udon programs and audio are already saved.
+## Open in Creator Companion
 
-The PC scene contains nine captured room reflections, ripple detail and the longer train. Quest uses a cheaper floor shader, reduced landmark geometry, lighter rain and smaller environment textures. Both have the same paths and gravity destinations. Keep the scene files paired with their respective build targets.
+Use Unity **2022.3.22f1** and the pinned Worlds SDK. Choose **Open Project** in Creator Companion. When adding a checkout, select the folder containing **Assets**, **Packages** and **ProjectSettings**, then resolve the project packages. The authored scenes are saved under **Assets → Stillwater → Scenes**. Pick **liminal uwu - PC** for Windows and **liminal uwu - Quest** for Android.
 
-## GitHub checks and export
+The PC sky integrates seven layers of moving gas outside an absolutely black circle. Wet floors use authored room reflections, ripple detail and baked fixture lighting. Scanned surfaces carry colour, normals, roughness and occlusion. Quest keeps the same sky silhouette, train seats, timing, gravity destinations and collision geometry with a two-layer sky, simplified meshes, smaller textures and a cheaper floor finish.
 
-Each push runs two hosted checks on the committed scenes. One checks scene assets, soundscapes, compiled interactions, sky pixels and platform differences. The other samples the collision geometry to check walkable passages, headroom and arrivals. Its downloadable artifact includes a map for each platform. [Hosted checks](https://github.com/WeepingAngeIs/VRChat-games-2/actions)
+## Checks and publishing
 
-The optional licensed workflow exports Windows and Android world bundles through the VRChat SDK, checks the compressed Quest size, and runs the PC gravity interaction test in ClientSim. The repo needs Unity activation in GitHub Actions secrets before this workflow can run. [Remote build setup](Tools/CI/README.md)
+GitHub samples the collision geometry in both scenes, checks the train and its doors across a full circuit, compares network IDs and inspects the black-hole pixels in a captured room reflection. The route diagrams are development artifacts. The release world contains local signs. [Hosted checks](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions)
 
-When publishing, upload the PC scene with Windows selected, then use the **same world blueprint ID** in the Quest scene and upload it with Android selected. The saved scenes start with an empty blueprint ID. [VRChat cross-platform publishing guide](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
+The licensed export workflow bakes occlusion on the runner, exports Windows and Android bundles, checks the Quest download size and exercises the gravity ride in ClientSim. To publish, use the same VRChat world blueprint ID for both uploads. [Remote build setup](Tools/CI/README.md) · [VRChat cross-platform publishing](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
 
-## Inside the world
+## References and materials
 
-| Spiral Line | Hanging Orchard |
-| --- | --- |
-| ![Reciprocating train on its helix](Preview/Spiral%20Line.jpg) | ![Shrine procession and inverted orchard](Preview/Hanging%20Orchard.jpg) |
-| **Event Horizon** | **Long-haul Annex** |
-| ![Tilted lattice tower](Preview/Event%20Horizon.jpg) | ![Stretched passenger jet](Preview/Long-haul%20Annex.jpg) |
-| **Wall walk** | **Ceiling Ward** |
-| ![The archive and its windows rotated sideways](Preview/Wall%20walk.jpg) | ![Reading-room furniture hanging from the ceiling](Preview/Ceiling%20Ward.jpg) |
+The supplied ORGANISM recording and screenshots informed the transition from narrow, tiled passages into large open rooms. British Home informed the decision to spend texture detail at arm's length and capture stationary lighting and reflections during authoring. The cache inspection and the creator's account are documented separately. [British Home measurements and sources](Tools/CI/British-Home-reference.md)
 
-The supplied ORGANISM recording, screenshots and local world-bundle directory informed the transitions between intimate tiled passages and large open architectural spaces. The models, materials, sounds, artwork and layouts in this project were made for **liminal uwu**.
+The architecture, train, sky, city broadcast, wall prints and soundscapes were authored for **liminal uwu**. Scanned surface maps come from Poly Haven under CC0. [Blue Floor Tiles 01](https://polyhaven.com/a/blue_floor_tiles_01) · [Brick Wall 005](https://polyhaven.com/a/brick_wall_005) · [Grey Roof Tiles](https://polyhaven.com/a/grey_roof_tiles) · [Wood Plank Wall](https://polyhaven.com/a/wood_plank_wall) · [Painted Plaster Wall](https://polyhaven.com/a/painted_plaster_wall) · [Granite Tile](https://polyhaven.com/a/granite_tile) · [License](https://polyhaven.com/license)
+

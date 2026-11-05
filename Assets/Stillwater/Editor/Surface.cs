@@ -77,7 +77,10 @@ public static class Surface
         m.shaderKeywords = Array.Empty<string>();
         if (mobile) m.EnableKeyword("SW_MOBILE");
         if (key == "glass") m.EnableKeyword("SW_GLASS");
-        if (key == "wet" || key == "pool") m.EnableKeyword("SW_WET");
+        if (key == "wet" || key == "pool") {
+            m.EnableKeyword("SW_WET");
+            if (!mobile) m.SetTexture("_StoneRelief",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Pavement relief.png"));
+        }
         ColorUtility.TryParseHtmlString("#" + pigment, out Color color);
         m.SetColor("_Color", color);
         m.SetTexture("_MainTex", texture == null ? null : AssetDatabase.LoadAssetAtPath<Texture>(Media + "/Surfaces/" + texture + ".jpg"));
@@ -105,6 +108,13 @@ public static class Surface
             sky = new Material(Shader.Find("Stillwater/Eclipse sky")) { name = "Stillwater night" };
             AssetDatabase.CreateAsset(sky, path);
         }
+        sky.shader=Shader.Find("Stillwater/Eclipse sky");
+        sky.SetTexture("_Plasma",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Orbital streams.png"));
+        sky.SetTexture("_Stars",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Deep field.jpg"));
+        sky.SetTexture("_Fragments",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Orbital fragments.png"));
+        sky.SetFloat("_BroadcastSecond",2f);
+        if(mobile)sky.EnableKeyword("SW_MOBILE");else sky.DisableKeyword("SW_MOBILE");
+        EditorUtility.SetDirty(sky);
         RenderSettings.skybox = sky;
         RenderSettings.ambientMode = AmbientMode.Trilight;
         RenderSettings.ambientSkyColor = new Color(.20f, .28f, .43f);
@@ -131,7 +141,7 @@ public static class Surface
         source.clip = clip;
         source.loop = true;
         source.playOnAwake = true;
-        source.volume = .53f;
+        source.volume = id=="hub" ? .16f : id=="observatory" ? .27f : .38f;
         source.priority = 190;
         source.spatialBlend = 1;
         source.dopplerLevel = 0;
@@ -191,7 +201,7 @@ public static class Surface
     public static void Capture(Transform room, string id, bool quest)
     {
         if (quest || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null) return;
-        const int size = 128;
+        int size = id=="hub" || id=="rail" || id=="observatory" || id=="baths" || id=="annex" ? 256 : 128;
         var cameraOwner = new GameObject("Reflection capture");
         var camera = cameraOwner.AddComponent<Camera>();
         camera.enabled = false;
@@ -200,7 +210,10 @@ public static class Surface
         camera.clearFlags = CameraClearFlags.Skybox;
         camera.nearClipPlane = .14f;
         camera.farClipPlane = 125;
-        camera.transform.position = room.TransformPoint(new Vector3(0, 3.4f, 0));
+        var vantage = new Vector3(0, 3.4f, 0);
+        if(id=="baths") vantage = new Vector3(0,2f,-18f);
+        if(id=="annex") vantage = new Vector3(0,1.6f,-14f);
+        camera.transform.position = room.TransformPoint(vantage);
         var target = new RenderTexture(size, size, 24, RenderTextureFormat.ARGB32)
         {
             dimension = TextureDimension.Cube,
@@ -223,17 +236,17 @@ public static class Surface
             cube.Apply(true);
             var path = output + "/Finishes/" + id + " reflection.asset";
             var old = AssetDatabase.LoadAssetAtPath<Cubemap>(path);
-            if (old) { EditorUtility.CopySerialized(cube, old); UnityEngine.Object.DestroyImmediate(cube); }
+            if (old) { EditorUtility.CopySerialized(cube, old); EditorUtility.SetDirty(old); UnityEngine.Object.DestroyImmediate(cube); }
             else { AssetDatabase.CreateAsset(cube, path); old = cube; }
             var anchor = new GameObject(id + " / static room reflection");
             anchor.transform.SetParent(room, false);
-            anchor.transform.localPosition = new Vector3(0, 3.4f, 0);
+            anchor.transform.localPosition = vantage;
             var probe = anchor.AddComponent<ReflectionProbe>();
             probe.mode = ReflectionProbeMode.Custom;
             probe.customBakedTexture = old;
             probe.boxProjection = true;
             probe.size = new Vector3(75, 52, 75);
-            probe.center = new Vector3(0, 18, 0);
+            probe.center = new Vector3(0, 21.4f, 0)-vantage;
             probe.blendDistance = 3;
             probe.importance = 2;
             ApplyRoomReflection(room, id, old, camera.transform.position);
@@ -266,6 +279,13 @@ public static class Surface
         }
         Vector3 bottom = room.position + new Vector3(-halfRoom.x, -.45f, -halfRoom.z);
         Vector3 top = room.position + halfRoom;
+        if(id=="baths" || id=="annex")
+        {
+            var extent=new Bounds(room.position,Vector3.one);
+            foreach(var r in room.GetComponentsInChildren<MeshRenderer>())extent.Encapsulate(r.bounds);
+            bottom=extent.min;top=extent.max;
+        }
+        var illumination=CourtIrradiance.Bake(room,output+"/Finishes/"+id+" pavement irradiance.asset",bottom,top);
         var variants = new Dictionary<Material, Material>();
         foreach (var renderer in room.GetComponentsInChildren<MeshRenderer>())
         {
@@ -274,7 +294,9 @@ public static class Surface
             for (int i = 0; i < slots.Length; i++)
             {
                 var baseMaterial = slots[i];
-                if (baseMaterial != Get("wet") && baseMaterial != Get("pool")) continue;
+                bool wet=baseMaterial==Get("wet") || baseMaterial==Get("pool");
+                bool surveyed=baseMaterial && baseMaterial.shader && baseMaterial.shader.name=="Liminal uwu/Surveyed surface" && baseMaterial.HasProperty("_GroundField");
+                if(!wet && !surveyed)continue;
                 if (!variants.TryGetValue(baseMaterial, out var local))
                 {
                     string path = output + "/Finishes/" + id + " " + baseMaterial.name + ".mat";
@@ -287,9 +309,11 @@ public static class Surface
                     else local.CopyPropertiesFromMaterial(baseMaterial);
                     local.SetTexture("_RoomProbe", map);
                     local.SetVector("_ProbeOrigin", cameraPosition);
+                    if(wet)local.EnableKeyword("SW_PROBE");
                     local.SetVector("_RoomMin", bottom);
                     local.SetVector("_RoomMax", top);
-                    local.EnableKeyword("SW_PROBE");
+                    local.SetTexture("_GroundField",illumination);
+                    local.EnableKeyword("SW_ROOM_FIELD");
                     EditorUtility.SetDirty(local);
                     variants.Add(baseMaterial, local);
                 }
@@ -304,25 +328,30 @@ public static class Surface
 
 public class StationMediaImporter : AssetPostprocessor
 {
-    public const string Version = "stillwater-media-3";
+    public const string Version = "stillwater-media-5";
     private void OnPreprocessTexture()
     {
         if (!assetPath.StartsWith(Surface.Media + "/", StringComparison.Ordinal)) return;
         var importer = (TextureImporter)assetImporter;
         bool print = assetPath.Contains("/Prints/");
+        bool film = assetPath.EndsWith("/Embankment signal.jpg", StringComparison.Ordinal);
+        bool field = assetPath.EndsWith("/Deep field.jpg",StringComparison.Ordinal);
+        bool fragments = assetPath.EndsWith("/Orbital fragments.png",StringComparison.Ordinal);
+        bool opticalData = assetPath.EndsWith("/Orbital streams.png",StringComparison.Ordinal) || assetPath.EndsWith("/Pavement relief.png",StringComparison.Ordinal);
         bool plate = assetPath.EndsWith("/Station plates.png", StringComparison.Ordinal);
-        bool map = assetPath.EndsWith("/Walking routes.png", StringComparison.Ordinal);
-        importer.wrapMode = print ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
-        importer.sRGBTexture = !assetPath.EndsWith("WeatherField.png", StringComparison.Ordinal);
+        bool lowerPlates = assetPath.EndsWith("/Lower hall plates.png", StringComparison.Ordinal);
+        importer.wrapMode = print || film || fragments ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
+        importer.alphaIsTransparency = fragments;
+        importer.sRGBTexture = !opticalData && !assetPath.EndsWith("WeatherField.png", StringComparison.Ordinal);
         importer.mipmapEnabled = true;
         importer.filterMode = FilterMode.Trilinear;
         importer.anisoLevel = print ? 4 : 8;
         importer.npotScale = TextureImporterNPOTScale.None;
-        importer.maxTextureSize = plate ? 2048 : map || print ? 1024 : 512;
+        importer.maxTextureSize = film ? 4096 : plate || field ? 2048 : lowerPlates || print || opticalData || fragments ? 1024 : 512;
         var android = importer.GetPlatformTextureSettings("Android");
         android.name = "Android";
         android.overridden = true;
-        android.maxTextureSize = plate ? 2048 : map ? 1024 : print ? 512 : 256;
+        android.maxTextureSize = film || plate ? 2048 : lowerPlates || field ? 1024 : print || opticalData || fragments ? 512 : 256;
         android.format = TextureImporterFormat.ASTC_6x6;
         importer.SetPlatformTextureSettings(android);
         importer.userData = Version;

@@ -9,6 +9,8 @@ Shader "Stillwater/Station finish"
         _Sheen("Glaze",Range(0,1))=.12
         _Flood("Water coverage",Range(0,1))=0
         _RoomProbe("Captured room",Cube)="black"{}
+        _GroundField("Baked fixture light and contact",2D)="white"{}
+        _StoneRelief("Honed basalt normal and roughness",2D)="gray"{}
         _ProbeOrigin("Capture position",Vector)=(0,0,0,0)
         _RoomMin("Room minimum",Vector)=(-30,0,-30,0)
         _RoomMax("Room maximum",Vector)=(30,18,30,0)
@@ -31,6 +33,7 @@ Shader "Stillwater/Station finish"
             #pragma shader_feature_local _ SW_PRINT
             #pragma shader_feature_local _ SW_GLASS
             #pragma shader_feature_local _ SW_PROBE
+            #pragma shader_feature_local _ SW_ROOM_FIELD
             #pragma multi_compile _ VERTEXLIGHT_ON
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -45,7 +48,7 @@ Shader "Stillwater/Station finish"
                 UNITY_FOG_COORDS(4)
                 UNITY_VERTEX_OUTPUT_STEREO
             };
-            sampler2D _MainTex, _Field;
+            sampler2D _MainTex, _Field, _StoneRelief, _GroundField;
             samplerCUBE _RoomProbe;
             float4 _ProbeOrigin, _RoomMin, _RoomMax;
             half4 _Color;
@@ -174,7 +177,11 @@ Shader "Stillwater/Station finish"
                     float puddle=lerp(.27+.73*smoothstep(.36,.64,field.r),1.,_Flood);
                     float2 drift=float2(.0016,.0024)*_Time.y;
                     half2 distortion=tex2D(_Field,floorUV*.224+drift).gb-.5;
+                    float stoneRoughness=.28;
                     #ifndef SW_MOBILE
+                        half3 relief=tex2D(_StoneRelief,floorUV/_Scale).rgb;
+                        stoneRoughness=relief.b;
+                        n=normalize(n+float3(relief.r-.5,0,relief.g-.5)*lerp(.65,.16,puddle));
                         half2 small=tex2D(_Field,floorUV*.64-drift*1.6).gb-.5;
                         distortion+=small*.40;
                         // A point impact propagates as a fading pair of shallow round waves.
@@ -191,6 +198,11 @@ Shader "Stillwater/Station finish"
                     float3 r=reflect(-v,wetNormal);
                     float2 block=floor(p.xz/80.+.5);
                     color*=lerp(.92,.55,puddle);
+                    #ifdef SW_ROOM_FIELD
+                        float2 fieldUV=saturate((p.xz-_RoomMin.xz)/max(_RoomMax.xz-_RoomMin.xz,.02));
+                        half4 pavement=tex2D(_GroundField,fieldUV);
+                        color=color*lerp(.38,1.,pavement.a)+pigment*pavement.rgb*.52;
+                    #endif
                     // Project the actual warm luminaires and hanging rose lettering in the hub.
                     if(abs(block.x)+abs(block.y)<.1)
                     {
@@ -206,7 +218,7 @@ Shader "Stillwater/Station finish"
                     }
                     #ifdef SW_PROBE
                         float3 direction=roomDirection(r,p);
-                        float roughness=.25+1.45*(1.-puddle)+.12*abs(field.g-.5);
+                        float roughness=.10+1.42*(1.-puddle)+2.*stoneRoughness*(1.-.82*puddle);
                         half3 reflection=texCUBElod(_RoomProbe,float4(direction,roughness)).rgb;
                         color+=reflection*(.28+.69*fresnel)*puddle;
                     #else

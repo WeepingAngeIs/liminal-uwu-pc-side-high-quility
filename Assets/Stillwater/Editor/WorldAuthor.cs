@@ -21,7 +21,7 @@ public static class WorldAuthor
         public District(string id,int x,int z,int n,float w,float d,float h)
         {this.id=id;this.x=x;this.z=z;number=n;this.w=w;this.d=d;this.h=h;}
         public Vector3 Position => new Vector3(x*80,0,z*80);
-        public bool Open => id=="hub" || id=="observatory" || id=="grove";
+        public bool Open => id=="hub" || id=="rail" || id=="observatory" || id=="grove";
     }
     internal static readonly District[] Places={
         new District("hub",0,0,0,62,62,15),new District("rail",0,1,1,68,68,45),
@@ -34,7 +34,7 @@ public static class WorldAuthor
     public const string QuestScene=Root+"/Scenes/liminal uwu - Quest.unity";
     static bool mobile;
     static string gen;
-    static Material plates, map;
+    static Material plates, wingPlates;
     static readonly Rect Full=new Rect(0,0,1,1);
     internal static Transform Child(Transform parent,string name)
     {
@@ -47,6 +47,12 @@ public static class WorldAuthor
         if(!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
         if(!UpdateLayers.AreLayersSetup()) UpdateLayers.SetupEditorLayers();
         if(!UpdateLayers.IsCollisionLayerMatrixSetup()) UpdateLayers.SetupCollisionLayerMatrix();
+        UdonSharp.Compiler.UdonSharpCompilerV1.CompileSync(new UdonSharp.Compiler.UdonSharpCompileOptions());
+        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock)}){
+            var program=UdonSharp.UdonSharpProgramAsset.GetProgramAssetForClass(type);
+            if(!program || program.CompiledVersion!=UdonSharp.UdonSharpProgramVersion.CurrentVersion)
+                throw new InvalidOperationException("The interaction could not be compiled: "+type.Name);
+        }
         BuildScene(false); BuildScene(true);
         EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(PCScene,true),new EditorBuildSettingsScene(QuestScene,false)};
         EditorSceneManager.OpenScene(PCScene);
@@ -68,8 +74,8 @@ public static class WorldAuthor
             if(old)blueprint=old.blueprintId;
         }
         var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
-        Surface.Prepare(quest); Surface.SetSky();
-        plates=Printed("Station plates");map=Printed("Walking routes");
+        Surface.Prepare(quest); ReleaseFinishes.Prepare(gen,quest); Surface.SetSky();
+        plates=Printed("Station plates");wingPlates=Printed("Lower hall plates");
         var root=Child(null,"liminal uwu");
         var rooms=new Dictionary<string,Transform>();
         foreach(var r in Places)
@@ -81,6 +87,7 @@ public static class WorldAuthor
             NightArchitecture.Add(mesh,r.id,gen,plates,quest);
             mesh.Finish();
             Landmarks.Populate(t,r.id,quest);
+            if(r.id=="grove") OrchardTower.Build(t,gen,quest);
             Surface.Ambience(t,r.id,quest);
             if(quest) CullDistantProps(t);
         }
@@ -88,7 +95,12 @@ public static class WorldAuthor
         foreach(var k in new[]{0,1}){
             var n=Neighbour(r,k); if(n!=null) Passage(root,r,n,k);
         }
+        var baths=DiminishingRooms.Install(root,gen,true,quest);
+        var annex=DiminishingRooms.Install(root,gen,false,quest);
+        BakingVolume(baths,new Vector3(19,9,54));
+        BakingVolume(annex,new Vector3(11,6,42));
         CeilingWalk.Install(rooms["gravity"],quest);
+        CityTransmission.Install(root,quest);
         Departure(rooms);
         GravityLinks.Install(root,quest);
         foreach(var area in rooms.Values) BakingVolume(area,new Vector3(78,34,78));
@@ -108,7 +120,14 @@ public static class WorldAuthor
         lens.position=spawn.position+new Vector3(0,1.55f,0);lens.rotation=Quaternion.Euler(-12,0,0);
         var cam=lens.gameObject.AddComponent<Camera>(); cam.fieldOfView=72;cam.farClipPlane=260;
         // Capture room probes while authoring the richer PC scene, never at runtime.
-        if(!quest) foreach(var r in Places) Surface.Capture(rooms[r.id],r.id,false);
+        if(!quest){
+            foreach(var r in Places) Surface.Capture(rooms[r.id],r.id,false);
+            Surface.Capture(baths,"baths",false);
+            Surface.Capture(annex,"annex",false);
+        }
+        VRC.SDKBase.Network.NetworkIDAssignment.ConfigureNetworkIDs(desc, out List<VRC.SDKBase.Network.NetworkIDAssignment.SetErrorLocation> networkErrors, VRC.SDKBase.Network.NetworkIDAssignment.SetError.IncompatibleTypes);
+        if(networkErrors.Count>0) throw new InvalidOperationException("Failed to assign scene network IDs.");
+        EditorUtility.SetDirty(desc);
         EditorSceneManager.MarkSceneDirty(scene);
         if(!EditorSceneManager.SaveScene(scene,quest?QuestScene:PCScene))throw new IOException("Could not save scene.");
         AssetDatabase.SaveAssets();
@@ -164,18 +183,24 @@ public static class WorldAuthor
             if(r.id=="hub") h=new[]{10,16,12,19}[k];
             if(r.id=="grove")h=10;
             float doorH=r.id=="service"?3.05f:5.6f;
-            float gap=n==null?0:9;
+            bool newWing=(r.id=="gallery" && k==2)||(r.id=="service" && k==3);
+            float gap=n!=null||newWing?9:0;
             foreach(int side in new[]{-1,1}){
                 float width=(w-gap)*.5f;float mid=side*(gap/2+width/2);
-                m.Box("concrete",mid,h*.5f,.2f,width,h,.46f,true);
-                m.Box(r.id=="service"?"ochre":"tile",mid,1.02f,-.11f,width,2.04f,.21f);
+                m.Box(r.id=="rail"||r.id=="hub"?"brickwork":"limestone",mid,h*.5f,.2f,width,h,.46f,true);
+                m.Box(r.id=="service"?"ochre":r.id=="hub"||r.id=="motor"?"bath tile":"tile",mid,1.02f,-.11f,width,2.04f,.21f);
                 m.Box("metal",mid,.17f,-.22f,width,.32f,.11f);
                 m.Box(r.id=="gallery"?"brass":"teal",mid,2.12f,-.18f,width,.13f,.19f);
             }
             if(gap>0){
                 m.Box("concrete",0,(h+doorH)/2,.2f,gap,h-doorH,.46f,true);
                 m.Box("metal",0,doorH-.06f,.06f,gap+.42f,.22f,.75f);
-                if(r.id=="service") Plate(m,n.number,7.2f,2.41f,-.43f,4.5f);
+                if(newWing){
+                    bool baths=r.id=="gallery";
+                    float x=baths?0:7.2f,y=baths?doorH+.73f:2.4f,sw=baths?6:4.5f;
+                    m.Box("metal",x,y,-.35f,sw+.12f,sw/4+.12f,.15f);
+                    m.Print(wingPlates,x,y,-.45f,sw,sw/4,new Rect(.001f,baths?.501f:.001f,.998f,.498f));
+                }else if(r.id=="service") Plate(m,n.number,7.2f,2.41f,-.43f,4.5f);
                 else Plate(m,n.number,0,doorH+.72f,-.43f,6);
                 foreach(int j in new[]{-1,1}){
                     m.Box("metal",j*(gap/2+.11f),doorH/2,0,.22f,doorH,.78f);
@@ -186,7 +211,7 @@ public static class WorldAuthor
                 bool facade=r.id=="hub"||r.id=="air"||r.id=="rail";
                 float step=facade?(mobile && r.id!="hub"?6.25f:4.6f):6.5f;
                 for(float x=-w/2+2.6f;x<w/2-1;x+=step){
-                    bool nearOpening=Mathf.Abs(x)<6.1f && n!=null;
+                    bool nearOpening=Mathf.Abs(x)<6.1f && gap>0;
                     float low=nearOpening?doorH+2.35f:3.35f;
                     if(facade){
                         for(float y=low;y<h-1;y+=3.3f){
@@ -228,8 +253,6 @@ public static class WorldAuthor
                 // Street kiosk and folding transit seats flank an unobstructed promenade.
                 m.Box("teal",-15,1.45f,7,5.2f,2.9f,3.2f,true);m.Box("ivory",-15,3.04f,7,6.2f,.32f,4.1f);
                 m.Box("glass",-15,1.83f,5.36f,4.5f,1.35f,.12f);m.Box("brass",-15,.99f,5.1f,5.2f,.14f,.44f);
-                m.Box("metal",5,1.73f,-8,3.12f,3.33f,.28f,true);
-                m.Print(map,5,1.76f,-8.16f,2.92f,2.92f,Full);
                 for(int i=0;i<3;i++)Bench(m,13,.02f,-11+i*9);
                 Plate(m,9,0,6.9f,-23,8.8f); 
                 for(int s=-1;s<=1;s+=2)m.Box("metal",s*4.65f,3.5f,-22.9f,.21f,7,.32f,true);

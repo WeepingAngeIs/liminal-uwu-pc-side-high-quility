@@ -161,7 +161,7 @@ internal sealed class LandmarkGeometry
         for(int i=0;i<surfaces.Count;i++)
         {
             mesh.SetTriangles(triangles[surfaces[i]],i,false);
-            materials[i]=Surface.Get(surfaces[i]);
+            materials[i]=ReleaseFinishes.Resolve(surfaces[i]);
         }
         mesh.RecalculateBounds();
         if(create)AssetDatabase.CreateAsset(mesh,path);else EditorUtility.SetDirty(mesh);

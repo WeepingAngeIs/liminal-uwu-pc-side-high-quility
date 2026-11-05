@@ -252,7 +252,7 @@ public static class CeilingWalk
         audio.spatialBlend=1;
         audio.loop=true;
         audio.playOnAwake=true;
-        audio.volume=.42f;
+        audio.volume=.30f;
         audio.dopplerLevel=0;
         audio.rolloffMode=AudioRolloffMode.Linear;
         audio.minDistance=5;

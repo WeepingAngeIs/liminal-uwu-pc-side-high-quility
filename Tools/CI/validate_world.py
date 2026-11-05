@@ -130,7 +130,11 @@ def check_scene(edition):
     sky = target / "Finishes/Night sky.mat"
     skyref = value(by_kind[104][0][1], "m_SkyboxMaterial")
     require(guid(skyref) == asset_guid(sky), "Scene skybox is unassigned")
-    require(asset_guid(ROOT / "Shaders/Eclipse.shader") in read(sky), "Skybox requires the ring shader")
+    sky_material = read(sky)
+    require(asset_guid(ROOT / "Shaders/Eclipse.shader") in sky_material, "Skybox requires the ring shader")
+    require(("SW_MOBILE" in sky_material) == (edition == "Quest"), "Incorrect eclipse rendering tier")
+    for texture in ("Orbital streams.png", "Deep field.jpg"):
+        require(asset_guid(ROOT / "Media/Optics" / texture) in sky_material, f"Sky missing {texture}")
     assert_black = re.search(r"if\s*\(\s*radius\s*<\s*edge\s*\)\s*return\s+half4\(0,0,0,1\)", read(ROOT / "Shaders/Eclipse.shader"))
     require(assert_black, "The sky aperture must sample absolute black before the annular emission pass")
     if edition == "PC":
@@ -141,8 +145,9 @@ def check_scene(edition):
         hub_floor = target / "Finishes/hub wet.mat"
         floor_yaml = read(hub_floor)
         require(asset_guid(hub_floor) in source_guids and "SW_PROBE" in floor_yaml
-                and asset_guid(target / "Finishes/hub reflection.asset") in floor_yaml,
-                "Hub floor requires its own captured architecture reflection")
+                and asset_guid(target / "Finishes/hub reflection.asset") in floor_yaml
+                and asset_guid(target / "Finishes/hub pavement irradiance.asset") in floor_yaml,
+                "Hub floor requires its own captured architecture reflection and pavement lighting")
     for room in ROOMS:
         clip = ROOT / "Media/Audio" / (room + ".wav")
         sources = [body for oid, body in by_kind[82] if names[file_id(value(body, "m_GameObject"))] == room + " / room tone"]
@@ -153,14 +158,24 @@ def check_scene(edition):
     controllers = [body for oid, body in by_kind[95] if asset_guid(target / "SpiralService.controller") in body]
     require(controllers, "Train has no platform-specific animator")
     coach_count = sum(bool(re.fullmatch("Coach [1-9]", n)) for n in names.values())
-    require(coach_count == (5 if edition == "PC" else 4), f"Wrong train consist for {edition}")
+    require(coach_count == 3, f"Wrong train consist for {edition}")
     require("m_LoopTime: 1" in read(target / "SpiralService.anim"), "Rail return working must loop")
     pipelines = [body for _, body in by_kind[114] if "  blueprintId:" in body]
     require(len(pipelines) == 1 and value(pipelines[0], "contentType") == "1", "Pipeline must identify this scene as a VRChat world")
     descriptors = [body for _, body in by_kind[114] if re.search(r"^  spawns:$", body, re.M)]
     require(len(descriptors) == 1 and re.search(r"  spawns:\n  - \{fileID: [1-9]", descriptors[0]), "Missing arrival")
     udon = [body for _, body in by_kind[114] if "  programSource:" in body]
-    require(len(udon) == 13, "Expected the departure board, eight gravity terminals and four gravity shortcuts")
+    expected_programs = {
+        "Transit/LastTrainBoard.asset": 5,
+        "Runtime/StillwaterGravityPort.asset": 8,
+        "Runtime/ApertureExpress.asset": 1,
+        "Runtime/ExpressSeat.asset": 6,
+        "Runtime/CitySignalClock.asset": 1,
+    }
+    program_counts = collections.Counter(guid(value(body, "programSource")) for body in udon)
+    for path, count in expected_programs.items():
+        require(program_counts[asset_guid(ROOT / path)] == count, f"{edition} needs {count} instances of {path}")
+    require(len(udon) == sum(expected_programs.values()), f"{edition} has unexpected Udon components")
     for body in udon:
         name = names[file_id(value(body, "m_GameObject"))]
         program = guid(value(body, "programSource"))
@@ -173,7 +188,7 @@ def check_scene(edition):
             m = re.search(r"(?:serializedUdonProgramAsset|serializedProgramAsset): \{fileID: [^,]+, guid: (" + GUID + ")", program_text)
             serialized = m[1] if m else None
         require(serialized in PROGRAMS, f"{edition} Udon program on {name} has no compiled backing asset")
-    meshes = list(target.glob("Landmark-*.asset")) + [target / "Local-Carriage.asset"]
+    meshes = list(target.glob("Landmark-*.asset")) + [target / "Local-Carriage.asset", target / "Pocket door.asset"]
     require(len(meshes) >= 8, edition + " lacks landmark meshes")
     vertices = 0
     for mesh in meshes:
@@ -185,9 +200,22 @@ def check_scene(edition):
         vertices += int(counts[0])
     probes = len(by_kind[215])
     require(probes == 0 if edition == "Quest" else probes >= 9, f"{edition} reflection probe budget")
+    instances = collections.Counter(guid(value(body, "m_Mesh")) for _, body in by_kind[33])
+    model_triangles = 0
+    for mesh_id, copies in instances.items():
+        mesh_path = PROGRAMS.get(mesh_id)
+        if mesh_path is None:
+            continue
+        # The serialized count includes all instances before any culling, including rotated wings.
+        mesh_body = read(mesh_path)
+        counts = re.findall(r"^    indexCount: (\d+)$", mesh_body, re.M)
+        require(counts and all(int(n) % 3 == 0 for n in counts), f"Invalid triangle data in {mesh_path}")
+        model_triangles += sum(int(n)//3 for n in counts) * copies
+    require(model_triangles > 0, "No measurable scene geometry")
     return {"districts": len(ROOMS), "passages": len(routes), "independent_loops": len(routes)-len(ROOMS)+1,
             "box_colliders": len(by_kind[65]), "udon_behaviours": len(udon), "coaches": coach_count,
-            "unique_landmark_vertices": vertices, "reflection_probes": probes, "rain_courtyards": len(rain)}
+            "unique_landmark_vertices": vertices, "reflection_probes": probes, "rain_courtyards": len(rain),
+            "authored_mesh_triangles_before_culling": model_triangles}
 
 
 if __name__ == "__main__":
@@ -197,6 +225,8 @@ if __name__ == "__main__":
     results = {platform: check_scene(platform) for platform in ("PC", "Quest")}
     require(results["Quest"]["unique_landmark_vertices"] < results["PC"]["unique_landmark_vertices"],
             "Quest must use reduced geometry")
+    require(results["Quest"]["authored_mesh_triangles_before_culling"] < .72 * results["PC"]["authored_mesh_triangles_before_culling"],
+            "Quest should retain less than 72 percent of the total PC triangle count")
     print(json.dumps(results, indent=2))
     if os.getenv("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:

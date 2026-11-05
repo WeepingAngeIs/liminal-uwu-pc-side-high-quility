@@ -22,9 +22,22 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _Fragments:
+        m_Texture: {fileID: 2800000, guid: c37770d10eef5194a851b45ecae4a374, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Plasma:
+        m_Texture: {fileID: 2800000, guid: c856a7fa60f9eac4ca0720ab7a62ffb5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Stars:
+        m_Texture: {fileID: 2800000, guid: 33c3f6ec718a7ec409ea385ced2a7b3c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _BroadcastSecond: 2
     m_Colors:
     - _Horizon: {r: 0.14999998, g: 0.21999997, b: 0.24999997, a: 1}
   m_BuildTextureStacks: []

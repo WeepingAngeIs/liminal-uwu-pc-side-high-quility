@@ -92,6 +92,7 @@ internal static class NightArchitecture
         // From the court the outside of the rail hall reads as an old municipal power station.
         // Geometry points south (-Z); the hall's actual south wall lies at z=-34.23.
         Place(m,new Vector3(0,0,-34.46f),0);
+        m.Box("brickwork",0,28,0,65,33,.13f);
         for(int j=-3;j<=3;j++){
             float x=j*8.9f;
             m.Box("rust",x,22.2f,-.13f,.71f,43.7f,.88f);

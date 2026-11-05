@@ -82,3 +82,6 @@ crashlytics-build.properties
 /Assets/VRChat Examples.meta
 __pycache__/
 *.pyc
+!/Assets/SerializedUdonPrograms/90eed44bfecc5634969792c2762fc66f.asset*
+!/Assets/SerializedUdonPrograms/268c7dad4dc154e08a00f4cf8116cef6.asset*
+!/Assets/SerializedUdonPrograms/a96b1d60efe948e4a397560275de4992.asset*

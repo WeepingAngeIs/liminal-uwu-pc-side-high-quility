@@ -50,7 +50,7 @@ internal sealed class StationMesh
         if (collide) Solid(pos,size,rotation,key);
         var center=Local(pos); var rot=Frame*rotation;
         Vector3 X=rot*Vector3.right*size.x*.5f,Y=rot*Vector3.up*size.y*.5f,Z=rot*Vector3.forward*size.z*.5f;
-        var mat=Surface.Get(key); var uv=new Rect(0,0,1,1);
+        var mat=ReleaseFinishes.Resolve(key); var uv=new Rect(0,0,1,1);
         Quad(mat,center-X-Y+Z,center+X-Y+Z,center+X+Y+Z,center-X+Y+Z,uv);
         Quad(mat,center+X-Y-Z,center-X-Y-Z,center-X+Y-Z,center+X+Y-Z,uv);
         Quad(mat,center-X+Y+Z,center+X+Y+Z,center+X+Y-Z,center-X+Y-Z,uv);
@@ -79,7 +79,7 @@ internal sealed class StationMesh
         Vector3 refAxis=Mathf.Abs(along.y)>.9f ? Vector3.right : Vector3.up;
         Vector3 a=Vector3.Cross(along,refAxis).normalized*radius;
         Vector3 b=Vector3.Cross(along,a);
-        var mat=Surface.Get(key);
+        var mat=ReleaseFinishes.Resolve(key);
         for(int i=0;i<sides;i++){
             float v=i*2*Mathf.PI/sides, u=(i+1)*2*Mathf.PI/sides;
             var s=a*Mathf.Cos(v)+b*Mathf.Sin(v); var t=a*Mathf.Cos(u)+b*Mathf.Sin(u);

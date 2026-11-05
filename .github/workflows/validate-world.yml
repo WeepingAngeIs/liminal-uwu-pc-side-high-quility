@@ -16,6 +16,12 @@ jobs:
           persist-credentials: false
       - name: Verify both scenes, interactions, geometry, materials and sound
         run: python3 Tools/CI/validate_world.py
+      - name: Verify boarding stations, door timings and the round trip
+        run: python3 Tools/CI/validate_train.py
+      - name: Verify release rooms, towers, sound levels, cross-platform IDs and city film
+        run: |
+          python3 -m pip install Pillow==11.3.0
+          python3 Tools/CI/validate_release.py
       - name: Check official VRChat dependency restore
         run: python3 Tools/CI/restore_vpm.py
 

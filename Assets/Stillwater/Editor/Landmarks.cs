@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 using static LandmarkGeometry;
 
@@ -15,7 +14,7 @@ public static class Landmarks
         var g=new LandmarkGeometry();
         switch(id)
         {
-            case "rail": Railway(g,room,folder,quest); break;
+            case "rail": ExpressLine.Install(g,room,folder,quest); break;
             case "air": Hangar(g,quest); break;
             case "grove": Grove(g,quest); break;
             case "motor": MotorPool(g,room,quest); break;
@@ -24,144 +23,6 @@ public static class Landmarks
             case "hub": Exchange(g,room,quest); break;
         }
         g.Save(room,folder,"Landmark-"+id);
-    }
-
-    const float TrackRadius=17.8f;
-    const float Grade=2.70f; // metres climbed for each radian of track
-    const float RailEnd=10.9f;
-    static Vector3 Track(float angle,float radius=TrackRadius)
-        => V(Mathf.Sin(angle)*radius,6.0f+Grade*angle,Mathf.Cos(angle)*radius);
-
-    static void Railway(LandmarkGeometry g,Transform room,string folder,bool quest)
-    {
-        int n=quest?104:180;
-        for(int i=0;i<n;i++)
-        {
-            float a=i*RailEnd/n, b=(i+1)*RailEnd/n;
-            foreach(float w in new[]{-0.78f,0.78f})
-                g.Beam("metal",Track(a,TrackRadius+w),Track(b,TrackRadius+w),0.12f,0.13f);
-            g.Beam("brass",Track(a)-Vector3.up*0.62f,Track(b)-Vector3.up*0.62f,0.42f,0.40f);
-            g.Beam("concrete",Track(a,TrackRadius-1.40f)-Vector3.up*0.17f,
-                Track(a,TrackRadius+1.40f)-Vector3.up*0.17f,0.16f,0.19f);
-            if(i%4==0)
-                g.Beam("ice",Track(a,TrackRadius+1.40f)-Vector3.up*0.12f,Track(b,TrackRadius+1.40f)-Vector3.up*0.12f,0.10f,0.12f);
-        }
-        // Concrete brackets anchor the spiral at the perimeter. The floor centre stays open.
-        for(int i=0;i<13;i++)
-        {
-            float a=0.32f+i*(RailEnd-0.64f)/12;
-            Vector3 p=Track(a), direction=V(p.x,0,p.z).normalized;
-            Vector3 pier=p+direction*6.5f;
-            g.Beam("concrete",V(pier.x,0,pier.z),pier+Vector3.down*0.65f,0.78f,1.05f);
-            g.Beam("metal",pier+Vector3.down*0.66f,p+Vector3.down*0.64f,0.27f,0.43f);
-            g.Beam("rust",pier+Vector3.down*3.2f,p+Vector3.down*0.66f,0.22f,0.33f);
-            if(i%2==0)
-                g.Beam("amber",pier+Vector3.down*2.75f,pier+Vector3.down*1.35f,0.11f,1.12f);
-        }
-        foreach(float a in new[]{0f,RailEnd})
-            g.Beam("red",Track(a,TrackRadius-1.45f)+Vector3.up*0.48f,Track(a,TrackRadius+1.45f)+Vector3.up*0.48f,0.38f,0.4f);
-
-        var consist=new GameObject("Reciprocating local");
-        consist.transform.SetParent(room,false);
-        int carCount=quest?4:5;
-        var carGeometry=new LandmarkGeometry();
-        Railcar(carGeometry,quest);
-        var first=carGeometry.Save(consist.transform,folder,"Local-Carriage");
-        first.name="Coach 1";
-        var controllerPath=folder+"/SpiralService.controller";
-        var clipPath=folder+"/SpiralService.anim";
-        var clip=AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
-        bool create=clip==null;
-        if(create)clip=new AnimationClip();
-        clip.ClearCurves();
-        clip.name="Return working";
-        clip.frameRate=30;
-        float spacing=6.95f/TrackRadius;
-        const float duration=136f;
-        const int samples=182;
-        for(int car=0;car<carCount;car++)
-        {
-            GameObject coach=car==0?first:UnityEngine.Object.Instantiate(first,consist.transform);
-            coach.name="Coach "+(car+1);
-            var curves=new AnimationCurve[4];
-            for(int k=0;k<4;k++)curves[k]=new AnimationCurve();
-            for(int j=0;j<=samples;j++)
-            {
-                float phase=2f*Mathf.PI*j/samples;
-                float start=0.27f+car*spacing;
-                float run=RailEnd-(carCount-1)*spacing-0.54f;
-                float angle=start+run*(0.5f-0.5f*Mathf.Cos(phase));
-                float angularSpeed=run*0.5f*Mathf.Sin(phase)*(2f*Mathf.PI/duration);
-                Vector3 pos=Track(angle)+Vector3.up*0.07f;
-                Vector3 velocity=V(TrackRadius*Mathf.Cos(angle),Grade,-TrackRadius*Mathf.Sin(angle))*angularSpeed;
-                float t=duration*j/samples;
-                curves[0].AddKey(new Keyframe(t,pos.x,velocity.x,velocity.x));
-                curves[1].AddKey(new Keyframe(t,pos.y,velocity.y,velocity.y));
-                curves[2].AddKey(new Keyframe(t,pos.z,velocity.z,velocity.z));
-                float yaw=90f+angle*Mathf.Rad2Deg, yawSpeed=angularSpeed*Mathf.Rad2Deg;
-                curves[3].AddKey(new Keyframe(t,yaw,yawSpeed,yawSpeed));
-                if(j==0)
-                {
-                    coach.transform.localPosition=pos;
-                    coach.transform.localRotation=Quaternion.Euler(-Mathf.Atan(Grade/TrackRadius)*Mathf.Rad2Deg,yaw,0);
-                }
-            }
-            string[] bindings={"m_LocalPosition.x","m_LocalPosition.y","m_LocalPosition.z","localEulerAnglesRaw.y"};
-            for(int k=0;k<4;k++)SetCurve(clip,coach.name,bindings[k],curves[k]);
-            float pitch=-Mathf.Atan(Grade/TrackRadius)*Mathf.Rad2Deg;
-            SetCurve(clip,coach.name,"localEulerAnglesRaw.x",AnimationCurve.Constant(0,duration,pitch));
-            SetCurve(clip,coach.name,"localEulerAnglesRaw.z",AnimationCurve.Constant(0,duration,0));
-        }
-        var settings=AnimationUtility.GetAnimationClipSettings(clip);
-        settings.loopTime=true;
-        AnimationUtility.SetAnimationClipSettings(clip,settings);
-        if(create)AssetDatabase.CreateAsset(clip,clipPath);else EditorUtility.SetDirty(clip);
-        var controller=AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
-        if(!controller)
-        {
-            controller=AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-            controller.AddMotion(clip);
-        }
-        var animator=consist.AddComponent<Animator>();
-        animator.runtimeAnimatorController=controller;
-        animator.cullingMode=AnimatorCullingMode.CullUpdateTransforms;
-    }
-
-    static void SetCurve(AnimationClip clip,string child,string property,AnimationCurve curve)
-        => AnimationUtility.SetEditorCurve(clip,EditorCurveBinding.FloatCurve(child,typeof(Transform),property),curve);
-
-    static void Railcar(LandmarkGeometry g,bool quest)
-    {
-        g.Box("black",V(0,0.51f,0),V(1.66f,0.32f,6.06f));
-        g.Box("teal",V(0,1.03f,0),V(2.22f,0.73f,6.44f));
-        g.Box("ivory",V(0,2.04f,0),V(2.20f,1.33f,6.43f));
-        g.Box("brass",V(0,1.41f,0),V(2.24f,0.075f,6.46f));
-        g.Box("metal",V(0,2.75f,0),V(2.24f,0.10f,6.47f));
-        g.Box("ivory",V(0,2.87f,0),V(1.96f,0.17f,6.19f));
-        for(int side=-1;side<=1;side+=2)
-        {
-            float x=side*1.11f;
-            for(int j=0;j<6;j++)
-            {
-                float z=-2.61f+j*1.045f;
-                bool door=j==1||j==4;
-                g.Box("metal",V(x,door?1.72f:2.10f,z),V(0.045f,door?1.97f:0.93f,0.88f));
-                g.Box((j%3==0)?"ice":"glass",V(x+side*0.027f,2.12f,z),V(0.035f,0.71f,0.72f));
-                if(door)g.Box("brass",V(x+side*0.05f,1.75f,z),V(0.024f,1.87f,0.036f));
-            }
-            foreach(float z in new[]{-2.27f,-1.49f,1.49f,2.27f})
-                g.Tube("black",V(side*0.64f,0.33f,z),V(side*0.90f,0.33f,z),0.33f,0.33f,quest?8:12);
-            foreach(float z in new[]{-3.23f,3.23f})
-            {
-                g.Box("glass",V(side*0.48f,2.14f,z),V(0.81f,0.73f,0.035f));
-                g.Box("amber",V(side*0.76f,1.2f,z),V(0.28f,0.18f,0.09f));
-            }
-        }
-        foreach(float z in new[]{-1.80f,1.80f})
-        {
-            g.Box("metal",V(0,3.04f,z),V(1.22f,0.24f,1.19f));
-            for(int i=-2;i<=2;i++)g.Box("black",V(0,3.17f,z+i*0.17f),V(0.95f,0.025f,0.06f));
-        }
     }
 
     static void Hangar(LandmarkGeometry g,bool quest)
@@ -254,7 +115,7 @@ public static class Landmarks
 
     static void Grove(LandmarkGeometry g,bool quest)
     {
-        var roots=new[]{V(-16,30,1),V(14,30,-9),V(-10,30,-13),V(15,30,13),V(-15,30,16)};
+        var roots=new[]{V(-16,30,1),V(14,30,-9),V(-10,30,-13),V(22,30,-.5f),V(-15,30,16)};
         for(int i=0;i<(quest?4:5);i++)
         {
             var r=new System.Random(918+i*157);
@@ -279,7 +140,7 @@ public static class Landmarks
         }
         g.frame=Frame(V(3.2f,16.8f,1),V(0,15,92)); Torii(g,1.12f,quest);
         g.frame=Frame(V(1.5f,23,6.5f),V(0,-9,180)); Torii(g,1.3f,quest);
-        g.frame=Frame(V(12,0,13),V(0,-32,0)); Shrine(g,quest);
+        g.frame=Frame(V(-16.5f,0,13),V(0,-32,0)); Shrine(g,quest);
         g.frame=Matrix4x4.identity;
     }
 
@@ -313,19 +174,19 @@ public static class Landmarks
         foreach(int sign in new[]{-1,1})
         {
             Vector3 foot=V(3.50f*sign,0,0),shoulder=V(3.13f*sign,6.35f,0);
-            g.Tube("red",foot,shoulder,0.34f,0.26f,quest?8:12);
+            g.Tube("vermilion",foot,shoulder,0.34f,0.26f,quest?8:12);
             g.Tube("black",foot,Vector3.Lerp(foot,shoulder,0.13f),0.39f,0.34f,quest?8:12);
             g.Tube("brass",shoulder-Vector3.up*0.16f,shoulder,0.35f,0.35f,8);
         }
-        g.Box("red",V(0,4.96f,0),V(8.61f,0.38f,0.37f));
-        g.Box("red",V(0,5.56f,0),V(0.64f,0.92f,0.26f));
+        g.Box("vermilion",V(0,4.96f,0),V(8.61f,0.38f,0.37f));
+        g.Box("vermilion",V(0,5.56f,0),V(0.64f,0.92f,0.26f));
         g.Box("brass",V(0,5.62f,-0.17f),V(0.46f,0.71f,0.07f));
         for(int i=0;i<10;i++)
         {
             float x=-5.25f+i*1.05f, next=x+1.05f;
             float y=6.31f+0.58f*Mathf.Pow(Mathf.Abs(x)/5.25f,3);
             float yn=6.31f+0.58f*Mathf.Pow(Mathf.Abs(next)/5.25f,3);
-            g.Beam("red",V(x,y,0),V(next,yn,0),0.49f,0.61f);
+            g.Beam("vermilion",V(x,y,0),V(next,yn,0),0.49f,0.61f);
             g.Beam("black",V(x,y+0.30f,0),V(next,yn+0.30f,0),0.19f,0.81f);
         }
         g.frame=old;
@@ -340,7 +201,7 @@ public static class Landmarks
         foreach(int side in new[]{-1,1})
         {
             for(int i=0;i<3;i++)
-                g.Tube("red",V(side*2.8f,1,-2.05f+i*1.9f),V(side*2.8f,4.6f,-2.05f+i*1.9f),0.21f,0.20f,8);
+                g.Tube("vermilion",V(side*2.8f,1,-2.05f+i*1.9f),V(side*2.8f,4.6f,-2.05f+i*1.9f),0.21f,0.20f,8);
             g.Box("paper",V(side*2.72f,2.76f,0.1f),V(0.12f,2.68f,3.57f));
             for(int j=0;j<5;j++)g.Box("bark",V(side*2.83f,2.74f,-1.6f+j*0.83f),V(0.13f,2.90f,0.085f));
             g.Box("paper",V(side*1.23f,2.75f,-1.91f),V(2.3f,2.67f,0.11f));
