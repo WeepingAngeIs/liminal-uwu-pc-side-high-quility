@@ -55,6 +55,10 @@ def scene(edition):
     panels = refs(clock, "displayPanels")
     require(len(panels) == 6 and all(names[oid].startswith("Platform departure indicator ") for oid in panels),
             "Departure board must show boarding, door closing, return request, ascent, summit and descent")
+    atlas = asset_guid(ROOT / "Transit/Platform lettering.png")
+    for row in range(10):
+        printed = ROOT / "Transit" / f"Lettering {row}.mat"
+        require(asset_guid(printed) in yaml and atlas in read(printed), "Missing opaque express sign face " + str(row))
     teams = [b for b in proxies.values() if guid(value(b, "m_Script")) == seat_guid]
     require(len(teams) == 6, "Expected six interactive VRCStations")
     encoded = []

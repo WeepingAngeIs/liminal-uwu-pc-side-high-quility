@@ -17,6 +17,8 @@ internal static class ExpressLine
     const float Run = Helix + 32;
     const float End = Helix + 29;
     const float Deck = .46f;
+    const string TypeFolder = "Assets/Stillwater/Transit";
+    static readonly int[] TypeWidths = {485,312,383,234,667,502,487,233,767,408};
 
     static Transform Point(Transform parent,string name,Vector3 p)
     {
@@ -109,15 +111,14 @@ internal static class ExpressLine
         var dispatch=console.gameObject.AddUdonSharpComponent<ApertureExpress>();
         var vm=UdonSharpEditorUtility.GetBackingUdonBehaviour(dispatch);
         vm.interactText="Call train down";vm.proximity=3;
-        string[] messages={"BOARDING  /  TAKE A SEAT","DOORS CLOSING","RETURN REQUESTED","ASCENDING","AT THE APERTURE  /  CALL TO LOWER","DESCENDING TO PLATFORM"};
-        var panels=new GameObject[messages.Length];
-        for(int i=0;i<messages.Length;i++) {
-            panels[i]=Sign(bay,"Platform departure indicator "+i,messages[i],V(13.3f,3.07f,-20.18f),0,.036f).gameObject;
+        var panels=new GameObject[6];
+        for(int i=0;i<panels.Length;i++) {
+            panels[i]=Sign(bay,"Platform departure indicator "+i,i,V(13.3f,3.07f,-20.18f),.27f);
             panels[i].SetActive(i==0);
         }
-        Sign(bay,"Station header","01   /   APERTURE EXPRESS",V(13.3f,3.48f,-20.18f),0,.049f);
-        Sign(bay,"Dispatch lettering","CALL TRAIN",V(11.65f,1.82f,-19.5f),0,.029f);
-        Sign(bay,"Seat instruction","SIT TO RIDE   /   EXIT RETURNS TO PLATFORM",V(13.3f,2.80f,-20.19f),0,.019f);
+        Sign(bay,"Station header",6,V(13.3f,3.48f,-20.18f),.34f);
+        Sign(bay,"Dispatch lettering",7,V(11.65f,1.82f,-19.5f),.17f);
+        Sign(bay,"Seat instruction",8,V(13.3f,2.80f,-20.19f),.17f);
         var consist=WorldAuthor.Child(room,"Reciprocating local");
         var mesh=new LandmarkGeometry();Carriage(mesh,quest);
         var first=mesh.Save(consist,folder,"Local-Carriage");
@@ -153,7 +154,7 @@ internal static class ExpressLine
         for(int i=0;i<coaches.Length;i++){
             var landing=Point(bay,"Coach "+(i+1)+" exit",V(14.0f,.54f,-23f+8*i));
             foreach(int side in new[]{-1,1}) Seat(coaches[i],side,dispatch,landing);
-            Sign(coaches[i],"Carriage plate","01     /     APERTURE  LINE",V(0,2.76f,3.606f),0,.021f);
+            Sign(coaches[i],"Carriage plate",9,V(0,2.70f,3.603f),.16f);
         }
     }
 
@@ -178,15 +179,28 @@ internal static class ExpressLine
         g.Box("brass",V(13.3f,3.67f,-20.09f),V(4.1f,.055f,.16f));
         for(int i=-1;i<=1;i+=2)g.Box("metal",V(13.3f+i*1.93f,1.56f,-20.02f),V(.107f,2.28f,.13f));
     }
-    static TextMesh Sign(Transform parent,string name,string text,Vector3 p,float yaw,float characterSize)
+    static GameObject Sign(Transform parent,string name,int row,Vector3 p,float height)
     {
-        var t=Point(parent,name,p);t.localRotation=Quaternion.Euler(0,yaw,0);
-        var label=t.gameObject.AddComponent<TextMesh>();
-        label.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        label.fontSize=55;label.characterSize=characterSize;label.anchor=TextAnchor.MiddleCenter;
-        label.alignment=TextAlignment.Center;label.color=new Color(1,.86f,.59f);label.text=text;
-        t.GetComponent<MeshRenderer>().sharedMaterial=label.font.material;
-        return label;
+        // Printed metal faces use the opaque, backface-culled texture pass. Unity's
+        // legacy font material otherwise renders reversed letters through walls.
+        string path=TypeFolder+"/Lettering "+row+".mat";
+        var ink=AssetDatabase.LoadAssetAtPath<Material>(path);
+        if(!ink){
+            ink=new Material(Shader.Find("Unlit/Texture"));
+            AssetDatabase.CreateAsset(ink,path);
+        }
+        int width=TypeWidths[row];
+        ink.mainTexture=AssetDatabase.LoadAssetAtPath<Texture>(TypeFolder+"/Platform lettering.png");
+        ink.mainTextureScale=new Vector2(width/1024f,62/1024f);
+        ink.mainTextureOffset=new Vector2(.5f-width/2048f,1-(row*64+63)/1024f);
+        EditorUtility.SetDirty(ink);
+        var face=GameObject.CreatePrimitive(PrimitiveType.Quad);
+        face.name=name;face.transform.SetParent(parent,false);face.transform.localPosition=p;
+        face.transform.localScale=V(height*width/62f,height,1);
+        UnityEngine.Object.DestroyImmediate(face.GetComponent<MeshCollider>());
+        var renderer=face.GetComponent<MeshRenderer>();
+        renderer.sharedMaterial=ink;renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+        return face;
     }
     static void Seat(Transform coach,int sign,ApertureExpress dispatch,Transform landing)
     {

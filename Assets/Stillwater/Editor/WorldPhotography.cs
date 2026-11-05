@@ -32,7 +32,17 @@ public static class WorldPhotography
             Shot(c,output,"Aperture Express interior",new Vector3(15.99f,1.95f,68.4f),new Vector3(.40f,-.20f,-1),72);
             Shot(c,output,"Diminishing Baths",new Vector3(.35f,1.66f,-109),new Vector3(-.01f,.08f,-1),71);
             Shot(c,output,"Night Reception",new Vector3(-105.2f,1.63f,-79.65f),new Vector3(-1,-.01f,-.025f),68);
-            Shot(c,output,"Summit",new Vector3(17,84,107),new Vector3(0,1.11f,1),65);
+            var consist=GameObject.Find("liminal uwu/rail/Reciprocating local");
+            var trip=AssetDatabase.LoadAssetAtPath<AnimationClip>(WorldAuthor.Root+"/Generated/PC/SpiralService.anim");
+            var front=consist.transform.Find("Coach 3");
+            try{
+                trip.SampleAnimation(consist,78f);
+                Shot(c,output,"On the helix",front.TransformPoint(new Vector3(-.43f,1.70f,.65f)),
+                    front.TransformDirection(new Vector3(-.10f,.045f,1)),74);
+                trip.SampleAnimation(consist,124f);
+                Shot(c,output,"Summit",front.TransformPoint(new Vector3(-.32f,1.74f,1.46f)),
+                    front.TransformDirection(new Vector3(.021f,.002f,1)),67);
+            }finally{trip.SampleAnimation(consist,0);}
             Shot(c,output,"Event Horizon",new Vector3(-96.4f,1.73f,59),new Vector3(28,.53f*28,16),85);
             Shot(c,output,"Ceiling Ward",new Vector3(-72,1.7f,-21),new Vector3(-.22f,.57f,1),78);
             Shot(c,output,"Wall walk",new Vector3(-79,2.25f,-635),new Vector3(-.025f,.50f,-1),81);

@@ -10,7 +10,9 @@ Follow **Spiral Line** north from the exchange. At Platform 01, press **Call tra
 
 | Inside the train | At the aperture |
 | --- | --- |
-| ![Carriage interior](Preview/Aperture%20Express%20interior.jpg) | ![The circular shadow and its luminous edge](Preview/Photon%20ring.jpg) |
+| ![Carriage interior](Preview/Aperture%20Express%20interior.jpg) | ![View through the front of the carriage at summit dwell](Preview/Summit.jpg) |
+
+Both views were captured in Unity. [On the helix](Preview/On%20the%20helix.jpg) · [The photon ring from the observatory](Preview/Photon%20ring.jpg)
 
 ## Around the exchange
 
