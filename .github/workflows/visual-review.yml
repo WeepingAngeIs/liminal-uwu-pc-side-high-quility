@@ -1,0 +1,39 @@
+name: Walkable route review
+on:
+  push:
+    paths:
+      - "Assets/Stillwater/Scenes/**"
+      - "Tools/VisualReview/**"
+      - ".github/workflows/visual-review.yml"
+  pull_request:
+    paths:
+      - "Assets/Stillwater/Scenes/**"
+      - "Tools/VisualReview/**"
+      - ".github/workflows/visual-review.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install numpy==2.2.6 Pillow==11.3.0
+      - name: Trace both scenes' twelve passages and check arrival clearance
+        run: python Tools/VisualReview/review_routes.py --output route-review
+      - name: Publish annotated maps and measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pc-and-quest-route-review
+          path: route-review/
+          if-no-files-found: error
+          retention-days: 14

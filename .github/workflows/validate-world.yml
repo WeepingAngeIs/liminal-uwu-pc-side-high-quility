@@ -1,0 +1,21 @@
+name: Validate world source
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-scenes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          persist-credentials: false
+      - name: Verify both scenes, interactions, geometry, materials and sound
+        run: python3 Tools/CI/validate_world.py
+      - name: Check official VRChat dependency restore
+        run: python3 Tools/CI/restore_vpm.py
+

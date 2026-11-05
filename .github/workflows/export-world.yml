@@ -1,0 +1,77 @@
+name: Export PC and Quest world bundles
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'liminal-build-*'
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - platform: StandaloneWindows64
+            edition: PC
+          - platform: Android
+            edition: Quest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          persist-credentials: false
+      - name: Check Unity activation settings
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        run: |
+          if [[ -z "$UNITY_EMAIL" || -z "$UNITY_PASSWORD" || ( -z "$UNITY_LICENSE" && -z "$UNITY_SERIAL" ) ]]; then
+            echo "::error::Set UNITY_EMAIL, UNITY_PASSWORD, and UNITY_LICENSE (Personal) or UNITY_SERIAL (Pro) in this repository's Actions secrets."
+            exit 1
+          fi
+      - name: Restore official checksummed VRChat packages
+        run: python3 Tools/CI/restore_vpm.py
+      - name: Build VRChat world with Unity and the SDK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: ${{ matrix.platform }}
+          buildMethod: LiminalExport.Build
+          allowDirtyBuild: true
+          versioning: None
+      - name: Check the actual SDK bundle
+        env:
+          EDITION: ${{ matrix.edition }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          edition = os.environ['EDITION']
+          bundle = Path('Builds') / edition / 'liminal-uwu.vrcw'
+          with bundle.open('rb') as f:
+              if f.read(8) != b'UnityFS\0':
+                  raise ValueError('SDK export is missing its UnityFS header')
+          size = bundle.stat().st_size
+          if edition == 'Quest' and size > 100_000_000:
+              raise ValueError('Quest export exceeds the 100 MB world download budget')
+          print(f'{edition}: {size:,} bytes')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liminal-uwu-${{ matrix.edition }}
+          path: Builds/${{ matrix.edition }}/liminal-uwu.vrcw
+          if-no-files-found: error
+          retention-days: 14
+
