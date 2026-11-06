@@ -158,6 +158,13 @@ public static class VisualUpgradeReview
                         RenderSettings.skybox.SetFloat("_ReviewTime", frameTime);
                         View(camera, variant, "motion-" + second.ToString("00"), new Vector3(-83, 1.74f, 71), Pole, 37, false);
                     }
+                    // Fixed 1/60-second samples inspect visual continuity, not rendering performance.
+                    var motionStepTimes = new[] { 12.5f, 12.5166667f, 12.5333333f };
+                    for (int step = 0; step < motionStepTimes.Length; step++) {
+                        frameTime = motionStepTimes[step];
+                        RenderSettings.skybox.SetFloat("_ReviewTime", frameTime);
+                        View(camera, variant, "motion-step-" + step.ToString("00"), new Vector3(-83, 1.74f, 71), Pole, 37, false);
+                    }
                 }
             }
             CheckShaders();

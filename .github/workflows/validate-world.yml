@@ -18,6 +18,10 @@ jobs:
         run: python3 Tools/CI/validate_world.py
       - name: Verify rendered floors and doorway joins
         run: python3 Tools/CI/validate_surface_joins.py
+      - name: Verify black hole geodesic texture and numerical convergence
+        run: |
+          python3 -m pip install numpy==2.2.6
+          python3 ArtTools/black_hole_lens.py --check
       - name: Verify boarding stations, door timings and the round trip
         run: python3 Tools/CI/validate_train.py
       - name: Verify release rooms, towers, sound levels, cross-platform IDs and city film

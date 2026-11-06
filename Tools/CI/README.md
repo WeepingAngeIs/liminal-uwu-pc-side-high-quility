@@ -26,3 +26,9 @@ git push origin refs/tags/liminal-build-review-01
 On the PC repository select **Actions → Export PC and Quest world bundles → Run workflow**, choose **main**, and run it once. Both editions build on GitHub, one at a time. The run summary reports the exported Quest download in bytes and its margin against the world's upload limit from the pinned VRChat SDK. Each successful export provides a downloadable `.vrcw` and a size report. Publishing to a VRChat account is a separate step. [Open the export workflow](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/workflows/export-world.yml)
 
 The licensed PC job also enters Play mode with VRChat ClientSim to check both walkable orientations, six velocity directions, return travel, jump cancellation and respawn. Its simulation step reports its own result after the bundle artifact is saved.
+
+## Review PC shader changes
+
+**Review PC sky and reflections** renders the previous and candidate shaders on GitHub using Mesa software graphics. It captures matching room views, close-spaced motion frames, parallel camera eye pairs, and the protected black center and luminous rim. The candidate pass refreshes the existing PC reflection maps and returns those assets with their original metadata. Inspect the images before adopting the returned maps.
+
+The report records shader errors, pixel checks and software render timings. Its eye pairs do not exercise a headset XR runtime, and its timings do not measure Windows GPU performance. Use the private VRChat build for those checks. Shader and capture-code changes on `pc-visual-upgrade` start the workflow automatically; use manual dispatch for scene or material changes.

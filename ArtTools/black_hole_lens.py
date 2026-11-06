@@ -37,7 +37,9 @@ SOFTWARE.
 """
 from pathlib import Path
 from time import perf_counter
+import argparse
 import math
+import re
 import numpy as np
 
 
@@ -178,7 +180,57 @@ Texture2D:
 """
 
 
+def validate_saved_transfer(expected):
+    """Validate the actual serialized texture, including its sampling contract."""
+    source = OUTPUT.read_text(encoding="utf-8")
+    meta = OUTPUT.with_suffix(OUTPUT.suffix + ".meta").read_text(encoding="utf-8")
+    if not re.search(r"^--- !u!28 &2800000\s*\nTexture2D:", source, re.M):
+        raise ValueError("The saved asset must expose Texture2D object 2800000.")
+
+    def field(text, key):
+        values = re.findall(r"^[ \t]*" + re.escape(key) + r":[ \t]*([^\r\n]*)$", text, re.M)
+        if len(values) != 1:
+            raise ValueError(f"Expected exactly one serialized {key} field.")
+        return values[0].strip()
+
+    payload_bytes = WIDTH * 4 * 4
+    required = {
+        "m_Width": WIDTH, "m_Height": 1, "m_TextureFormat": 20,
+        "m_TextureDimension": 2, "m_ImageCount": 1, "m_MipCount": 1,
+        "m_MipsStripped": 0, "m_ColorSpace": 0, "m_FilterMode": 1,
+        "m_WrapU": 1, "m_WrapV": 1, "m_AlphaIsTransparency": 0,
+        "m_CompleteImageSize": payload_bytes, "image data": payload_bytes,
+    }
+    for key, value in required.items():
+        if int(field(source, key)) != value:
+            raise ValueError(f"Geodesic texture {key} must be {value}.")
+    if int(field(source, "size")) != 0 or field(source, "path"):
+        raise ValueError("Geodesic texture must contain its complete pixel data inline.")
+    if field(meta, "guid") != GUID or int(field(meta, "mainObjectFileID")) != 2800000:
+        raise ValueError("Geodesic texture identity no longer matches its material binding.")
+
+    payload = bytes.fromhex(field(source, "_typelessdata"))
+    if len(payload) != payload_bytes:
+        raise ValueError(f"Geodesic texture payload has {len(payload)} bytes, expected {payload_bytes}.")
+    saved = np.frombuffer(payload, dtype="<f4").reshape(WIDTH, 4)
+    if not np.isfinite(saved).all():
+        raise ValueError("Geodesic texture contains nonfinite channels.")
+    norm_error = np.max(np.abs(np.linalg.norm(saved[:, :2], axis=1) - 1.))
+    if norm_error > 2.e-6:
+        raise ValueError(f"Geodesic texture source directions are not normalized, error {norm_error}.")
+    if np.any(saved[:, 2:] <= 0.) or np.any(saved[:, 2:] > 1.):
+        raise ValueError("Geodesic texture crossing channels must be in (0, 1].")
+    transfer_error = np.max(np.abs(saved.astype(np.float64) - expected))
+    if transfer_error > 2.e-6:
+        raise ValueError(f"Saved transfer differs from regenerated geodesics by {transfer_error}.")
+    print(f"Saved texture verified, maximum channel error {transfer_error:.3g}.")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n", 1)[0])
+    parser.add_argument("--check", action="store_true",
+                        help="Validate the saved texture against regenerated rays without writing files.")
+    args = parser.parse_args()
     started = perf_counter()
     coordinate = (np.arange(WIDTH) + .5) / WIDTH
     gaps = np.expm1(coordinate * math.log1p(MAX_GAP * GAP_SCALE)) / GAP_SCALE
@@ -196,23 +248,25 @@ def main():
     data = np.column_stack((np.sin(source), np.cos(source), crossings / DISK_LIMIT))
     if not np.isfinite(data).all() or np.any(data[:, 2:] <= 0.):
         raise ValueError("Nonfinite ray transfer or invalid crossing radius.")
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(serialize(data), encoding="utf-8", newline="\n")
-    meta = OUTPUT.with_suffix(OUTPUT.suffix + ".meta")
-    if not meta.exists():
-        meta.write_text(
-            f"fileFormatVersion: 2\nguid: {GUID}\nNativeFormatImporter:\n"
-            "  externalObjects: {}\n  mainObjectFileID: 2800000\n"
-            "  userData: schwarzschild-transfer-1\n  assetBundleName: \n"
-            "  assetBundleVariant: \n", encoding="utf-8", newline="\n")
-
-    print(f"Saved {WIDTH} x 1 RGBAFloat, {data.size * 4} payload bytes.")
+    if args.check:
+        validate_saved_transfer(data)
+    else:
+        OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+        OUTPUT.write_text(serialize(data), encoding="utf-8", newline="\n")
+        meta = OUTPUT.with_suffix(OUTPUT.suffix + ".meta")
+        if not meta.exists():
+            meta.write_text(
+                f"fileFormatVersion: 2\nguid: {GUID}\nNativeFormatImporter:\n"
+                "  externalObjects: {}\n  mainObjectFileID: 2800000\n"
+                "  userData: schwarzschild-transfer-1\n  assetBundleName: \n"
+                "  assetBundleVariant: \n", encoding="utf-8", newline="\n")
+        print(f"Saved {WIDTH} x 1 RGBAFloat, {data.size * 4} payload bytes.")
     print(f"Observer R={camera_radius():.12f}, critical edge={EDGE:.6f} radians.")
     print(f"RK4 convergence angular={error:.3g} rad, crossing radius={crossing_error:.3g}.")
     for index in (0, 16, 128, 512, 1024, 1536, WIDTH - 1):
         print(f"texel {index:4d}: angle={angles[index]:.9f}, source={source[index]:+.6f}, "
               f"crossings={crossings[index, 0]:.6f}, {crossings[index, 1]:.6f}")
-    print(f"Generated and checked in {perf_counter() - started:.2f} seconds.")
+    print(f"{'Validated' if args.check else 'Generated and checked'} in {perf_counter() - started:.2f} seconds.")
 
 
 if __name__ == "__main__":
