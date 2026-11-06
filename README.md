@@ -10,9 +10,9 @@ Follow **Spiral Line** north from the exchange. At Platform 01, press **Call tra
 
 | Inside the train | At the aperture |
 | --- | --- |
-| ![Carriage interior](Preview/Aperture%20Express%20interior.jpg) | ![View through the front of the carriage at summit dwell](Preview/Summit.jpg) |
+| ![Carriage interior](Preview/Aperture%20Express%20interior.jpg) | ![View through the front of the carriage at summit dwell](Preview/PC%20summit.png) |
 
-Both views were captured in Unity. [On the helix](Preview/On%20the%20helix.jpg) · [The photon ring from the observatory](Preview/Photon%20ring.jpg)
+Both views were captured in Unity. [On the helix](Preview/On%20the%20helix.jpg) · [The PC photon ring from the observatory](Preview/PC%20photon%20ring.png)
 
 ## Around the exchange
 
@@ -43,6 +43,8 @@ The PC sky bends the star field around an absolutely black circle. Moving gas fi
 GitHub samples the collision geometry in both scenes, checks the train and its doors across a full circuit, compares network IDs and inspects the black-hole pixels in a captured room reflection. The route diagrams are development artifacts. The release world contains local signs. [Hosted checks](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions)
 
 The licensed export workflow bakes occlusion on the runner, exports Windows and Android bundles, checks the Quest download size and exercises the gravity ride in ClientSim. To publish, use the same VRChat world blueprint ID for both uploads. [Remote build setup](Tools/CI/README.md) · [VRChat cross-platform publishing](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
+
+The [PC optics review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42266262637) captured 30 images, refreshed all 11 reflection maps and passed its shader and black-center checks. It used hosted software rendering. Headset frame rate and VRChat single-pass stereo still need a device test.
 
 ## References and materials
 
