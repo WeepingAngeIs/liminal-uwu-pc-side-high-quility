@@ -6,6 +6,9 @@ Shader "Stillwater/Eclipse sky"
         _Stars ("Distant sky", 2D) = "black" {}
         _Fragments ("Drifting buildings", 2D) = "black" {}
         _BroadcastSecond ("Observation time", Float) = 2
+        _GeodesicTransfer ("PC gravitational lens transfer", 2D) = "black" {}
+        _DiskExposure ("PC gas exposure", Range(.3,3)) = 1.45
+        _ReviewTime ("Fixed review time (-1 uses live time)", Float) = -1
     }
     SubShader
     {
@@ -20,8 +23,8 @@ Shader "Stillwater/Eclipse sky"
             #pragma multi_compile_instancing
             #pragma shader_feature_local _ SW_MOBILE
             #include "UnityCG.cginc"
-            sampler2D _Plasma, _Stars, _Fragments;
-            float _BroadcastSecond;
+            sampler2D _Plasma, _Stars, _Fragments, _GeodesicTransfer;
+            float _BroadcastSecond, _DiskExposure, _ReviewTime;
             static const float PI2 = 6.28318530718;
             static const float3 pole = float3(0,.743144825,.669130606);
             static const float3 north = float3(0,.669130606,-.743144825);
@@ -43,6 +46,10 @@ Shader "Stillwater/Eclipse sky"
                 float2 uv=float2(atan2(d.z,d.x)/PI2+.5,asin(clamp(d.y,-1.,1.))/3.14159+.5);
                 return tex2Dlod(_Stars,float4(uv,0,0)).rgb;
             }
+
+            #if !defined(SW_MOBILE)
+                #include "EclipsePC.cginc"
+            #endif
 
             float3 orbitingArchitecture(float3 background,float2 sightline,float gap)
             {
@@ -84,8 +91,12 @@ Shader "Stillwater/Eclipse sky"
                 float2 plane=float2(direction.x,dot(direction,north));
                 float2 unit=plane/max(length(plane),.0001);
                 float azimuth=atan2(unit.y,unit.x);
-                float time=_Time.y;
+                float time=_ReviewTime>=0 ? _ReviewTime : _Time.y;
                 float gap=(radius-edge)/edge;
+                #if !defined(SW_MOBILE)
+                    float3 upgraded=BlackHolePC(direction,radius,unit,azimuth,time);
+                    return half4(orbitingArchitecture(upgraded,unit*radius,gap),1);
+                #endif
                 // Bend apparent source directions toward the far sky on either side of the shadow.
                 float deflection=.058/max(radius,.001)*exp(-max(0.,radius-edge)*1.4);
                 float sourceAngle=radius-deflection;

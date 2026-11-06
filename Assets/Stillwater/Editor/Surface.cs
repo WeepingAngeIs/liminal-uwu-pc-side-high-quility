@@ -112,6 +112,11 @@ public static class Surface
         sky.SetTexture("_Plasma",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Orbital streams.png"));
         sky.SetTexture("_Stars",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Deep field.jpg"));
         sky.SetTexture("_Fragments",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Orbital fragments.png"));
+        if(!mobile){
+            sky.SetTexture("_GeodesicTransfer",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Geodesic transfer.asset"));
+            sky.SetFloat("_DiskExposure",1.45f);
+        }
+        sky.SetFloat("_ReviewTime",-1f);
         sky.SetFloat("_BroadcastSecond",2f);
         if(mobile)sky.EnableKeyword("SW_MOBILE");else sky.DisableKeyword("SW_MOBILE");
         EditorUtility.SetDirty(sky);

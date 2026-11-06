@@ -15,6 +15,7 @@ Shader "Stillwater/Station finish"
         _RoomMin("Room minimum",Vector)=(-30,0,-30,0)
         _RoomMax("Room maximum",Vector)=(30,18,30,0)
         _Emission("Luminance",Range(0,2))=0
+        _ReviewTime("Review time (-1 uses world time)",Float)=-1
     }
     SubShader
     {
@@ -52,7 +53,7 @@ Shader "Stillwater/Station finish"
             samplerCUBE _RoomProbe;
             float4 _ProbeOrigin, _RoomMin, _RoomMax;
             half4 _Color;
-            float _Scale, _Sheen, _Flood, _Emission;
+            float _Scale, _Sheen, _Flood, _Emission, _ReviewTime;
             Output vert(Input v)
             {
                 Output o;
@@ -174,14 +175,25 @@ Shader "Stillwater/Station finish"
                 #ifdef SW_WET
                     float2 floorUV=p.xz;
                     half3 field=tex2D(_Field,floorUV*.083).rgb;
-                    float puddle=lerp(.27+.73*smoothstep(.36,.64,field.r),1.,_Flood);
-                    float2 drift=float2(.0016,.0024)*_Time.y;
+                    float weatherTime=_ReviewTime>=0.?_ReviewTime:_Time.y;
+                    #ifdef SW_MOBILE
+                        float puddle=lerp(.27+.73*smoothstep(.36,.64,field.r),1.,_Flood);
+                    #else
+                        // Puddle threshold, slope mask and roughness separation adapted
+                        // from Mochie's StandardRain.cginc, MIT, commit
+                        // cf00c152ca5d62b599d386b82b0809253625b4dd.
+                        // https://github.com/MochiesCode/Mochies-Unity-Shaders
+                        // Full notice is in ThirdParty/Mochie-LICENSE.txt.
+                        float horizontal=smoothstep(.96,1.,n.y);
+                        float puddle=lerp(smoothstep(.40,.64,field.r),1.,_Flood)*horizontal;
+                    #endif
+                    float2 drift=float2(.0016,.0024)*weatherTime;
                     half2 distortion=tex2D(_Field,floorUV*.224+drift).gb-.5;
                     float stoneRoughness=.28;
                     #ifndef SW_MOBILE
                         half3 relief=tex2D(_StoneRelief,floorUV/_Scale).rgb;
                         stoneRoughness=relief.b;
-                        n=normalize(n+float3(relief.r-.5,0,relief.g-.5)*lerp(.65,.16,puddle));
+                        n=normalize(n+float3(relief.r-.5,0,relief.g-.5)*lerp(.70,.065,puddle));
                         half2 small=tex2D(_Field,floorUV*.64-drift*1.6).gb-.5;
                         distortion+=small*.40;
                         // A point impact propagates as a fading pair of shallow round waves.
@@ -189,19 +201,33 @@ Shader "Stillwater/Station finish"
                         float2 seed=frac(sin(float2(dot(cell,float2(17.13,39.71)),dot(cell,float2(91.73,12.26))))*4375.71);
                         float2 delta=frac(floorUV*.70)-(.30+.4*seed);
                         float radius=length(delta);
-                        float age=frac(_Time.y*.52+seed.x);
+                        float age=frac(weatherTime*.52+seed.x);
                         float edge=radius-age*.29;
                         float ripple=exp2(-abs(edge)*105.)-.45*exp2(-abs(edge+.021)*100.);
-                        distortion+=delta/max(.03,radius)*ripple*(1.-age)*.52*puddle;
+                        // Fade sub-pixel impacts toward the horizon while retaining
+                        // the broad, slowly moving reflection distortion.
+                        float rippleFade=smoothstep(.06,.34,saturate(dot(n,v)));
+                        distortion+=delta/max(.03,radius)*ripple*(1.-age)*.52*puddle*rippleFade;
                     #endif
                     float3 wetNormal=normalize(n+float3(distortion.x,0,distortion.y)*(.053+.065*(1.-puddle)));
                     float3 r=reflect(-v,wetNormal);
                     float2 block=floor(p.xz/80.+.5);
-                    color*=lerp(.92,.55,puddle);
+                    #ifdef SW_MOBILE
+                        color*=lerp(.92,.55,puddle);
+                    #else
+                        float grazing=1.-saturate(dot(wetNormal,v));
+                        fresnel=.02+.98*grazing*grazing*grazing*grazing*grazing;
+                        // Water darkens diffuse stone and reflects more at shallow
+                        // angles. Dry patches retain their texture and softer sheen.
+                        color*=lerp(.98,.75,puddle);
+                    #endif
                     #ifdef SW_ROOM_FIELD
                         float2 fieldUV=saturate((p.xz-_RoomMin.xz)/max(_RoomMax.xz-_RoomMin.xz,.02));
                         half4 pavement=tex2D(_GroundField,fieldUV);
                         color=color*lerp(.38,1.,pavement.a)+pigment*pavement.rgb*.52;
+                    #endif
+                    #ifndef SW_MOBILE
+                        color*=1.-puddle*fresnel;
                     #endif
                     // Project the actual warm luminaires and hanging rose lettering in the hub.
                     if(abs(block.x)+abs(block.y)<.1)
@@ -214,13 +240,24 @@ Shader "Stillwater/Station finish"
                         float2 lettering=abs(float2(abs(signPos.x)-7.65,signPos.y-sz));
                         float warm=exp2(-delta.x*2.1-delta.y*3.1);
                         float rose=exp2(-lettering.x*.98-lettering.y*3.4);
-                        color+=puddle*(.25+fresnel)*(.90*float3(1.,.52,.15)*warm+.72*float3(.96,.075,.43)*rose);
+                        #ifdef SW_MOBILE
+                            float lampReflection=puddle*(.25+fresnel);
+                        #else
+                            float lampReflection=puddle*fresnel*1.55;
+                        #endif
+                        color+=lampReflection*(.90*float3(1.,.52,.15)*warm+.72*float3(.96,.075,.43)*rose);
                     }
                     #ifdef SW_PROBE
                         float3 direction=roomDirection(r,p);
-                        float roughness=.10+1.42*(1.-puddle)+2.*stoneRoughness*(1.-.82*puddle);
+                        #ifdef SW_MOBILE
+                            float roughness=.10+1.42*(1.-puddle)+2.*stoneRoughness*(1.-.82*puddle);
+                            float reflectionWeight=(.28+.69*fresnel)*puddle;
+                        #else
+                            float roughness=.10+2.9*(1.-puddle)+1.2*stoneRoughness*(1.-.94*puddle);
+                            float reflectionWeight=lerp(.035*_Sheen,fresnel*1.25,puddle);
+                        #endif
                         half3 reflection=texCUBElod(_RoomProbe,float4(direction,roughness)).rgb;
-                        color+=reflection*(.28+.69*fresnel)*puddle;
+                        color+=reflection*reflectionWeight;
                     #else
                         float2 support=floorUV+r.xz*min(65.,7./max(.08,r.y));
                         float2 lane=abs(frac((support+float2(2.,1.))/float2(16.,17.))-.5);

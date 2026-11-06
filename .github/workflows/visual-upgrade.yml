@@ -1,0 +1,172 @@
+name: Review PC sky and reflections
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: Commit containing the previous sky and wet-floor shaders
+        required: true
+        default: ad5b5f0b1fd3dae38bae26fcfdd7dc12749d708d
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: liminal-unity-license
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check Unity activation settings
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        run: |
+          if [[ -z "$UNITY_EMAIL" || -z "$UNITY_PASSWORD" || ( -z "$UNITY_LICENSE" && -z "$UNITY_SERIAL" ) ]]; then
+            echo "::error::The hosted render needs the same Unity activation secrets as the world export workflow."
+            exit 1
+          fi
+      - name: Restore official checksummed VRChat packages
+        run: python3 Tools/CI/restore_vpm.py
+      - name: Stage the capture and renamed baseline shaders
+        env:
+          BASELINE_REF: ${{ inputs.baseline_ref }}
+        run: |
+          mkdir -p Assets/Editor/ReviewBaselines Builds/VisualReview
+          cp Tools/CI/VisualUpgradeReview.cs Assets/Editor/VisualUpgradeReview.cs
+          python3 - <<'PY'
+          import os, re, subprocess
+          from pathlib import Path
+          baseline = subprocess.check_output(
+              ["git", "rev-parse", "--verify", "--end-of-options", os.environ["BASELINE_REF"] + "^{commit}"],
+              text=True).strip()
+          revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          Path("Builds/review-baseline.txt").write_text(baseline + "\n")
+          Path("Builds/review-revision.txt").write_text(revision + "\n")
+          for name in ("Eclipse", "StationFinish"):
+              source = subprocess.check_output(
+                  ["git", "show", baseline + ":Assets/Stillwater/Shaders/" + name + ".shader"], text=True)
+              source, count = re.subn(r'^Shader\s+"[^"]+"',
+                  'Shader "Hidden/Liminal Review/Baseline ' + name + '"', source, count=1)
+              if count != 1:
+                  raise ValueError("Cannot identify baseline " + name)
+              source, count = re.subn(r"(Properties\s*\{)",
+                  r'\1\n        _ReviewTime ("Frozen review time", Float) = 12.5', source, count=1)
+              if count != 1 or "CGPROGRAM" not in source:
+                  raise ValueError("Cannot stage baseline clock for " + name)
+              source = source.replace("CGPROGRAM", "CGPROGRAM\n            float _ReviewTime;", 1)
+              source = source.replace("_Time.y", "_ReviewTime")
+              Path("Assets/Editor/ReviewBaselines", name + ".shader").write_text(source)
+          PY
+      - name: Make room for the hosted Unity image
+        run: |
+          sudo rm -rf -- /usr/local/lib/android/sdk /usr/share/dotnet /usr/local/.ghcup
+          df -h /
+      - name: Prepare the Mesa software-rendering editor
+        run: |
+          mkdir -p "$RUNNER_TEMP/liminal-mesa"
+          cat > "$RUNNER_TEMP/liminal-mesa/Dockerfile" <<'DOCKER'
+          FROM unityci/editor:ubuntu-2022.3.22f1-windows-mono-3
+          USER root
+          RUN apt-get update && apt-get install -y --no-install-recommends libgl1-mesa-dri libglx-mesa0 mesa-utils xvfb xauth && rm -rf /var/lib/apt/lists/*
+          ENV LIBGL_ALWAYS_SOFTWARE=true GALLIUM_DRIVER=llvmpipe
+          COPY unity-editor /usr/bin/unity-editor
+          RUN chmod 755 /usr/bin/unity-editor
+          DOCKER
+          cat > "$RUNNER_TEMP/liminal-mesa/unity-editor" <<'WRAPPER'
+          #!/usr/bin/env bash
+          if [[ -d /usr/bin/unity-editor.d ]]; then
+            for setup in /usr/bin/unity-editor.d/*.sh; do
+              [[ ! -r "$setup" ]] || source "$setup"
+            done
+          fi
+          exec xvfb-run -a -s "-screen 0 1280x800x24 +extension GLX +render -noreset" "$UNITY_PATH/Editor/Unity" -batchmode -force-glcore "$@"
+          WRAPPER
+          docker build --tag liminal-unity-mesa:review "$RUNNER_TEMP/liminal-mesa"
+          docker run --rm --entrypoint bash liminal-unity-mesa:review -lc \
+            'xvfb-run -a -s "-screen 0 1280x800x24 +extension GLX +render -noreset" glxinfo -B' \
+            | tee Builds/VisualReview/mesa-device.txt
+          grep -qi llvmpipe Builds/VisualReview/mesa-device.txt
+      - name: Render both shader versions and eye pairs
+        timeout-minutes: 40
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          customImage: liminal-unity-mesa:review
+          buildMethod: VisualUpgradeReview.Capture
+          enableGpu: true
+          customParameters: -force-glcore
+          allowDirtyBuild: true
+          versioning: None
+      - name: Assemble image comparisons and report
+        if: always()
+        run: |
+          python3 -m pip install Pillow==11.3.0
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+          output = Path("Builds/VisualReview")
+          report = output / "report.json"
+          if not report.is_file():
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+                  summary.write("Unity did not reach image capture. Check the graphics preflight and Unity logs.\n")
+              raise SystemExit(0)
+          data = json.loads(report.read_text())
+          for view in ("observatory", "photon-ring", "summit", "rain-exchange-reflections", "platform-reflections"):
+              paths = [output / variant / (view + ".png") for variant in ("before", "after")]
+              if not all(p.is_file() for p in paths):
+                  continue
+              sheet = Image.new("RGB", (1280, 430), "#11171c")
+              draw = ImageDraw.Draw(sheet)
+              for i, path in enumerate(paths):
+                  with Image.open(path) as source:
+                      sheet.paste(source.resize((640, 400), Image.Resampling.LANCZOS), (i * 640, 30))
+                  draw.text((i * 640 + 12, 9), "BEFORE" if i == 0 else "AFTER", fill="#f5d8a3")
+              sheet.save(output / (view + "-comparison.png"))
+          for variant in ("before", "after"):
+              for view in ("observatory", "summit"):
+                  paths = [output / variant / (view + "-" + eye + ".png") for eye in ("left", "right")]
+                  if not all(p.is_file() for p in paths):
+                      continue
+                  pair = Image.new("RGB", (1800, 630), "#11171c")
+                  draw = ImageDraw.Draw(pair)
+                  for i, path in enumerate(paths):
+                      with Image.open(path) as source:
+                          pair.paste(source, (i * 900, 30))
+                      draw.text((i * 900 + 12, 9), "LEFT EYE" if i == 0 else "RIGHT EYE", fill="#f5d8a3")
+                  pair.save(output / variant / (view + "-eye-pair.png"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## Hosted visual captures\n\n")
+              summary.write("Unity " + data["unity"] + " rendered " + str(len(data["images"])) + " images using " + data["device"] + ".\n\n")
+              summary.write(data["eyePairMethod"] + "\n\n")
+              summary.write("Download the image artifact for the before/after comparisons, eye pairs and full report.\n\n")
+              for failure in data["failures"]:
+                  summary.write("- " + failure + "\n")
+          PY
+      - name: Upload rendered images and graphics reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liminal-visual-upgrade-${{ github.run_number }}
+          path: |
+            Builds/VisualReview/
+            Builds/review-baseline.txt
+            Builds/review-revision.txt
+          if-no-files-found: error
+          retention-days: 14
