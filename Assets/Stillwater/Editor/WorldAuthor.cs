@@ -203,8 +203,9 @@ public static class WorldAuthor
                 }else if(r.id=="service") Plate(m,n.number,7.2f,2.41f,-.43f,4.5f);
                 else Plate(m,n.number,0,doorH+.72f,-.43f,6);
                 foreach(int j in new[]{-1,1}){
-                    m.Box("metal",j*(gap/2+.11f),doorH/2,0,.22f,doorH,.78f);
-                    m.Box(k%2==0?"amber":"ice",j*(gap/2+.11f),1.95f,-.42f,.085f,2.65f,.07f);
+                    // Project the jamb into the opening so its face clears the wall end caps.
+                    m.Box("metal",j*(gap/2+.06f),doorH/2,0,.22f,doorH,.78f);
+                    m.Box(k%2==0?"amber":"ice",j*(gap/2+.06f),1.95f,-.42f,.085f,2.65f,.07f);
                 }
             }
             if(r.id!="service"){
@@ -302,7 +303,9 @@ public static class WorldAuthor
             }
             m.Box("metal",side*19,2.03f,14,.52f,4.06f,1.2f,true);
         }
-        m.Box("tile",0,4.22f,13,34.2f,.36f,4,true);
+        // Meet the side decks at x = +/-17 without overlapping their top faces.
+        m.Box("tile",0,4.22f,13,34,.36f,4);
+        m.Solid(new Vector3(0,4.22f,13),new Vector3(34.2f,.36f,4),Quaternion.identity,"tile");
         for(int s=-1;s<=1;s+=2){
             m.Box("brass",0,5.37f,13+s*1.9f,34,.13f,.13f);
             for(int j=-16;j<=16;j+=4)m.Box("metal",j,4.92f,13+s*1.9f,.1f,1.04f,.1f);
@@ -344,7 +347,10 @@ public static class WorldAuthor
         path.position=a.Position+f*new Vector3(0,0,da+len/2);path.rotation=f;
         var m=new StationMesh(path,gen+"/Architecture");
         float height=a.id=="service"||b.id=="service"?3.25f:4.45f;
-        m.Box("wet",0,-.19f,0,9.5f,.38f,len+.1f,true);
+        // Room floors extend 0.16 m past each doorway. Render only the space between them.
+        // Keep the collision slabs overlapping to provide continuous walking support.
+        m.Box("wet",0,-.19f,0,9.5f,.38f,len-.32f);
+        m.Solid(new Vector3(0,-.19f,0),new Vector3(9.5f,.38f,len+.1f),Quaternion.identity,"wet");
         m.Box("concrete",0,height+.17f,0,9.7f,.34f,len+.2f,true);
         foreach(int s in new[]{-1,1}){
             m.Box("plaster",s*4.7f,height/2,0,.38f,height,len+.18f,true);

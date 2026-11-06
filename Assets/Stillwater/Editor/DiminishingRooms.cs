@@ -20,7 +20,11 @@ internal static class DiminishingRooms
             bay.localPosition=new Vector3(0,0,start+len/2);
             var m=new StationMesh(bay,folder+"/Architecture");
             float near=-len/2,far=len/2;
-            m.Box(bath?"porcelain":"terrazzo",0,-.14f,0,width+.44f,.28f,len+.015f,true);
+            // The entry meets the main room's 0.16 m floor overhang. Later bays meet edge to edge.
+            float entryTrim=i==0?.16f:0;
+            m.Box(bath?"porcelain":"terrazzo",0,-.14f,entryTrim/2,width+.44f,.28f,len-entryTrim);
+            m.Solid(new Vector3(0,-.14f,0),new Vector3(width+.44f,.28f,len+.015f),
+                Quaternion.identity,bath?"porcelain":"terrazzo");
             m.Box(bath?"limestone":"cedar",0,height+.15f,0,width+.44f,.3f,len+.015f);
             m.Solid(new Vector3(0,height+.15f,0),new Vector3(width+.44f,.3f,len+.015f),Quaternion.identity,"Ceiling clearance");
             foreach(int side in new[]{-1,1}){

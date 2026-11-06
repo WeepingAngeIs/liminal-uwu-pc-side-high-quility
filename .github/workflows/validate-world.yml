@@ -16,6 +16,8 @@ jobs:
           persist-credentials: false
       - name: Verify both scenes, interactions, geometry, materials and sound
         run: python3 Tools/CI/validate_world.py
+      - name: Verify rendered floors and doorway joins
+        run: python3 Tools/CI/validate_surface_joins.py
       - name: Verify boarding stations, door timings and the round trip
         run: python3 Tools/CI/validate_train.py
       - name: Verify release rooms, towers, sound levels, cross-platform IDs and city film
