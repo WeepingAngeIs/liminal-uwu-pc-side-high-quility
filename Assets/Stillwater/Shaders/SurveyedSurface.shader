@@ -12,6 +12,7 @@ Shader "Liminal uwu/Surveyed surface"
         _RoomMax("Room maximum",Vector)=(30,18,30,0)
         _RoomProbe("Room reflection",Cube)="black"{}
         _ProbeOrigin("Capture origin",Vector)=(0,0,0,0)
+        _RailHaze("Rail hall atmosphere",Range(0,2))=1
     }
     SubShader{
         Tags{ "RenderType"="Opaque" }
@@ -26,6 +27,9 @@ Shader "Liminal uwu/Surveyed surface"
             #pragma shader_feature_local _ SURVEY_LITE
             #pragma shader_feature_local _ SW_ROOM_FIELD
             #include "UnityCG.cginc"
+            #ifndef SURVEY_LITE
+                #include "RailAtmosphere.cginc"
+            #endif
             struct vin{float4 pos:POSITION;float3 n:NORMAL;UNITY_VERTEX_INPUT_INSTANCE_ID};
             struct vout{float4 pos:SV_POSITION;float3 p:TEXCOORD0;half3 n:TEXCOORD1;UNITY_FOG_COORDS(2) UNITY_VERTEX_OUTPUT_STEREO};
             sampler2D _MainTex,_Detail;half4 _Tint;float _Metres,_Wet,_Neutral;
@@ -94,6 +98,9 @@ Shader "Liminal uwu/Surveyed surface"
                         half3 reflected=DecodeHDR(probe,unity_SpecCube0_HDR);
                     #endif
                     result+=reflected*_Wet*(.075+.40*f);
+                #endif
+                #ifndef SURVEY_LITE
+                    result=ApplyRailAtmosphere(result,p);
                 #endif
                 UNITY_APPLY_FOG(i.fogCoord,result);return half4(result,1);
             }

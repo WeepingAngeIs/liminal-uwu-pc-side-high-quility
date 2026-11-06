@@ -77,14 +77,17 @@ float3 BlackHolePC(float3 direction,float radius,float2 unit,float azimuth,float
     float lod=clamp(log2(max(1.,fwidth(diskRadius)*48.)),0.,5.);
     float3 light=0;
     float transmission=1.;
-    [unroll] for(int layer=0;layer<4;layer++)
+    if(diskRadius<11.6)
     {
-        float depth=(layer-1.5)*.045*sqrt(max(diskRadius,1.));
-        float r=max(1.6,diskRadius+depth*(.55+.45*unit.y));
-        float4 gas=AccretionGas(r,azimuth+depth*.21,time,layer/3.,lod);
-        float opacity=gas.a*.45;
-        light+=gas.rgb*transmission*.36;
-        transmission*=1.-opacity;
+        [unroll] for(int layer=0;layer<4;layer++)
+        {
+            float depth=(layer-1.5)*.045*sqrt(max(diskRadius,1.));
+            float r=max(1.6,diskRadius+depth*(.55+.45*unit.y));
+            float4 gas=AccretionGas(r,azimuth+depth*.21,time,layer/3.,lod);
+            float opacity=gas.a*.45;
+            light+=gas.rgb*transmission*.36;
+            transmission*=1.-opacity;
+        }
     }
     // The far side of the disk can appear again just outside the critical orbit.
     // Its radius comes from a second crossing of the disk plane by the bent ray.

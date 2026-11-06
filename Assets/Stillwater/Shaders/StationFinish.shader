@@ -16,6 +16,7 @@ Shader "Stillwater/Station finish"
         _RoomMax("Room maximum",Vector)=(30,18,30,0)
         _Emission("Luminance",Range(0,2))=0
         _ReviewTime("Review time (-1 uses world time)",Float)=-1
+        _RailHaze("Rail hall atmosphere",Range(0,2))=1
     }
     SubShader
     {
@@ -38,6 +39,9 @@ Shader "Stillwater/Station finish"
             #pragma multi_compile _ VERTEXLIGHT_ON
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
+            #ifndef SW_MOBILE
+                #include "RailAtmosphere.cginc"
+            #endif
             struct Input { float4 vertex:POSITION; float3 normal:NORMAL; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Output
             {
@@ -168,6 +172,9 @@ Shader "Stillwater/Station finish"
                 #ifdef SW_GLASS
                     {
                         half3 glass=windowColor(p,n,i.uv,v);
+                        #ifndef SW_MOBILE
+                            glass=ApplyRailAtmosphere(glass,p);
+                        #endif
                         UNITY_APPLY_FOG(i.fogCoord,glass);
                         return half4(glass,1);
                     }
@@ -270,6 +277,9 @@ Shader "Stillwater/Station finish"
                     color+=_Sheen*(gloss*.067+fresnel*.025)*float3(.75,.85,.89);
                 #endif
                 color=lerp(color,pigment,saturate(_Emission))+pigment*max(0.,_Emission-1.);
+                #ifndef SW_MOBILE
+                    color=ApplyRailAtmosphere(color,p);
+                #endif
                 UNITY_APPLY_FOG(i.fogCoord,color);
                 return half4(color,1);
             }

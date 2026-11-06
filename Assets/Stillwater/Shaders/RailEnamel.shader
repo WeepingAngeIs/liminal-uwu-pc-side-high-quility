@@ -7,6 +7,7 @@ Shader "Stillwater/Carriage enamel"
         _Finish ("Paint, moquette, rubber, brass", Float) = 0
         _Moquette ("Woven upholstery", 2D) = "white" {}
         _Wear ("Finish grain", 2D) = "gray" {}
+        _RailHaze ("Rail hall atmosphere", Range(0,2)) = 1
     }
     SubShader
     {
@@ -21,6 +22,9 @@ Shader "Stillwater/Carriage enamel"
             #pragma multi_compile_instancing
             #pragma shader_feature_local _ RAIL_MOBILE
             #include "UnityCG.cginc"
+            #ifndef RAIL_MOBILE
+                #include "RailAtmosphere.cginc"
+            #endif
 
             half4 _Color;
             half _Gloss, _Finish;
@@ -118,6 +122,9 @@ Shader "Stillwater/Carriage enamel"
                         half4 probe=UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0,r,lerp(5.1,2.0,rough));
                         col+=DecodeHDR(probe,unity_SpecCube0_HDR)*(.06+.19*fres)*rough*ao;
                     }
+                #endif
+                #ifndef RAIL_MOBILE
+                    col=ApplyRailAtmosphere(col,i.world);
                 #endif
                 UNITY_APPLY_FOG(i.fogCoord,col);
                 return half4(col,1);

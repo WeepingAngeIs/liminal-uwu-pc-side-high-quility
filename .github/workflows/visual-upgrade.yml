@@ -1,5 +1,8 @@
 name: Review PC sky and reflections
 on:
+  push:
+    branches:
+      - pc-visual-upgrade
   workflow_dispatch:
     inputs:
       baseline_ref:
@@ -40,7 +43,7 @@ jobs:
         run: python3 Tools/CI/restore_vpm.py
       - name: Stage the capture and renamed baseline shaders
         env:
-          BASELINE_REF: ${{ inputs.baseline_ref }}
+          BASELINE_REF: ${{ inputs.baseline_ref || 'ad5b5f0b1fd3dae38bae26fcfdd7dc12749d708d' }}
         run: |
           mkdir -p Assets/Editor/ReviewBaselines Builds/VisualReview
           cp Tools/CI/VisualUpgradeReview.cs Assets/Editor/VisualUpgradeReview.cs
@@ -53,19 +56,20 @@ jobs:
           revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
           Path("Builds/review-baseline.txt").write_text(baseline + "\n")
           Path("Builds/review-revision.txt").write_text(revision + "\n")
-          for name in ("Eclipse", "StationFinish"):
+          for name in ("Eclipse", "StationFinish", "SurveyedSurface", "RailEnamel"):
               source = subprocess.check_output(
                   ["git", "show", baseline + ":Assets/Stillwater/Shaders/" + name + ".shader"], text=True)
               source, count = re.subn(r'^Shader\s+"[^"]+"',
                   'Shader "Hidden/Liminal Review/Baseline ' + name + '"', source, count=1)
               if count != 1:
                   raise ValueError("Cannot identify baseline " + name)
-              source, count = re.subn(r"(Properties\s*\{)",
-                  r'\1\n        _ReviewTime ("Frozen review time", Float) = 12.5', source, count=1)
-              if count != 1 or "CGPROGRAM" not in source:
-                  raise ValueError("Cannot stage baseline clock for " + name)
-              source = source.replace("CGPROGRAM", "CGPROGRAM\n            float _ReviewTime;", 1)
-              source = source.replace("_Time.y", "_ReviewTime")
+              if name in ("Eclipse", "StationFinish"):
+                  source, count = re.subn(r"(Properties\s*\{)",
+                      r'\1\n        _ReviewTime ("Frozen review time", Float) = 12.5', source, count=1)
+                  if count != 1 or "CGPROGRAM" not in source:
+                      raise ValueError("Cannot stage baseline clock for " + name)
+                  source = source.replace("CGPROGRAM", "CGPROGRAM\n            float _ReviewTime;", 1)
+                  source = source.replace("_Time.y", "_ReviewTime")
               Path("Assets/Editor/ReviewBaselines", name + ".shader").write_text(source)
           PY
       - name: Make room for the hosted Unity image
@@ -128,7 +132,7 @@ jobs:
                   summary.write("Unity did not reach image capture. Check the graphics preflight and Unity logs.\n")
               raise SystemExit(0)
           data = json.loads(report.read_text())
-          for view in ("observatory", "photon-ring", "summit", "rain-exchange-reflections", "platform-reflections"):
+          for view in ("observatory", "photon-ring", "spiral-line", "summit", "rain-exchange-reflections", "platform-reflections"):
               paths = [output / variant / (view + ".png") for variant in ("before", "after")]
               if not all(p.is_file() for p in paths):
                   continue
@@ -155,6 +159,12 @@ jobs:
               summary.write("## Hosted visual captures\n\n")
               summary.write("Unity " + data["unity"] + " rendered " + str(len(data["images"])) + " images using " + data["device"] + ".\n\n")
               summary.write(data["eyePairMethod"] + "\n\n")
+              summary.write(data["timingMethod"] + "\n\n")
+              summary.write("| Variant | View | Median render and readback, software ms |\n|---|---|---:|\n")
+              for timing in data["timings"]:
+                  summary.write("| " + timing["variant"] + " | " + timing["view"] + " | " +
+                                format(timing["medianRenderAndReadbackMilliseconds"], ".2f") + " |\n")
+              summary.write("\n")
               summary.write("Download the image artifact for the before/after comparisons, eye pairs and full report.\n\n")
               for failure in data["failures"]:
                   summary.write("- " + failure + "\n")
