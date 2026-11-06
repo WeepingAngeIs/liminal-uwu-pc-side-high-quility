@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - pc-visual-upgrade
+    paths:
+      - 'Assets/**/*.shader'
+      - 'Assets/**/*.cginc'
+      - 'Tools/CI/VisualUpgradeReview.cs'
+      - '.github/workflows/visual-upgrade.yml'
   workflow_dispatch:
     inputs:
       baseline_ref:
@@ -143,6 +148,13 @@ jobs:
           customParameters: -force-glcore
           allowDirtyBuild: true
           versioning: None
+      - name: Allow the runner to assemble captured images
+        if: always()
+        run: |
+          review_output="$GITHUB_WORKSPACE/Builds/VisualReview"
+          if [[ -d "$review_output" ]]; then
+            sudo chown -R -- "$(id -u):$(id -g)" "$review_output"
+          fi
       - name: Assemble image comparisons and report
         if: always()
         run: |
