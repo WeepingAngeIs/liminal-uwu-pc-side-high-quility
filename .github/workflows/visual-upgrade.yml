@@ -76,13 +76,18 @@ jobs:
         run: |
           sudo rm -rf -- /usr/local/lib/android/sdk /usr/share/dotnet /usr/local/.ghcup
           df -h /
-      - name: Prepare the Mesa software-rendering editor
+      - name: Pull the Unity editor base image
+        timeout-minutes: 20
+        run: docker pull unityci/editor:ubuntu-2022.3.22f1-windows-mono-3
+      - name: Install Mesa in the Unity editor image
+        timeout-minutes: 8
         run: |
           mkdir -p "$RUNNER_TEMP/liminal-mesa"
           cat > "$RUNNER_TEMP/liminal-mesa/Dockerfile" <<'DOCKER'
           FROM unityci/editor:ubuntu-2022.3.22f1-windows-mono-3
           USER root
-          RUN apt-get update && apt-get install -y --no-install-recommends libgl1-mesa-dri libglx-mesa0 mesa-utils xvfb xauth && rm -rf /var/lib/apt/lists/*
+          ARG DEBIAN_FRONTEND=noninteractive
+          RUN apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends libgl1-mesa-dri libglx-mesa0 mesa-utils xvfb xauth && rm -rf /var/lib/apt/lists/*
           ENV LIBGL_ALWAYS_SOFTWARE=true GALLIUM_DRIVER=llvmpipe
           COPY unity-editor /usr/bin/unity-editor
           RUN chmod 755 /usr/bin/unity-editor
@@ -94,12 +99,33 @@ jobs:
               [[ ! -r "$setup" ]] || source "$setup"
             done
           fi
-          exec xvfb-run -a -s "-screen 0 1280x800x24 +extension GLX +render -noreset" "$UNITY_PATH/Editor/Unity" -batchmode -force-glcore "$@"
+          exec xvfb-run -a -e /dev/stderr -s "-screen 0 1280x800x24 +extension GLX +render -noreset" "$UNITY_PATH/Editor/Unity" -batchmode -force-glcore "$@"
           WRAPPER
-          docker build --tag liminal-unity-mesa:review "$RUNNER_TEMP/liminal-mesa"
-          docker run --rm --entrypoint bash liminal-unity-mesa:review -lc \
-            'xvfb-run -a -s "-screen 0 1280x800x24 +extension GLX +render -noreset" glxinfo -B' \
-            | tee Builds/VisualReview/mesa-device.txt
+          docker build --progress plain --tag liminal-unity-mesa:review "$RUNNER_TEMP/liminal-mesa"
+      - name: Verify the Mesa graphics context
+        timeout-minutes: 2
+        run: |
+          cat > "$RUNNER_TEMP/liminal-mesa/mesa-preflight" <<'PREFLIGHT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          if [[ "${1:-}" == glx ]]; then
+            echo "Xvfb is ready on $DISPLAY; checking the OpenGL renderer."
+            exec timeout --kill-after=5s 30s glxinfo -B
+          fi
+          echo "Graphics container ready: shell PID $$, parent $PPID."
+          # Xvfb does not send its readiness signal to PID 1. Docker --init
+          # keeps xvfb-run below init so its startup wait can finish.
+          timeout --kill-after=5s 60s xvfb-run -a -e /dev/stderr \
+            -s "-screen 0 1280x800x24 +extension GLX +render -noreset" \
+            /bin/bash --noprofile --norc "$0" glx
+          echo "Mesa graphics preflight completed."
+          PREFLIGHT
+          trap 'docker rm -f liminal-mesa-preflight >/dev/null 2>&1 || true' EXIT
+          timeout --kill-after=10s 90s docker run --init --rm --name liminal-mesa-preflight \
+            --entrypoint /bin/bash \
+            --volume "$RUNNER_TEMP/liminal-mesa/mesa-preflight:/mesa-preflight:ro" \
+            liminal-unity-mesa:review --noprofile --norc /mesa-preflight \
+            2>&1 | tee Builds/VisualReview/mesa-device.txt
           grep -qi llvmpipe Builds/VisualReview/mesa-device.txt
       - name: Render both shader versions and eye pairs
         timeout-minutes: 40
