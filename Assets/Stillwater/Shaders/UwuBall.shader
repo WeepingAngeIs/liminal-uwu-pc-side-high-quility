@@ -10,6 +10,7 @@ Shader "Liminal uwu/Soft terminal ball"
     SubShader {
         Tags { "RenderType"="Opaque" "Queue"="Geometry" }
         Pass {
+            Tags { "LightMode"="ForwardBase" }
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
