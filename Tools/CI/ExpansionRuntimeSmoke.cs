@@ -25,7 +25,7 @@ public static class ExpansionRuntimeSmoke
     static int phase;
     static UdonBehaviour audio, visibility, billboard, approach, service, journey;
     static Transform root, hub, returns, passage, billboardRoom, origin, sink, arrival;
-    static AudioSource atmosphere, rain, rumble;
+    static AudioSource atmosphere, rain, rumble, carriageAmbience;
     static Material sky;
     static GameObject menu;
     static Slider rainSlider, atmosphereSlider, videoSlider;
@@ -39,6 +39,7 @@ public static class ExpansionRuntimeSmoke
     static Vector3[] parkedPositions;
     static Animator trainAnimator;
     static double startedAt;
+    static Transform rideProbeCoach;
 
     struct Movement
     {
@@ -201,6 +202,9 @@ public static class ExpansionRuntimeSmoke
         coaches = Value<Transform[]>(service, "coaches"); trainAnimator = Value<Animator>(service, "service");
         parkedPositions = coaches.Select(c => c.position).ToArray();
         Check(!Value<bool>(service, "hasStarted") && Close(trainAnimator.speed, 0), "Train must start parked until the shared button is pressed");
+        carriageAmbience = Value<AudioSource>(service, "carriageAmbience");
+        Check(carriageAmbience.clip && carriageAmbience.loop && Close(carriageAmbience.spatialBlend, 0)
+            && Value<UdonBehaviour>(service, "audioDirector") == audio, "Private carriage ambience is missing or not bound to the local atmosphere bus");
         Check(Value<UdonBehaviour>(billboard, "worldAudio") == audio && Value<UdonBehaviour>(approach, "audioDirector") == audio,
             "Portable controls/aperture do not share the live audio director");
         atmosphere = Value<AudioSource>(audio, "atmosphere"); rain = Value<AudioSource>(audio, "rain");
@@ -253,6 +257,13 @@ public static class ExpansionRuntimeSmoke
         Check(Value<bool>(service, "hasStarted") && Close(trainAnimator.speed, 1), "Started train stopped instead of continuing to loop");
     }
 
+    static void CheckCarriageAudio(bool audible)
+    {
+        float gain = audible ? Value<float>(audio, "atmosphereVolume") * .16f : 0;
+        Check(Close(carriageAmbience.volume, gain) && carriageAmbience.isPlaying == audible,
+            "Carriage ambience has the wrong local eligibility, gain or playback state");
+    }
+
     static void Tick()
     {
         if (!SessionState.GetBool(Active, false)) return;
@@ -264,6 +275,7 @@ public static class ExpansionRuntimeSmoke
             if (phaseStart == 0) { phaseStart = now; phaseSimulationStart = Time.time; phaseFrame = Time.frameCount; }
             var player = Networking.LocalPlayer;
             if (hold) Teleport(player, heldPoint, Quaternion.identity);
+            if (rideProbeCoach) Teleport(player, rideProbeCoach.TransformPoint(new Vector3(0, .42f, 0)), rideProbeCoach.rotation);
             switch (phase) {
                 case 0:
                     if (!Ready(now, 3)) return;
@@ -419,7 +431,37 @@ public static class ExpansionRuntimeSmoke
                 case 25:
                     if (!Ready(now, .4)) return;
                     CheckTrainPhase(10);
-                    Finish(true, "Compiled Udon/ClientSim verified room audio, independent sliders, portable menu, isolated districts with persistent colliders, six seats, aperture growth/pull/immunity/return, two walk-through routes and cooldown, initial parked train, one-time start, boarding dwell and repeating epoch after multiple round trips. No external video URL or multi-client session was exercised."); break;
+                    CheckCarriageAudio(false);
+                    service.SetProgramVariable("startedAt", Networking.GetServerTimeInSeconds() - 80);
+                    service.SetProgramVariable("localSeated", true);
+                    service.SendCustomEvent("RunClock");
+                    Next(now, "repeating train returns to boarding and keeps carriage ambience silent during dwell"); break;
+                case 26:
+                    if (!Ready(now, .4)) return;
+                    CheckCarriageAudio(true);
+                    atmosphereSlider.value = 0;
+                    Next(now, "moving train gives seated rider quiet local ambience through atmosphere volume"); break;
+                case 27:
+                    if (!Ready(now, .4)) return;
+                    CheckCarriageAudio(false);
+                    atmosphereSlider.value = .61f;
+                    Next(now, "atmosphere slider fully mutes carriage ambience"); break;
+                case 28:
+                    if (!Ready(now, .4)) return;
+                    CheckCarriageAudio(true);
+                    service.SetProgramVariable("localSeated", false);
+                    rideProbeCoach = coaches[1];
+                    Next(now, "atmosphere slider restores carriage ambience; moving into coach aisle"); break;
+                case 29:
+                    if (!Ready(now, .4)) return;
+                    CheckCarriageAudio(true);
+                    rideProbeCoach = null;
+                    Teleport(player, arrival.position, arrival.rotation);
+                    Next(now, "unseated player inside the moving coach hears carriage ambience"); break;
+                case 30:
+                    if (!Ready(now, .4)) return;
+                    CheckCarriageAudio(false);
+                    Finish(true, "Compiled Udon/ClientSim verified room audio, independent sliders, portable menu, isolated districts with persistent colliders, six seats, aperture growth/pull/immunity/return, two walk-through routes and cooldown, initial parked train, one-time start, boarding dwell, repeating epoch and private carriage audio eligibility/gain/mute through the atmosphere slider. No external video URL or multi-client session was exercised."); break;
             }
         }
         catch (Exception e) { Finish(false, e.ToString()); }

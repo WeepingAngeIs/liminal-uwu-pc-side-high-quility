@@ -129,6 +129,7 @@ public static class WorldAuthor
         var spawn=Child(focus,"Arrival");spawn.position=new Vector3(0,.12f,-15);
         desc.spawns=new[]{spawn};desc.spawnRadius=1f;desc.RespawnHeightY=-35;
         ApertureApproachBuilder.Install(root,gen,quest,audio,spawn);
+        PersonalPlatformAssets.Install(root,gen,quest,audio);
         DistrictSystems.InstallVisibility(root);
         // An edit-time lens is tagged EditorOnly and will be stripped from uploads.
         var lens=Child(root,"Editor arrival view");lens.gameObject.tag="EditorOnly";

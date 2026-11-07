@@ -41,6 +41,12 @@ jobs:
             echo "::error::Set UNITY_EMAIL, UNITY_PASSWORD, and UNITY_LICENSE (Personal) or UNITY_SERIAL (Pro) in this repository's Actions secrets."
             exit 1
           fi
+      - name: Restore owner-licensed platform lights and train ambience
+        env:
+          LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
+        run: |
+          python3 -m pip install PyNaCl==1.5.0
+          python3 Tools/CI/restore_personal_assets.py
       - name: Restore official checksummed VRChat packages
         run: python3 Tools/CI/restore_vpm.py
       - name: Make room for the Unity editor on the hosted runner

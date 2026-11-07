@@ -41,6 +41,12 @@ jobs:
             echo "::error::The hosted author needs the same Unity activation secrets as the world export workflow."
             exit 1
           fi
+      - name: Restore owner-licensed platform lights and train ambience
+        env:
+          LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
+        run: |
+          python3 -m pip install PyNaCl==1.5.0
+          python3 Tools/CI/restore_personal_assets.py
       - name: Restore official checksummed VRChat packages
         run: python3 Tools/CI/restore_vpm.py
       - name: Stage the authoring review
@@ -176,7 +182,7 @@ jobs:
               paths = []
               # Scene Udon references also require the serialized bytecode outside Stillwater.
               for root in ('Assets/Stillwater', 'Assets/SerializedUdonPrograms'):
-                  paths += sorted(p for p in Path(root).rglob('*') if p.is_file())
+                  paths += sorted(p for p in Path(root).rglob('*') if p.is_file() and 'Personal' not in p.parts)
                   meta = Path(root + '.meta')
                   if meta.is_file(): paths.append(meta)
               manifest = dict(status, formatVersion=1, files=[])

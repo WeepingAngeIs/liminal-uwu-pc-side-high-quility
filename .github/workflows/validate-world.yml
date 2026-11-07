@@ -14,6 +14,12 @@ jobs:
         with:
           lfs: true
           persist-credentials: false
+      - name: Restore owner-licensed platform lights and train ambience
+        env:
+          LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
+        run: |
+          python3 -m pip install PyNaCl==1.5.0
+          python3 Tools/CI/restore_personal_assets.py
       - name: Verify both scenes, interactions, geometry, materials and sound
         run: python3 Tools/CI/validate_world.py
       - name: Verify rendered floors and doorway joins

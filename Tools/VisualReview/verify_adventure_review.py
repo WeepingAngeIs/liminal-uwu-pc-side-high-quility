@@ -44,8 +44,10 @@ def main():
                 "Reviewed scene lacks the required adventure doors or train seats")
         require(record.get("audioZones") == 38 and record.get("visibilityPortals") == 2,
                 "Reviewed scene uses stale district isolation")
+        require(record.get("personalPlatformLights") == 2 and record.get("carriageAudioBound") is True,
+                "Review lacks the two personal platform lights or private carriage sound")
         measurements.append({k: record[k] for k in ("edition", "sha256", "adventureDoors", "colliderCount",
-                                                    "trainSeats", "trianglesAllLods", "reflectionCount")})
+                                                    "trainSeats", "trianglesAllLods", "reflectionCount", "personalPlatformLights", "carriageAudioBound")})
     # Scene hashes alone cannot catch a changed runtime source which has not yet
     # been re-authored. The evidence revision remains an ancestor of this release.
     revision = report["revision"]
@@ -58,7 +60,7 @@ def main():
     runtime = (evidence / "Adventure-runtime.txt").read_text(encoding="utf-8-sig")
     checks = [line for line in runtime.splitlines() if "EXPANSION_CLIENTSIM_CHECK " in line]
     passes = [line for line in runtime.splitlines() if "EXPANSION_CLIENTSIM_PASS " in line]
-    require(len(checks) >= 25 and len(passes) == 1 and "EXPANSION_CLIENTSIM_FAIL" not in runtime,
+    require(len(checks) >= 30 and len(passes) == 1 and "EXPANSION_CLIENTSIM_FAIL" not in runtime,
             "Hosted ClientSim adventure evidence is incomplete or failed")
     args.output.mkdir(parents=True, exist_ok=True)
     result = {"author_revision": revision, "method": "Serialized graph and scene hashes bound to the hosted Unity physics, image and compiled-Udon review.",

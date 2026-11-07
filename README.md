@@ -84,3 +84,7 @@ For future art passes, search suitable free asset libraries and open repositorie
 
 
 The waterfall uses Cass Bunting's [MIT-0 water palette](https://github.com/cbunt/unity-voronoi-water), with the original notice retained in `Assets/Stillwater/Media/Water`. Its flowing curtain shader is authored for this Built-in world; the source repository's Shader Graph is not imported.
+
+## Owner-licensed additions
+
+The platform uses Peach_Boba's Hello Kitty LEDs under the Personal license, and the carriages use a quiet Drop Sohila train-interior loop controlled by the Atmosphere slider. Raw models, textures and audio stay outside public source: GitHub builds restore an authenticated encrypted asset pack using the owner's repository secret. The original packages and license notices are retained privately.

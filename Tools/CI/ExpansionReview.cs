@@ -41,7 +41,9 @@ public static class ExpansionReview
         public string edition, scene, sha256;
         public int rendererCount, enabledRendererCount, colliderCount, reflectionCount, trainSeats, nativeVideoPlayers;
         public long trianglesAllLods;
-        public int audioZones, visibilityZones, visibilityRenderers, visibilityPortals, adventureDoors;
+        public int audioZones, visibilityZones, visibilityRenderers, visibilityPortals, adventureDoors, personalPlatformLights;
+        public bool carriageAudioBound;
+        public float carriageAudioSeconds, carriageAudioSpatialBlend;
         public float atmosphereSpatialBlend, rainSpatialBlend, rainVolume, atmosphereVolume;
         public float authoredRainSourceVolume, authoredAtmosphereSourceVolume;
         public bool hasVideoUrlInput, hasLocalMenu, hasSeparateVolumeControls, hasTrain, hasApertureApproach;
@@ -183,6 +185,7 @@ public static class ExpansionReview
             View(camera, edition, "service-returns", new Vector3(226, 1.75f, 80), new Vector3(249, 5, 122));
             View(camera, edition, "waterfall-chasm", new Vector3(640, 2, 155), new Vector3(640, 55, 230), 88);
             View(camera, edition, "uwu-adventure-doors", new Vector3(0, 1.75f, 15), new Vector3(0, 3, 27), 82);
+            View(camera, edition, "personal-platform-lights", new Vector3(14, 2.1f, 51), new Vector3(8.6f, 3.5f, 66), 80);
             Sky(camera, edition, "sky-far", 1, 77);
             camera.fieldOfView = 110;
             camera.transform.rotation = Quaternion.LookRotation(-Pole);
@@ -272,6 +275,27 @@ public static class ExpansionReview
         result.hasSeparateVolumeControls = player.videoVolume && player.rainVolume && player.atmosphereVolume && player.worldAudio == audio;
         Require(result.hasVideoUrlInput && result.hasLocalMenu && result.hasSeparateVolumeControls && result.nativeVideoPlayers == 1, edition + " video controls are incomplete.");
         Require(result.trainSeats == 6 && result.hasTrain && result.hasApertureApproach, edition + " requires six train seats and the approach controller.");
+        var express = root.GetComponentInChildren<ApertureExpress>(true);
+        var lighting = root.transform.Find("rail/Platform personal lighting");
+        Require(lighting, edition + " personal platform lighting is missing.");
+        for (int i = 1; i <= 2; i++) {
+            var unit = lighting.Find("Kitty platform light " + i);
+            Require(unit, edition + " missing personal platform light " + i);
+            var parts = unit.GetComponentsInChildren<MeshRenderer>(true);
+            Require(parts.Length > 0 && parts.All(r => r.sharedMaterials.Length > 0 && r.sharedMaterials.All(m => m && m.shader)),
+                edition + " personal light has missing geometry or materials.");
+            Require(unit.GetComponentsInChildren<Collider>(true).Length == 0, edition + " decorative LED must not obstruct the boarding platform.");
+            result.personalPlatformLights++;
+        }
+        var rail = root.transform.Find("rail");
+        foreach (Vector3 point in new[] { new Vector3(13, .54f, -24), new Vector3(13, .54f, -6), new Vector3(8.6f, .25f, -15) })
+            CheckStandingSpace(rail.TransformPoint(point), edition + " personal platform clearance " + point);
+        result.carriageAudioBound = express.carriageAmbience && express.carriageAmbience.clip && express.audioDirector == audio;
+        Require(result.carriageAudioBound, edition + " private carriage sound is not bound to the train and atmosphere director.");
+        var carriage = express.carriageAmbience;
+        result.carriageAudioSeconds = carriage.clip.length; result.carriageAudioSpatialBlend = carriage.spatialBlend;
+        Require(carriage.loop && !carriage.playOnAwake && Mathf.Approximately(carriage.volume, 0) && Mathf.Approximately(carriage.spatialBlend, 0),
+            edition + " carriage ambience must start silent and remain local/room-wide.");
         foreach (var probe in root.GetComponentsInChildren<ReflectionProbe>(true)) {
             if (!probe.customBakedTexture) continue;
             string asset = AssetDatabase.GetAssetPath(probe.customBakedTexture);

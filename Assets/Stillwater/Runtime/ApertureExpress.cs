@@ -15,6 +15,8 @@ public class ApertureExpress : UdonSharpBehaviour
     public Transform[] coaches;
     public Transform platformExit;
     public GameObject[] displayPanels;
+    public AudioSource carriageAmbience;
+    public WorldAudioDirector audioDirector;
     private int displayed = -1;
 
     // The owner records one shared epoch. Joining, ownership transfer and pressing
@@ -25,6 +27,49 @@ public class ApertureExpress : UdonSharpBehaviour
     private const string State = "Base Layer.Aperture round trip";
 
     private void Start() { RunClock(); }
+
+    private void Update()
+    {
+        if (!Utilities.IsValid(carriageAmbience)) return;
+        var player=Networking.LocalPlayer;
+        if (!Utilities.IsValid(player) || !Utilities.IsValid(audioDirector) || !hasStarted) {
+            SilenceCarriage(); return;
+        }
+        float phase=Phase(Networking.GetServerTimeInSeconds());
+        float distanceToStop=0;
+        if (phase>=Depart && phase<Summit)
+            distanceToStop=Mathf.Min(phase-Depart, Summit-phase);
+        else if (phase>=LeaveSummit && phase<Dock)
+            distanceToStop=Mathf.Min(phase-LeaveSummit, Dock-phase);
+        // Rail noise eases in/out over two seconds at each departure/arrival.
+        // Its location is local and head-relative, so it fills the cabin evenly.
+        float gain=Mathf.Clamp01(audioDirector.atmosphereVolume)*.16f*Mathf.SmoothStep(0,1,distanceToStop*.5f);
+        if (gain<=.0001f || !Utilities.IsValid(carriageAmbience.clip)) { SilenceCarriage(); return; }
+        bool aboard=localSeated;
+        if (!aboard && coaches!=null) {
+            Vector3 position=player.GetPosition();
+            for(int i=0;i<coaches.Length;i++) {
+                if (!Utilities.IsValid(coaches[i])) continue;
+                Vector3 p=coaches[i].InverseTransformPoint(position);
+                if (Mathf.Abs(p.x)<=1.55f && Mathf.Abs(p.z)<=3.65f && p.y>=-.18f && p.y<=3.05f) {
+                    aboard=true; break;
+                }
+            }
+        }
+        // Exiting the coach or muting Atmosphere must never leave a 2D loop
+        // audible elsewhere. The ordinary room/rain sources remain untouched.
+        if (!aboard) { SilenceCarriage(); return; }
+        carriageAmbience.volume=gain;
+        if (!carriageAmbience.isPlaying) carriageAmbience.Play();
+    }
+
+    private void SilenceCarriage()
+    {
+        if (!Utilities.IsValid(carriageAmbience)) return;
+        carriageAmbience.volume=0;
+        if (carriageAmbience.isPlaying) carriageAmbience.Stop();
+    }
+    private void OnDisable() { SilenceCarriage(); }
 
     // Tick native animation from the instance clock. Only correct a clock error, so the
     // vehicle moves continuously between samples, including while its rider looks away.
@@ -78,7 +123,7 @@ public class ApertureExpress : UdonSharpBehaviour
 
     public override void OnPlayerRespawn(VRCPlayerApi player)
     {
-        if (Utilities.IsValid(player) && player.isLocal) localSeated = false;
+        if (Utilities.IsValid(player) && player.isLocal) { localSeated = false; SilenceCarriage(); }
     }
 
     private void SampleClock()
