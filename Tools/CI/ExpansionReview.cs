@@ -42,6 +42,11 @@ public static class ExpansionReview
         public int rendererCount, enabledRendererCount, colliderCount, reflectionCount, trainSeats, nativeVideoPlayers;
         public long trianglesAllLods;
         public int audioZones, visibilityZones, visibilityRenderers, visibilityPortals, adventureDoors, personalPlatformLights;
+        public int loungeSeats, uwuBalls, formationPieces, floatingStreetObjects, authoredEnabledLights, practicalLights;
+        public int fixtureVolumes;
+        public int nativeStations;
+        public bool wallGravityReady;
+        public List<FixtureRecord> fixtures = new List<FixtureRecord>();
         public bool carriageAudioBound;
         public float carriageAudioSeconds, carriageAudioSpatialBlend;
         public float atmosphereSpatialBlend, rainSpatialBlend, rainVolume, atmosphereVolume;
@@ -68,7 +73,14 @@ public static class ExpansionReview
         public string file, sha256;
         public int width, height, magentaPixels;
         public float meanBrightness, fieldOfView, approachScale, filmSecond = -1;
+        public float darkFraction, litFraction, coloredLitFraction, lowerFrameBrightness, lowerFrameLitFraction;
         public Vector3 position, forward;
+    }
+    [Serializable] sealed class FixtureRecord
+    {
+        public string room, colorAsset, directionAsset;
+        public int litMaterials, width, height, depth;
+        public float maximumChannel, meanChannel;
     }
     [Serializable] sealed class SkyRecord
     {
@@ -96,7 +108,7 @@ public static class ExpansionReview
             Require(Application.isBatchMode, "Run the authoring review on the hosted batch runner.");
             Require(SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore, "Authoring requires the hosted Mesa OpenGL graphics context.");
             Require(report.revision != "unspecified", "The workflow did not record its checked-out revision.");
-            WorldAuthor.Author(); // Includes all 17 PC custom reflection cubemap captures.
+            WorldAuthor.Author(); // Includes all 21 PC custom reflection cubemap captures.
             CheckPrograms();
             AssetDatabase.SaveAssets();
             report.authoringSucceeded = report.failures.Count == 0 && report.errors.Count == 0;
@@ -133,7 +145,7 @@ public static class ExpansionReview
     static void CheckPrograms()
     {
         UdonSharp.Compiler.UdonSharpCompilerV1.CompileSync(new UdonSharp.Compiler.UdonSharpCompileOptions());
-        foreach (string guid in AssetDatabase.FindAssets("t:UdonSharpProgramAsset", new[] { Root + "/Runtime" })) {
+        foreach (string guid in AssetDatabase.FindAssets("t:UdonSharpProgramAsset", new[] { Root + "/Runtime", Root + "/Personal/PlanetMovement" })) {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var program = AssetDatabase.LoadAssetAtPath<UdonSharp.UdonSharpProgramAsset>(path);
             var serialized = new SerializedObject(program);
@@ -148,8 +160,14 @@ public static class ExpansionReview
             report.programs.Add(record);
             Require(program.CompiledVersion == UdonSharp.UdonSharpProgramVersion.CurrentVersion && !record.assemblyError && record.bytecodeAvailable,
                 "Missing or failed compiled Udon program: " + path);
+            if (path.StartsWith(Root + "/Personal/PlanetMovement/", StringComparison.Ordinal))
+                Require(record.compiledAsset.StartsWith(Root + "/Personal/PlanetMovement/Compiled/", StringComparison.Ordinal),
+                    "Owner-licensed gravity bytecode must remain in the private asset directory: " + path);
         }
         Require(report.programs.Count >= 8, "Expected all world runtime programs to have compiled assets.");
+        foreach (string name in new[] { "BobysPlanetMovement", "PlanetMove_GravityField", "PlanetMove_GravityFieldGroup", "PlanetMove_StationListener", "PlanetMove_AutoExitManager" })
+            Require(report.programs.Any(p => p.asset == Root + "/Personal/PlanetMovement/" + name + ".asset" && p.bytecodeAvailable),
+                "Missing original gravity program: " + name);
     }
 
     static void ReviewScene(bool quest)
@@ -186,6 +204,18 @@ public static class ExpansionReview
             View(camera, edition, "waterfall-chasm", new Vector3(640, 2, 155), new Vector3(640, 55, 230), 88);
             View(camera, edition, "uwu-adventure-doors", new Vector3(0, 1.75f, 15), new Vector3(0, 3, 27), 82);
             View(camera, edition, "personal-platform-lights", new Vector3(14, 2.1f, 51), new Vector3(8.6f, 3.5f, 66), 80);
+            View(camera, edition, "suspended-street-life", new Vector3(-9, 1.75f, -20), new Vector3(10, 19, 10), 82);
+            View(camera, edition, "uwu-ballroom", new Vector3(640, 1.9f, 376), new Vector3(640, 5.3f, 410), 82);
+            View(camera, edition, "quiet-lounge", new Vector3(800, 1.9f, 377), new Vector3(800, 10, 413), 82);
+            View(camera, edition, "lounge-light-pools", new Vector3(800, 2.6f, 386), new Vector3(818, 1.1f, 408), 76);
+            var loungeImage = report.images.Last();
+            Require(loungeImage.lowerFrameBrightness > .004f && loungeImage.lowerFrameLitFraction > .01f,
+                edition + " lounge floor is unreadable in the practical-light review.");
+            FormationViews(camera, edition);
+            var gravityRoom = GameObject.Find("liminal uwu").transform.Find("planet");
+            Require(gravityRoom, edition + " missing the new gravity district.");
+            View(camera, edition, "gravity-orbit-room", gravityRoom.position + new Vector3(0, 5, -32),
+                gravityRoom.position + new Vector3(0, 25, 0), 88);
             Sky(camera, edition, "sky-far", 1, 77);
             camera.fieldOfView = 110;
             camera.transform.rotation = Quaternion.LookRotation(-Pole);
@@ -221,11 +251,11 @@ public static class ExpansionReview
             hasApertureApproach = root.GetComponentInChildren<ApertureApproach>(true) };
         foreach (var mesh in root.GetComponentsInChildren<MeshFilter>(true).Select(f => f.sharedMesh).Concat(root.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(r => r.sharedMesh)))
             if (mesh) for (int i = 0; i < mesh.subMeshCount; i++) if (mesh.GetTopology(i) == MeshTopology.Triangles) result.trianglesAllLods += mesh.GetIndexCount(i) / 3;
-        foreach (string area in new[] { "billboard", "concourse", "causeway", "stacks", "returns", "waterfall" })
+        foreach (string area in new[] { "billboard", "concourse", "causeway", "stacks", "returns", "waterfall", "ballroom", "lounge", "formation", "planet" })
             Require(root.transform.Find(area), edition + " missing new district " + area);
         var journey = root.GetComponentInChildren<AdventureJourney>(true);
-        Require(journey && journey.entrances.Length == 15 && journey.destinations.Length == 15 && journey.halfExtents.Length == 15,
-            edition + " requires all fifteen walk-through adventure doors.");
+        Require(journey && journey.entrances.Length == 19 && journey.destinations.Length == 19 && journey.halfExtents.Length == 19,
+            edition + " requires all nineteen walk-through adventure doors.");
         Require(journey.entrances.All(t => t) && journey.destinations.All(t => t), edition + " has an unbound adventure door.");
         result.adventureDoors = journey.entrances.Length;
         Physics.SyncTransforms();
@@ -302,8 +332,128 @@ public static class ExpansionReview
             result.reflections.Add(new ReflectionRecord { asset = asset, resolution = probe.customBakedTexture.width, sha256 = File.Exists(asset) ? Digest(File.ReadAllBytes(asset)) : "missing" });
         }
         result.reflectionCount = result.reflections.Count;
-        if (edition == "PC") Require(result.reflectionCount == 17 && result.reflections.All(p => p.sha256 != "missing"), "Expected 17 authored PC reflection cubemaps.");
+        if (edition == "PC") Require(result.reflectionCount == 21 && result.reflections.All(p => p.sha256 != "missing"), "Expected 21 authored PC reflection cubemaps.");
+        else Require(result.reflectionCount == 0, "Quest must not retain PC room reflection cubemaps.");
+        InspectNewRooms(root.transform, result);
         return result;
+    }
+
+    static void InspectNewRooms(Transform root, SceneRecord result)
+    {
+        string edition = result.edition; bool quest = edition == "Quest";
+        Require(result.audioZones == 42 && result.visibilityZones == 42, edition + " requires all 42 sound and visibility zones.");
+        var seats = root.Find("lounge").GetComponentsInChildren<LoungeSeat>(true);
+        result.loungeSeats = seats.Length;
+        Require(seats.Length == 4, edition + " lounge requires four functional seats.");
+        foreach (var seat in seats) {
+            Require(seat.seat && seat.seat.gameObject == seat.gameObject && seat.seat.stationEnterPlayerLocation && seat.seat.stationExitPlayerLocation,
+                edition + " unbound lounge seat: " + seat.name);
+            Require(seat.seat.seated && !seat.seat.disableStationExit && seat.GetComponent<Collider>(), edition + " invalid lounge station settings.");
+            Require(!seat.GetComponent<ExpressSeat>(), edition + " lounge chair must not change train seating state.");
+            CheckStandingSpace(seat.seat.stationExitPlayerLocation.position, edition + " lounge seat exit " + seat.name);
+        }
+        var balls = root.GetComponentInChildren<UwuBallPit>(true);
+        Require(balls && balls.room == root.Find("ballroom") && balls.balls != null && balls.radii != null && balls.starts != null,
+            edition + " ball room is not bound to its local simulation.");
+        result.uwuBalls = balls.balls.Length;
+        Require(result.uwuBalls == 24 && balls.radii.Length == 24 && balls.starts.Length == 24 && balls.balls.All(t => t), edition + " requires 24 bounded uwu balls.");
+        foreach (var ball in balls.balls) {
+            Require(ball.GetComponentsInChildren<Component>(true).All(c => c && c.GetType().Name != "VRCPickup" && c.GetType().Name != "VRC_Pickup"),
+                edition + " balls must not be grabbable.");
+            Require(ball.GetComponentsInChildren<Collider>(true).Length == 0 && ball.GetComponentsInChildren<Rigidbody>(true).Length == 0,
+                edition + " balls must use the bounded analytic player-contact simulation.");
+        }
+        var formation = root.GetComponentInChildren<RoomFormation>(true);
+        Require(formation && formation.space && formation.space.IsChildOf(root.Find("formation")), edition + " room reconstruction bindings missing.");
+        result.formationPieces = formation.pieces.Length;
+        int expected = quest ? 16 : 32;
+        Require(result.formationPieces == expected && formation.assembledPositions.Length == expected && formation.scatteredPositions.Length == expected &&
+            formation.assembledRotations.Length == expected && formation.scatteredRotations.Length == expected && formation.influencePoints.Length == expected,
+            edition + " room reconstruction arrays differ.");
+        Require(formation.nearDistance < formation.farDistance && formation.assembleSeconds >= 4 && formation.scatterSeconds >= 4,
+            edition + " reconstruction needs hysteresis and slow movement.");
+        for (int i = 0; i < expected; i++) {
+            var piece = formation.pieces[i];
+            Require(piece && piece.IsChildOf(formation.space) && piece.GetComponentsInChildren<Collider>(true).Length == 0,
+                edition + " moving architecture must not collide with visitors.");
+            Require((formation.assembledPositions[i] - formation.scatteredPositions[i]).sqrMagnitude > 1,
+                edition + " formation piece has no meaningful scattered pose.");
+            foreach (var renderer in piece.GetComponentsInChildren<MeshRenderer>(true))
+                Require((GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.OccluderStatic) == 0,
+                    edition + " animated architecture was marked as a baked occluder.");
+        }
+        CheckStandingSpace(root.Find("formation").TransformPoint(new Vector3(0, .2f, 0)), edition + " permanent formation foundation");
+        var floating = root.GetComponentInChildren<FloatingStreetObjects>(true);
+        Require(floating && floating.objects != null && floating.surfaces != null && floating.restPositions != null && floating.restRotations != null,
+            edition + " floating street objects are not wired.");
+        result.floatingStreetObjects = floating.objects.Length;
+        Require(result.floatingStreetObjects == (quest ? 28 : 44) && floating.surfaces.Length == result.floatingStreetObjects &&
+            floating.restPositions.Length == result.floatingStreetObjects && floating.restRotations.Length == result.floatingStreetObjects,
+            edition + " floating street-object arrays differ.");
+        Require(floating.objects.All(t => t && t.GetComponentsInChildren<Collider>(true).Length == 0) && floating.surfaces.All(r => r),
+            edition + " decorative floating props must not obstruct routes.");
+        var gravity = root.Find("planet").GetComponentInChildren<PlanetGalleryControl>(true);
+        Require(gravity && gravity.controller && gravity.gravityField && gravity.room == root.Find("planet") && gravity.southReturn && gravity.northReturn,
+            edition + " wall-gravity boundary is not fully wired.");
+        var controller = gravity.controller; var field = gravity.gravityField;
+        result.wallGravityReady = controller.isReady && controller.station && controller.rb && field.autoEnterController == controller;
+        Require(result.wallGravityReady && !controller.station.seated && field.onlyInTrig && field.autoEnter &&
+            field.fieldType == BobyStar.PlanetMovement.GravityFieldType.Axis && field.strength < 0 && (field.axisGravity - Vector3.forward).sqrMagnitude < .0001f,
+            edition + " original radial wall-walking mechanic is not ready.");
+        Require(field.GetComponent<BoxCollider>() && field.GetComponent<BoxCollider>().isTrigger, edition + " wall gravity needs its boundary trigger.");
+        CheckStandingSpace(gravity.southReturn.position, edition + " wall-gravity south return");
+        CheckStandingSpace(gravity.northReturn.position, edition + " wall-gravity north return");
+        result.nativeStations = root.GetComponentsInChildren<VRC.SDK3.Components.VRCStation>(true).Length;
+        Require(result.nativeStations == 11, edition + " requires six train seats, four lounge seats and one local gravity station.");
+        var practical = root.GetComponentInChildren<LocalPracticalLights>(true);
+        Require(practical && practical.lamps != null, edition + " practical-light selector is missing.");
+        result.practicalLights = practical.lamps.Length;
+        result.authoredEnabledLights = root.GetComponentsInChildren<Light>(true).Count(l => l.enabled && l.gameObject.activeInHierarchy);
+        Require(result.authoredEnabledLights == 0 && practical.lamps.All(l => l && !l.enabled && l.shadows == LightShadows.None),
+            edition + " realtime fixture lights must start disabled and have no shadow maps.");
+        Require(quest ? result.practicalLights == 0 : result.practicalLights > 0, edition + " practical-light count does not match the platform.");
+        foreach (string name in new[] { "hub", "ballroom", "lounge", "formation" }) {
+            var materials = root.Find(name).GetComponentsInChildren<MeshRenderer>(true).SelectMany(r => r.sharedMaterials).Where(m => m && m.IsKeywordEnabled("SW_FIXTURE_VOLUME")).Distinct().ToArray();
+            Require(materials.Length > 0, edition + " missing colored fixture-light bindings in " + name);
+            var color = materials[0].GetTexture("_FixtureColor") as Texture3D;
+            var direction = materials[0].GetTexture("_FixtureDirection") as Texture3D;
+            Require(color && direction && color.width == direction.width && color.height == direction.height && color.depth == direction.depth,
+                edition + " mismatched fixture volumes in " + name);
+            Require(materials.All(m => m.GetTexture("_FixtureColor") == color && m.GetTexture("_FixtureDirection") == direction),
+                edition + " room materials reference inconsistent fixture lighting in " + name);
+            var pixels = color.GetPixels();
+            float maximum = pixels.Max(c => Mathf.Max(c.r, Mathf.Max(c.g, c.b)));
+            float mean = pixels.Average(c => (c.r + c.g + c.b) / 3f);
+            Require(maximum > .02f && mean > .00001f, edition + " fixture volume is empty in " + name);
+            result.fixtures.Add(new FixtureRecord { room = name, colorAsset = AssetDatabase.GetAssetPath(color), directionAsset = AssetDatabase.GetAssetPath(direction),
+                litMaterials = materials.Length, width = color.width, height = color.height, depth = color.depth, maximumChannel = maximum, meanChannel = mean });
+        }
+        result.fixtureVolumes = result.fixtures.Count;
+    }
+
+    static void FormationViews(Camera camera, string edition)
+    {
+        var formation = UnityEngine.Object.FindObjectOfType<RoomFormation>();
+        Vector3 position = formation.space.position + new Vector3(-4, 2, -27);
+        Vector3 target = formation.space.position + new Vector3(8, 12, 5);
+        var positions = formation.pieces.Select(t => t.localPosition).ToArray();
+        var rotations = formation.pieces.Select(t => t.localRotation).ToArray();
+        try {
+            View(camera, edition, "remembering-hall-assembled", position, target, 85);
+            for (int i = 0; i < formation.pieces.Length; i++) {
+                formation.pieces[i].localPosition = formation.scatteredPositions[i];
+                formation.pieces[i].localRotation = formation.scatteredRotations[i];
+            }
+            Physics.SyncTransforms();
+            CheckStandingSpace(formation.space.TransformPoint(new Vector3(0, .2f, 0)), edition + " dispersed-room foundation");
+            View(camera, edition, "remembering-hall-scattered", position, target, 85);
+        } finally {
+            for (int i = 0; i < formation.pieces.Length; i++) {
+                formation.pieces[i].localPosition = positions[i];
+                formation.pieces[i].localRotation = rotations[i];
+            }
+            Physics.SyncTransforms();
+        }
     }
 
     static void CheckStandingSpace(Vector3 feet, string label)
@@ -425,10 +575,20 @@ public static class ExpansionReview
             image.ReadPixels(new Rect(0, 0, width, height), 0, 0); image.Apply();
             byte[] bytes = image.EncodeToPNG(); string file = name + ".png";
             File.WriteAllBytes(Output + "/" + file, bytes);
-            var pixels = image.GetPixels32(); double brightness = 0; int magenta = 0;
-            foreach (var p in pixels) { brightness += (p.r + p.g + p.b) / (255.0 * 3); if (p.r > 250 && p.g < 5 && p.b > 250) magenta++; }
+            var pixels = image.GetPixels32(); double brightness = 0, lowerBrightness = 0;
+            int magenta = 0, dark = 0, lit = 0, colored = 0, lowerLit = 0, lowerCount = width * (height / 3);
+            for (int i = 0; i < pixels.Length; i++) {
+                var p = pixels[i]; double value = (p.r + p.g + p.b) / (255.0 * 3); brightness += value;
+                if (p.r > 250 && p.g < 5 && p.b > 250) magenta++;
+                if (value < .02) dark++;
+                if (value > .08) lit++;
+                if (value > .08 && Mathf.Max(p.r, Mathf.Max(p.g, p.b)) - Mathf.Min(p.r, Mathf.Min(p.g, p.b)) > 30) colored++;
+                if (i < lowerCount) { lowerBrightness += value; if (value > .035) lowerLit++; }
+            }
             var record = new ImageRecord { file = file, sha256 = Digest(bytes), width = width, height = height,
                 meanBrightness = (float)(brightness / pixels.Length), magentaPixels = magenta, position = camera.transform.position,
+                darkFraction = (float)dark / pixels.Length, litFraction = (float)lit / pixels.Length, coloredLitFraction = (float)colored / pixels.Length,
+                lowerFrameBrightness = (float)(lowerBrightness / Math.Max(1, lowerCount)), lowerFrameLitFraction = (float)lowerLit / Math.Max(1, lowerCount),
                 forward = camera.transform.forward, fieldOfView = camera.fieldOfView, filmSecond = filmSecond,
                 approachScale = RenderSettings.skybox && RenderSettings.skybox.HasProperty("_ApproachScale") ? RenderSettings.skybox.GetFloat("_ApproachScale") : 1 };
             report.images.Add(record);
