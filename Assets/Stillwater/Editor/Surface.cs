@@ -328,7 +328,7 @@ public static class Surface
 
 public class StationMediaImporter : AssetPostprocessor
 {
-    public const string Version = "stillwater-media-6";
+    public const string Version = "stillwater-media-7";
     private void OnPreprocessTexture()
     {
         if (!assetPath.StartsWith(Surface.Media + "/", StringComparison.Ordinal)) return;
@@ -336,6 +336,7 @@ public class StationMediaImporter : AssetPostprocessor
         bool print = assetPath.Contains("/Prints/");
         bool film = assetPath.EndsWith("/Embankment signal.jpg", StringComparison.Ordinal);
         bool nebula = assetPath.EndsWith("/Sky/Nebula.png",StringComparison.Ordinal);
+        if(nebula){importer.textureType=TextureImporterType.Default;importer.textureShape=TextureImporterShape.Texture2D;}
         bool field = assetPath.EndsWith("/Deep field.jpg",StringComparison.Ordinal);
         bool fragments = assetPath.EndsWith("/Orbital fragments.png",StringComparison.Ordinal);
         bool opticalData = assetPath.EndsWith("/Orbital streams.png",StringComparison.Ordinal) || assetPath.EndsWith("/Pavement relief.png",StringComparison.Ordinal);

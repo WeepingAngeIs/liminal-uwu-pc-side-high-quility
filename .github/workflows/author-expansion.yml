@@ -116,6 +116,16 @@ jobs:
           customParameters: -force-glcore
           allowDirtyBuild: true
           versioning: None
+      - name: Require the authored scene report to pass
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('Builds/ExpansionReview/report.json')
+          r=json.loads(p.read_text()) if p.is_file() else {}
+          if not (r.get('authoringSucceeded') and r.get('reviewPassed')):
+              raise SystemExit('Authoring failed: '+str(r.get('failures','missing report')))
+          PY
       - name: Exercise local controls and the aperture in ClientSim
         timeout-minutes: 12
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00

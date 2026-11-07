@@ -355,7 +355,7 @@ public static class OuterDistricts
     static void Label(Transform parent,string text,Vector3 position,Quaternion rotation,float size,Color color)
     {
         var t=WorldAuthor.Child(parent,"Plate / "+text);t.localPosition=position;t.localRotation=rotation;
-        var font=Resources.GetBuiltinResource<Font>("Arial.ttf");
+        var font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         var label=t.gameObject.AddComponent<TextMesh>();
         label.text=text;label.font=font;label.fontSize=72;label.characterSize=size;
         label.anchor=TextAnchor.MiddleCenter;label.alignment=TextAlignment.Center;label.color=color;
