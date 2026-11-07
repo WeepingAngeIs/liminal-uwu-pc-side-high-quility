@@ -64,11 +64,13 @@ The PC sky bends the star field around an absolutely black circle. Moving gas fi
 
 ## Checks and publishing
 
-The hosted checks inspect serialized scene geometry and controls: all fourteen districts and eighteen connections, floor and doorway seams, the train circuit and doors, six seats, cross-platform network IDs, room audio routing, visibility portals, and billboard/menu references. They also inspect black-hole pixels in a captured room reflection. A passing source check does not replace headset performance or multiplayer video testing. [Hosted checks](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions)
+The hosted checks inspect fifteen districts and fifteen adventure doors, the thirty-six sealed tunnel mouths, floor and doorway seams, the train circuit and six seats, cross-platform network IDs, room audio routing, visibility, and billboard/menu references. They also inspect black-hole pixels in a captured room reflection. A passing source check does not replace headset performance or multiplayer video testing. [Hosted checks](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions)
 
 The licensed export workflow bakes occlusion on the runner, exports Windows and Android bundles, checks the Quest download size and exercises the gravity ride in ClientSim. To publish, use the same VRChat world blueprint ID for both uploads. [Remote build setup](Tools/CI/README.md) Â· [VRChat cross-platform publishing](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
 
 The [expansion review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42334991175) captured 32 images, refreshed sixteen PC reflection maps and compiled the world interactions. Both sky variants passed black-center and continuous-rim checks. ClientSim exercised room audio, all three sliders, the portable menu, visibility with persistent collisions, approach growth, seat immunity, pull movement, cancellation and return to arrival. [Visual report](Tools/CI/Reviews/Expansion.json) · [Runtime results](Tools/CI/Reviews/Expansion-runtime.txt). These checks use hosted software rendering and desktop simulation. Headset frame rate, single-pass stereo, video orientation and late-joining playback need device tests.
+
+The [adventure review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42344837478) checks the actual door and landing clearances, walkable track, waterfall, platform LEDs and carriage audio in both editions. Thirty ClientSim checks cover the compiled interactions, including both opening branches, portal cooldown, the parked train, one-time start, boarding wait, repeating timetable, and seated or standing carriage ambience through the Atmosphere slider. [Adventure report](Tools/CI/Reviews/Adventure.json) | [Runtime results](Tools/CI/Reviews/Adventure-runtime.txt).
 
 ## References and materials
 
