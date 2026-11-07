@@ -2,13 +2,15 @@
 
 ![Rain Exchange photographed in the PC scene](Preview/Rain%20Exchange.jpg)
 
-The signs under the pink **uwu** streetlights give you the next stop. Pick a passage or take a chance on the **Any platform** ticket machine. The expanded design connects fourteen districts with eighteen walking passages, plus two side wings that grow smaller until you have to turn back. The release world uses local signs and has no full-area map.
+Glowing, winking **uwu** doors take you through fifteen liminal districts. Choose one of two initial paths; both rejoin the adventure and lead to the Aperture Express finale. The old tunnel interchanges are shuttered, so they no longer create confusing shortcuts. Shrinking side wings and gravity galleries remain optional detours. There is no full-area map in the world.
 
-This revision adds a second exploration circuit, portable video and audio controls, and a longer train approach. Both scenes were generated on GitHub and passed the hosted visual and ClientSim checks. The updated summit and outer-district images below are from that run. Headset performance and shared video playback still need device testing.
+This revision adds **The Falling Hours**, a giant roofless waterworks between two walls, and changes the train to a player-started service. PC and Quest share the same route, landings and track collisions; PC retains richer materials, reflections and water detail. Hosted review evidence accompanies the authored scenes; headset performance and multi-client playback still need device testing.
 
 ## Catch the Aperture Express
 
-Follow **Spiral Line** north from the exchange. At Platform 01, press **Call train down** if the train is overhead. It finishes the climb and can leave the summit early. When the doors open, walk aboard and interact with a window seat. Three carriages carry up to six seated passengers. The new 320-second circuit climbs through the spiral tunnel, follows a longer approach toward the black hole, waits at the aperture and returns. The summit has a small overlook and a return control. Stepping beyond its open edge enters a local pull that returns you to arrival; seated passengers remain on the train. PC and Quest share the ride timing, seats and collision layout.
+The adventure ends at Platform 01. The train waits there until someone presses **Start train**. There are 36 seconds to board before its first departure; after that it repeats its 320-second round trip continuously. Further button presses cannot recall or restart it. Walk aboard and interact with a window seat: three carriages carry up to six seated passengers. The spiral track also has a continuous walkable bed, with small steps on the steep final approach and no roof collider.
+
+The train approaches the black hole, pauses beside an overlook, then returns. Its shared clock keeps late arrivals on the same service. Stepping beyond the overlook's open edge enters a pull that returns you to spawn; seated passengers remain protected. PC and Quest share the timing, seats and collision layout.
 
 | Inside the train | At the aperture |
 | --- | --- |
@@ -30,13 +32,13 @@ The exchange kiosk, art gallery and archive windows share a new 24-second observ
 
 ## Beyond the air terminal
 
-The east exit leads to **Ad Alley**, a broad neon street with a video billboard on the pavement. **Last Concourse** opens into an empty departure hall. Beyond it, **Orbital Causeway** crosses space between enormous walls beside the **Asterion** station: a spherical hull with recessed service arrays, antenna decks and radiator fins. **Quiet Stacks** and **Service Returns** close the circuit through oversized storage and branching service corridors.
+The next glowing door leads to **Ad Alley**, a broad neon street with a video billboard on the pavement. **Last Concourse** opens into an empty departure hall. Beyond it, **Orbital Causeway** crosses space between enormous walls beside the **Asterion** station: a spherical hull with recessed service arrays, antenna decks and radiator fins. **Quiet Stacks** and **Service Returns** form quieter chapters of oversized storage and service corridors. **The Falling Hours** follows the space road: twin 86-metre cascades fall beside a dry central walkway under the black hole.
 
 | Ad Alley | Orbital Causeway |
 | --- | --- |
 | ![The sidewalk billboard and clear street](Preview/Ad%20Alley.png) | ![Asterion beside the space road](Preview/Orbital%20Causeway.png) |
 
-District visibility follows the current room and its doorway connections; camera frustum and baked occlusion provide further culling. This keeps distant streets out of view while retaining the visible routes ahead. Gameplay, collisions and portable controls stay active when their scenery is hidden.
+District visibility follows the current room and its doorway connections; camera frustum and baked occlusion provide further culling. The shuttered interchanges no longer reveal neighbouring streets. Walking through a glowing door reveals its destination; the two open shrinking annexes retain doorway visibility. Gameplay, collisions and portable controls stay active when their scenery is hidden.
 
 ## Local controls and billboard video
 
@@ -80,3 +82,5 @@ Scanned surface maps come from Poly Haven under CC0. [Blue Floor Tiles 01](https
 
 For future art passes, search suitable free asset libraries and open repositories first. Verify the license, retain attribution, and adapt useful detailed models, textures or shaders before defaulting to primitive-built replacements. Preserve clear walking routes and prepare reduced Quest versions alongside the PC assets.
 
+
+The waterfall uses Cass Bunting's [MIT-0 water palette](https://github.com/cbunt/unity-voronoi-water), with the original notice retained in `Assets/Stillwater/Media/Water`. Its flowing curtain shader is authored for this Built-in world; the source repository's Shader Graph is not imported.
