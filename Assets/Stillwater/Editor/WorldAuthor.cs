@@ -49,8 +49,10 @@ public static class WorldAuthor
         if(!UpdateLayers.IsCollisionLayerMatrixSetup()) UpdateLayers.SetupCollisionLayerMatrix();
         BillboardTheatre.PreparePrograms();
         DistrictSystems.PreparePrograms();
+        PlanetGallery.PreparePrograms();
         UdonSharp.Compiler.UdonSharpCompilerV1.CompileSync(new UdonSharp.Compiler.UdonSharpCompileOptions());
-        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock),typeof(WorldAudioDirector),typeof(DistrictVisibility),typeof(BillboardPlayer),typeof(BillboardMenuToggle),typeof(ApertureApproach),typeof(AdventureJourney)}){
+        PlanetGallery.KeepProgramsPrivate();
+        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock),typeof(WorldAudioDirector),typeof(DistrictVisibility),typeof(BillboardPlayer),typeof(BillboardMenuToggle),typeof(ApertureApproach),typeof(AdventureJourney),typeof(UwuBallPit),typeof(RoomFormation),typeof(LoungeSeat),typeof(FloatingStreetObjects),typeof(LocalPracticalLights),typeof(PlanetGalleryControl)}){
             var program=UdonSharp.UdonSharpProgramAsset.GetProgramAssetForClass(type);
             if(!program || program.CompiledVersion!=UdonSharp.UdonSharpProgramVersion.CurrentVersion)
                 throw new InvalidOperationException("The interaction could not be compiled: "+type.Name);
@@ -112,6 +114,10 @@ public static class WorldAuthor
         CeilingWalk.Install(rooms["gravity"],quest);
         CityTransmission.Install(root,quest);
         rooms.Add("waterfall",WaterfallRoom.Install(root,gen,quest));
+        rooms.Add("ballroom",UwuBallRoom.Install(root,gen,quest));
+        rooms.Add("lounge",QuietLounge.Install(root,gen,quest));
+        rooms.Add("formation",FormingRoom.Install(root,gen,quest));
+        rooms.Add("planet",PlanetGallery.Install(root,gen,quest));
         AdventureRoute.Install(root,rooms,gen);
         GravityLinks.Install(root,quest);
         var audio=DistrictSystems.InstallAudio(root);
@@ -130,6 +136,8 @@ public static class WorldAuthor
         desc.spawns=new[]{spawn};desc.spawnRadius=1f;desc.RespawnHeightY=-35;
         ApertureApproachBuilder.Install(root,gen,quest,audio,spawn);
         PersonalPlatformAssets.Install(root,gen,quest,audio);
+        FloatingStreetProps.Install(root,rooms,gen,quest);
+        FixtureLighting.Bake(root,gen,quest);
         DistrictSystems.InstallVisibility(root);
         // An edit-time lens is tagged EditorOnly and will be stripped from uploads.
         var lens=Child(root,"Editor arrival view");lens.gameObject.tag="EditorOnly";
@@ -139,7 +147,7 @@ public static class WorldAuthor
         if(!quest){
             foreach(var r in Places) Surface.Capture(rooms[r.id],r.id,false);
             foreach(var area in outer) Surface.Capture(area,area.name,false);
-            Surface.Capture(rooms["waterfall"],"waterfall",false);
+            foreach(string id in new[]{"waterfall","ballroom","lounge","formation","planet"})Surface.Capture(rooms[id],id,false);
             Surface.Capture(baths,"baths",false);
             Surface.Capture(annex,"annex",false);
         }

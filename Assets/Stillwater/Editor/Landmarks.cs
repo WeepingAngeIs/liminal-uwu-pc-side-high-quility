@@ -273,7 +273,7 @@ public static class Landmarks
         g.frame=Matrix4x4.identity;
     }
 
-    static void Saloon(LandmarkGeometry g,string paint,bool quest)
+    internal static void Saloon(LandmarkGeometry g,string paint,bool quest)
     {
         g.Box("black",V(0,0.52f,0),V(1.74f,0.36f,4.27f));
         g.Box(paint,V(0,0.86f,0),V(2.12f,0.61f,4.68f));

@@ -1,6 +1,10 @@
 Shader "Liminal uwu/Surveyed surface"
 {
     Properties{
+        _FixtureColor("Fixture irradiance",3D)="black"{}
+        _FixtureDirection("Fixture direction",3D)="white"{}
+        _FixtureMin("Fixture origin",Vector)=(0,0,0,0)
+        _FixtureSize("Fixture size",Vector)=(1,1,1,0)
         _MainTex("Albedo",2D)="white"{}
         _Detail("Normal XY, roughness, occlusion",2D)="gray"{}
         _Tint("Finish pigment",Color)=(1,1,1,1)
@@ -27,6 +31,8 @@ Shader "Liminal uwu/Surveyed surface"
             #pragma shader_feature_local _ SURVEY_LITE
             #pragma shader_feature_local _ SW_ROOM_FIELD
             #include "UnityCG.cginc"
+            #include "FixtureLighting.cginc"
+            #pragma shader_feature_local _ SW_FIXTURE_VOLUME
             #ifndef SURVEY_LITE
                 #include "RailAtmosphere.cginc"
             #endif
@@ -76,15 +82,26 @@ Shader "Liminal uwu/Surveyed surface"
                     float3 d=float3(round(p.x/9.)*9.,4.7,round(p.z/13.)*13.)-p;
                     specDir=normalize(d);light+=practical(d,n,float3(.75,.53,.31),.11);
                 }
+                #ifdef SW_FIXTURE_VOLUME
+                    light=FixtureLight(p,n);
+                #endif
                 float f=pow(1.-saturate(dot(n,eye)),4.);
                 #ifdef SW_ROOM_FIELD
                     float2 tile=saturate((p.xz-_RoomMin.xz)/max(_RoomMax.xz-_RoomMin.xz,.02));
                     half4 indirect=tex2D(_GroundField,tile);
                     float nearFloor=1.-smoothstep(.65,4.6,p.y-_RoomMin.y);
-                    light=lerp(light,light*lerp(.38,1.,indirect.a)+indirect.rgb*.56,nearFloor);
+                    #ifdef SW_FIXTURE_VOLUME
+                        light*=lerp(.70,1.,indirect.a);
+                    #else
+                        light=lerp(light,light*lerp(.38,1.,indirect.a)+indirect.rgb*.56,nearFloor);
+                    #endif
+                #endif
+                float3 specularTint=float3(.71,.66,.53);
+                #ifdef SW_FIXTURE_VOLUME
+                    specDir=FixtureIncidentDirection(p,n);specularTint=light;
                 #endif
                 float highlight=pow(saturate(dot(n,normalize(specDir+eye))),lerp(89.,18.,rough));
-                half3 result=base*light*ao+float3(.71,.66,.53)*highlight*_Wet*(1.-.7*rough);
+                half3 result=base*light*ao+specularTint*highlight*_Wet*(1.-.7*rough);
                 #ifndef SURVEY_LITE
                     float3 reflectionRay=reflect(-eye,n);
                     #ifdef SW_ROOM_FIELD

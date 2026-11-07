@@ -2,7 +2,7 @@
 
 ![Rain Exchange photographed in the PC scene](Preview/Rain%20Exchange.jpg)
 
-Glowing, winking **uwu** doors take you through fifteen liminal districts. Choose one of two initial paths; both rejoin the adventure and lead to the Aperture Express finale. The old tunnel interchanges are shuttered, so they no longer create confusing shortcuts. Shrinking side wings and gravity galleries remain optional detours. There is no full-area map in the world.
+Glowing, winking **uwu** doors take you through nineteen liminal districts. Choose one of two initial paths; both rejoin the adventure and lead to the Aperture Express finale. The old tunnel interchanges are shuttered, so they no longer create confusing shortcuts. Shrinking side wings and gravity galleries remain optional detours. There is no full-area map in the world.
 
 This revision adds **The Falling Hours**, a giant roofless waterworks between two walls, and changes the train to a player-started service. PC and Quest share the same route, landings and track collisions; PC retains richer materials, reflections and water detail. Hosted review evidence accompanies the authored scenes; headset performance and multi-client playback still need device testing.
 
@@ -40,6 +40,16 @@ The next glowing door leads to **Ad Alley**, a broad neon street with a video bi
 
 District visibility follows the current room and its doorway connections; camera frustum and baked occlusion provide further culling. The shuttered interchanges no longer reveal neighbouring streets. Walking through a glowing door reveals its destination; the two open shrinking annexes retain doorway visibility. Gameplay, collisions and portable controls stay active when their scenery is hidden.
 
+## Rooms under the night sky
+
+The open streets now hold independently drifting lamps, streetlights, cars, bins and uprooted bushes. Their different heights, poses and rhythms suggest the black hole's pull while leaving the central walking routes clear. Fixture lighting is baked from the actual luminous surfaces into compact room volumes; PC adds at most four nearby lights for avatars and ordinary materials. The darker ambient light lets warm lamps and pink/blue neon define the room. Quest keeps smaller volumes and no live point lights.
+
+**The Soft Terminal** contains 24 uwu-faced balls that bounce from visitors and one another. They cannot be picked up and do not push players. Each client simulates its own lightweight set while nearby. **The Still Hour** is a quiet lounge with four usable seats and a framed sky view. **The Remembering Hall** assembles its architectural ribs, walls and canopy near each visitor, then slowly disperses them when the visitor moves away. Its walking foundation remains solid.
+
+**The Falling Up** uses the owner-supplied [Boby's Planet Movement v1.5](https://booth.pm/ja/items/4690338), the same asset credited by [Black Fire's creator](https://bloomingsworlds.uwu.ai/). The continuous curved walking ring carries you onto its walls and ceiling; the lower openings return you to ordinary movement. BobyStar is credited inside the room. Original asset source and compiled programs stay in the private encrypted asset pack.
+
+The reconstruction behavior follows [phi16's explanation of Slice of Time](https://phi16.hatenablog.com/entry/2020/08/16/032618): architecture reacts to viewer proximity while collision remains stable. These room meshes and their movement paths are original; no protected world assets were extracted.
+
 ## Local controls and billboard video
 
 On desktop, press **↑** to open the panel and **↓** to close it. In VR, use the **MENU** button above your left wrist. Ad Alley also has a sidewalk console. Keyboard input is unavailable while VRChat's own menus or text entry capture it.
@@ -64,7 +74,7 @@ The PC sky bends the star field around an absolutely black circle. Moving gas fi
 
 ## Checks and publishing
 
-The hosted checks inspect fifteen districts and fifteen adventure doors, the thirty-six sealed tunnel mouths, floor and doorway seams, the train circuit and six seats, cross-platform network IDs, room audio routing, visibility, and billboard/menu references. They also inspect black-hole pixels in a captured room reflection. A passing source check does not replace headset performance or multiplayer video testing. [Hosted checks](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions)
+The hosted checks inspect nineteen districts and nineteen adventure doors, the thirty-six sealed tunnel mouths, floor and doorway seams, the train circuit and six seats, cross-platform network IDs, room audio routing, visibility, and billboard/menu references. They also inspect black-hole pixels in a captured room reflection. A passing source check does not replace headset performance or multiplayer video testing. [Hosted checks](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions)
 
 The licensed export workflow bakes occlusion on the runner, exports Windows and Android bundles, checks the Quest download size and exercises the gravity ride in ClientSim. To publish, use the same VRChat world blueprint ID for both uploads. [Remote build setup](Tools/CI/README.md) · [VRChat cross-platform publishing](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
 

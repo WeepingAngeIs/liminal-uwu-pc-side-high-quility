@@ -11,7 +11,7 @@ internal static class DistrictSystems
 {
     internal static void PreparePrograms()
     {
-        foreach(string name in new[]{"WorldAudioDirector","DistrictVisibility","ApertureApproach","AdventureJourney"}) {
+        foreach(string name in new[]{"WorldAudioDirector","DistrictVisibility","ApertureApproach","AdventureJourney","UwuBallPit","RoomFormation","LoungeSeat","FloatingStreetObjects","LocalPracticalLights"}) {
             string path=WorldAuthor.Root+"/Runtime/"+name;
             if(AssetDatabase.LoadAssetAtPath<UdonSharpProgramAsset>(path+".asset"))continue;
             var script=AssetDatabase.LoadAssetAtPath<MonoScript>(path+".cs");
@@ -84,16 +84,19 @@ internal static class DistrictSystems
         if(id=="concourse")return "rail";
         if(id=="stacks" || id=="returns" || id.StartsWith("Passage "))return "annex";
         if(id=="waterfall")return "baths";
+        if(id=="ballroom" || id=="lounge")return "gallery";
+        if(id=="formation")return "annex";
+        if(id=="planet")return "space";
         if(id=="Diminishing Baths")return "baths";
         if(id=="Night Reception")return "annex";
         if(id=="Soffit gallery" || id=="Western facade gallery" || id=="Six axis field chamber")return "gravity";
         return id;
     }
-    static List<Transform> SectorRoots(Transform root)
+    internal static List<Transform> SectorRoots(Transform root)
     {
         var names=new HashSet<string>(WorldAuthor.Places.Select(p=>p.id));
         foreach(var spec in OuterDistricts.Specs)names.Add(spec.id);
-        names.Add("waterfall");
+        foreach(string id in new[]{"waterfall","ballroom","lounge","formation","planet"})names.Add(id);
         foreach(string n in new[]{"Diminishing Baths","Night Reception","Soffit gallery","Western facade gallery","Six axis field chamber"})names.Add(n);
         var result=new List<Transform>();
         foreach(Transform t in root)if(names.Contains(t.name))result.Add(t);
@@ -103,6 +106,10 @@ internal static class DistrictSystems
     internal static Bounds BoundsFor(Transform t)
     {
         if(t.name=="waterfall")return WaterfallRoom.Bounds;
+        if(t.name=="ballroom")return UwuBallRoom.Bounds;
+        if(t.name=="lounge")return QuietLounge.Bounds;
+        if(t.name=="formation")return FormingRoom.Bounds;
+        if(t.name=="planet")return PlanetGallery.Bounds;
         var place=Array.Find(WorldAuthor.Places,p=>p.id==t.name);
         if(place!=null) {
             if(t.name=="rail")return new Bounds(new Vector3(0,165,172.92f),new Vector3(68.32f,334,254.16f));

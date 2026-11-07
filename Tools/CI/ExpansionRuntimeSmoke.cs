@@ -198,7 +198,7 @@ public static class ExpansionRuntimeSmoke
         service = Value<UdonBehaviour>(approach, "service");
         journey = Port("Adventure progression");
         doors = Value<Transform[]>(journey, "entrances"); landings = Value<Transform[]>(journey, "destinations");
-        Check(doors.Length == 15 && landings.Length == 15, "Missing adventure volume/landing bindings");
+        Check(doors.Length == 19 && landings.Length == 19, "Missing adventure volume/landing bindings");
         coaches = Value<Transform[]>(service, "coaches"); trainAnimator = Value<Animator>(service, "service");
         parkedPositions = coaches.Select(c => c.position).ToArray();
         Check(!Value<bool>(service, "hasStarted") && Close(trainAnimator.speed, 0), "Train must start parked until the shared button is pressed");

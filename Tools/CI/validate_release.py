@@ -344,8 +344,8 @@ def billboard(scene):
     for path in (("hub", "Embankment signal kiosk"), ("billboard", "Side street billboard"),
                  ("billboard", "Sidewalk video controls")):
         require(abs(scene.position(path)[0]) > 10, "A video fixture obstructs the road at " + str(path))
-    require(sum("stationEnterPlayerLocation:" in b for b in scene.by_id[114].values()) == 6,
-            "Video district changes must preserve the six train seats")
+    require(sum("stationEnterPlayerLocation:" in b for b in scene.by_id[114].values()) == 11,
+            "World must preserve six train seats, four lounge seats and the gravity station")
     return {"menu": menu, "wrist": wrist, "local_audio_sliders": 3}
 
 

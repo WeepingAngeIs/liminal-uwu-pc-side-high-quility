@@ -2,6 +2,10 @@ Shader "Stillwater/Station finish"
 {
     Properties
     {
+        _FixtureColor("Fixture irradiance",3D)="black"{}
+        _FixtureDirection("Fixture direction",3D)="white"{}
+        _FixtureMin("Fixture origin",Vector)=(0,0,0,0)
+        _FixtureSize("Fixture size",Vector)=(1,1,1,0)
         _MainTex("Finish",2D)="white"{}
         _Field("Weather field",2D)="gray"{}
         _Color("Pigment",Color)=(1,1,1,1)
@@ -38,6 +42,8 @@ Shader "Stillwater/Station finish"
             #pragma shader_feature_local _ SW_ROOM_FIELD
             #pragma multi_compile _ VERTEXLIGHT_ON
             #include "UnityCG.cginc"
+            #include "FixtureLighting.cginc"
+            #pragma shader_feature_local _ SW_FIXTURE_VOLUME
             #include "Lighting.cginc"
             #ifndef SW_MOBILE
                 #include "RailAtmosphere.cginc"
@@ -166,6 +172,9 @@ Shader "Stillwater/Station finish"
                 #endif
                 half3 pigment=tex2D(_MainTex,uv).rgb*_Color.rgb;
                 float3 lit=atlasLight(p,n)+i.light*.50;
+                #ifdef SW_FIXTURE_VOLUME
+                    lit=FixtureLight(p,n)+i.light*.12;
+                #endif
                 half3 color=pigment*lit;
                 float3 v=normalize(_WorldSpaceCameraPos.xyz-p);
                 float fresnel=pow(1.-saturate(dot(n,v)),3.);
@@ -231,7 +240,11 @@ Shader "Stillwater/Station finish"
                     #ifdef SW_ROOM_FIELD
                         float2 fieldUV=saturate((p.xz-_RoomMin.xz)/max(_RoomMax.xz-_RoomMin.xz,.02));
                         half4 pavement=tex2D(_GroundField,fieldUV);
-                        color=color*lerp(.38,1.,pavement.a)+pigment*pavement.rgb*.52;
+                        #ifdef SW_FIXTURE_VOLUME
+                            color*=lerp(.65,1.,pavement.a);
+                        #else
+                            color=color*lerp(.38,1.,pavement.a)+pigment*pavement.rgb*.52;
+                        #endif
                     #endif
                     #ifndef SW_MOBILE
                         color*=1.-puddle*fresnel;

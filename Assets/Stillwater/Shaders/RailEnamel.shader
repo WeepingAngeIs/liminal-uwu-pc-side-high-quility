@@ -110,7 +110,7 @@ Shader "Stillwater/Carriage enamel"
                 half floorContact=saturate(1.-seatDistance/.60)*saturate((.71-p.y)*4.);
                 half edgeContact=smoothstep(1.09,1.54,abs(p.x))*saturate((1.52-p.y)*.92);
                 half ao=1.-.54*floorContact-.21*edgeContact;
-                half sky=.42+.20*saturate(dot(n,normalize(half3(-.6,.74,.27))))+.075*max(0.,ln.y);
+                half sky=.075+.06*saturate(dot(n,normalize(half3(-.6,.74,.27))))+.025*max(0.,ln.y);
                 half3 light=sky*half3(.81,.91,1.) + (ndl*.85+.18)*lamps*half3(1.,.73,.45);
                 half3 col=pigment*light*ao;
                 half spec=pow(saturate(dot(ln,normalize(lampDir+localView))),lerp(10,62,rough));

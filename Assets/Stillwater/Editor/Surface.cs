@@ -124,13 +124,13 @@ public static class Surface
         EditorUtility.SetDirty(sky);
         RenderSettings.skybox = sky;
         RenderSettings.ambientMode = AmbientMode.Trilight;
-        RenderSettings.ambientSkyColor = new Color(.20f, .28f, .43f);
-        RenderSettings.ambientEquatorColor = new Color(.16f, .18f, .25f);
-        RenderSettings.ambientGroundColor = new Color(.09f, .09f, .12f);
+        RenderSettings.ambientSkyColor = new Color(.027f, .043f, .080f);
+        RenderSettings.ambientEquatorColor = new Color(.015f, .022f, .040f);
+        RenderSettings.ambientGroundColor = new Color(.008f, .010f, .018f);
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogDensity = .0065f;
-        RenderSettings.fogColor = new Color(.060f, .099f, .155f);
+        RenderSettings.fogColor = new Color(.009f, .017f, .035f);
         RenderSettings.reflectionIntensity = .8f;
         RenderSettings.defaultReflectionMode = DefaultReflectionMode.Skybox;
         RenderSettings.defaultReflectionResolution = 64;
@@ -279,7 +279,7 @@ public static class Surface
         }
         Vector3 bottom = room.position + new Vector3(-halfRoom.x, -.45f, -halfRoom.z);
         Vector3 top = room.position + halfRoom;
-        if(id=="baths" || id=="annex" || Array.Exists(OuterDistricts.Specs,spec=>spec.id==id))
+        if(id=="baths" || id=="annex" || id=="waterfall" || id=="ballroom" || id=="lounge" || id=="formation" || id=="planet" || Array.Exists(OuterDistricts.Specs,spec=>spec.id==id))
         {
             var extent=new Bounds(room.position,Vector3.one);
             foreach(var r in room.GetComponentsInChildren<MeshRenderer>())extent.Encapsulate(r.bounds);
@@ -294,7 +294,7 @@ public static class Surface
             for (int i = 0; i < slots.Length; i++)
             {
                 var baseMaterial = slots[i];
-                bool wet=baseMaterial==Get("wet") || baseMaterial==Get("pool");
+                bool wet=baseMaterial && baseMaterial.shader && baseMaterial.shader.name=="Stillwater/Station finish" && baseMaterial.IsKeywordEnabled("SW_WET");
                 bool surveyed=baseMaterial && baseMaterial.shader && baseMaterial.shader.name=="Liminal uwu/Surveyed surface" && baseMaterial.HasProperty("_GroundField");
                 if(!wet && !surveyed)continue;
                 if (!variants.TryGetValue(baseMaterial, out var local))

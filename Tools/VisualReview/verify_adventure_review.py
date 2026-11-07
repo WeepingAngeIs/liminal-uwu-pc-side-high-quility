@@ -40,9 +40,9 @@ def main():
         # Linux runner hashes LF. No other normalization or scene edits are allowed.
         actual = hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
         require(actual == record["sha256"], "Scene changed since hosted physics/image review: " + str(path))
-        require(record.get("adventureDoors") == 15 and record.get("trainSeats") == 6,
+        require(record.get("adventureDoors") == 19 and record.get("trainSeats") == 6,
                 "Reviewed scene lacks the required adventure doors or train seats")
-        require(record.get("audioZones") == 38 and record.get("visibilityPortals") == 2,
+        require(record.get("audioZones") == 42 and record.get("visibilityPortals") == 2,
                 "Reviewed scene uses stale district isolation")
         require(record.get("personalPlatformLights") == 2 and record.get("carriageAudioBound") is True,
                 "Review lacks the two personal platform lights or private carriage sound")
@@ -70,7 +70,7 @@ def main():
     (args.output / "adventure-review.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     (args.output / "hosted-unity-review.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (args.output / "hosted-runtime-checks.txt").write_text(runtime, encoding="utf-8")
-    print(f"PC/Quest: 15 matching adventure doors; exact hosted scene hashes; {len(checks)} ClientSim checks passed.")
+    print(f"PC/Quest: 19 matching adventure doors; exact hosted scene hashes; {len(checks)} ClientSim checks passed.")
     return 0
 
 

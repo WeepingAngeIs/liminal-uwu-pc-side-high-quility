@@ -197,7 +197,7 @@ def openings(mesh, room, doorways, failures):
 def check(edition):
     scene = Scene(edition)
     failures = []
-    legacy_rooms = ALL_ROOMS - {"waterfall"}
+    legacy_rooms = ALL_ROOMS - {"waterfall", "ballroom", "lounge", "formation", "planet"}
     local = {room: scene.mesh((room, "Architecture"), room) for room in legacy_rooms}
     ground = {room: ground_faces(scene.mesh((room, "Architecture"), room, world=True)) for room in legacy_rooms}
     floors = {room: max(items, key=lambda f: (f.high[0]-f.low[0])*(f.high[2]-f.low[2])) for room, items in ground.items()}

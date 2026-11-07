@@ -11,7 +11,8 @@ import wave
 ROOT = Path("Assets/Stillwater")
 ROOMS = {"hub", "rail", "air", "grove", "motor", "gravity", "observatory", "gallery", "service"}
 OUTER_ROOMS = {"billboard", "concourse", "causeway", "stacks", "returns"}
-ALL_ROOMS = ROOMS | OUTER_ROOMS | {"waterfall"}
+NEW_ROOMS = {"waterfall", "ballroom", "lounge", "formation", "planet"}
+ALL_ROOMS = ROOMS | OUTER_ROOMS | NEW_ROOMS
 PASSAGES = 18
 GUID = r"[0-9a-f]{32}"
 DOCUMENT = re.compile(r"^--- !u!(\d+) &(-?\d+)[^\n]*\n", re.M)
@@ -118,7 +119,7 @@ def check_scene(edition):
         for a, b in routes:
             if a in connected or b in connected:
                 connected.update((a, b))
-    require(connected == ALL_ROOMS - {"waterfall"} and len(routes) == PASSAGES,
+    require(connected == ALL_ROOMS - NEW_ROOMS and len(routes) == PASSAGES,
             "The preserved fourteen-district architecture must retain eighteen sealed passages")
     require(len(by_kind[65]) >= 70, "Missing architectural colliders")
     target = ROOT / "Generated" / edition
@@ -170,6 +171,16 @@ def check_scene(edition):
     expected_programs = {
         "Transit/LastTrainBoard.asset": 5,
         "Runtime/AdventureJourney.asset": 1,
+        "Runtime/UwuBallPit.asset": 1,
+        "Runtime/RoomFormation.asset": 1,
+        "Runtime/LoungeSeat.asset": 4,
+        "Runtime/FloatingStreetObjects.asset": 1,
+        "Runtime/LocalPracticalLights.asset": 1,
+        "Runtime/PlanetGalleryControl.asset": 1,
+        "Personal/PlanetMovement/BobysPlanetMovement.asset": 1,
+        "Personal/PlanetMovement/PlanetMove_GravityField.asset": 1,
+        "Personal/PlanetMovement/PlanetMove_StationListener.asset": 1,
+        "Personal/PlanetMovement/PlanetMove_AutoExitManager.asset": 1,
         "Runtime/StillwaterGravityPort.asset": 8,
         "Runtime/ApertureExpress.asset": 1,
         "Runtime/ExpressSeat.asset": 6,

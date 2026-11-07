@@ -54,6 +54,7 @@ jobs:
           mkdir -p Assets/Editor Builds/ExpansionReview
           cp Tools/CI/ExpansionReview.cs Assets/Editor/ExpansionReview.cs
           cp Tools/CI/ExpansionRuntimeSmoke.cs Assets/Editor/ExpansionRuntimeSmoke.cs
+          cp Tools/CI/NewRoomsSmoke.cs Assets/Editor/NewRoomsSmoke.cs
           git rev-parse HEAD > Builds/author-revision.txt
       - name: Make room for the hosted Unity image
         run: |
@@ -151,6 +152,23 @@ jobs:
           manualExit: true
           allowDirtyBuild: true
           versioning: None
+      - name: Exercise the new rooms and practical lighting in ClientSim
+        timeout-minutes: 12
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          customImage: liminal-unity-mesa:expansion
+          buildMethod: NewRoomsSmoke.Begin
+          enableGpu: true
+          customParameters: -force-glcore
+          manualExit: true
+          allowDirtyBuild: true
+          versioning: None
       - name: Allow the runner to assemble review artifacts
         if: always()
         run: |
@@ -161,6 +179,10 @@ jobs:
           if [[ -d "$review_output" ]]; then
             sudo chown -R -- "$(id -u):$(id -g)" "$review_output"
           fi
+      - name: Preserve owner-licensed authoring outputs as encrypted data
+        env:
+          LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
+        run: python3 Tools/CI/package_personal_assets.py --output Builds/AuthoredExpansion/PersonalAssets.bin
       - name: Package verified authored assets and write the review summary
         if: always()
         run: |

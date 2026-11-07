@@ -6,8 +6,8 @@ using UdonSharpEditor;
 
 internal static class AdventureRoute
 {
-    static readonly string[] From={"hub","hub","gallery","motor","service","gravity","grove","air","billboard","returns","stacks","concourse","causeway","waterfall","observatory"};
-    static readonly string[] To={"gallery","service","motor","gravity","gravity","grove","air","billboard","returns","stacks","concourse","causeway","waterfall","observatory","rail"};
+    static readonly string[] From={"hub","hub","gallery","motor","service","gravity","grove","air","billboard","returns","stacks","concourse","causeway","waterfall","ballroom","formation","planet","lounge","observatory"};
+    static readonly string[] To={"gallery","service","motor","gravity","gravity","grove","air","billboard","returns","stacks","concourse","causeway","waterfall","ballroom","formation","planet","lounge","observatory","rail"};
     internal static void Install(Transform root,Dictionary<string,Transform> rooms,string gen)
     {
         // Close the former grid at the room mouths. Their retained geometry is useful
@@ -65,6 +65,9 @@ internal static class AdventureRoute
     static float Depth(string id) {
         var r=Array.Find(WorldAuthor.Places,p=>p.id==id);if(r!=null)return r.d;
         if(id=="waterfall")return 140;
+        if(id=="ballroom" || id=="lounge")return 64;
+        if(id=="formation")return 70;
+        if(id=="planet")return 80;
         return OuterDistricts.Find(id).size.z;
     }
     static void Shutter(StationMesh m,float h) {

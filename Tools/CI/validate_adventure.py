@@ -11,7 +11,7 @@ EXPECTED = {
     ("hub", "service"), ("service", "gravity"), ("gravity", "grove"),
     ("grove", "air"), ("air", "billboard"), ("billboard", "returns"),
     ("returns", "stacks"), ("stacks", "concourse"), ("concourse", "causeway"),
-    ("causeway", "waterfall"), ("waterfall", "observatory"), ("observatory", "rail"),
+    ("causeway", "waterfall"), ("waterfall", "ballroom"), ("ballroom", "formation"), ("formation", "planet"), ("planet", "lounge"), ("lounge", "observatory"), ("observatory", "rail"),
 }
 
 
@@ -46,7 +46,7 @@ def scene(edition):
     extents = vectors(journey, "halfExtents")
     sources = [r.strip('"') for r in rows(journey, "sourceRooms")]
     targets = [r.strip('"') for r in rows(journey, "destinationRooms")]
-    require(len(entrances) == len(destinations) == len(extents) == len(sources) == len(targets) == 15,
+    require(len(entrances) == len(destinations) == len(extents) == len(sources) == len(targets) == 19,
             "Every progression door needs matching volume, landing and room bindings")
     graph(list(zip(sources, targets)))
     records = []
@@ -78,5 +78,5 @@ def scene(edition):
 
 if __name__ == "__main__":
     require(scene("PC") == scene("Quest"), "Progression geometry or destinations differ across platforms")
-    print(json.dumps({"adventure_rooms": 15, "walk_through_doors": 15,
+    print(json.dumps({"adventure_rooms": 19, "walk_through_doors": 19,
                       "starting_branches": 2, "finale": "rail", "pc_quest_match": True}, indent=2))
