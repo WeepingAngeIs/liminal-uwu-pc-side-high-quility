@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: baths Diminishing Baths lit porcelain
+  m_Shader: {fileID: 4800000, guid: 9833dd8cb1c50954c98999ce54d7563e, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - SW_FIXTURE_VOLUME
+  - SW_ROOM_FIELD
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Detail:
+        m_Texture: {fileID: 2800000, guid: 4c98c12c0cf0ad945b2ff6c538575f1e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FixtureColor:
+        m_Texture: {fileID: 11700000, guid: daf849e4c6f4884aaa465dc32e349b4f, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FixtureDirection:
+        m_Texture: {fileID: 11700000, guid: c493613417bad677e88f03fcb7520993, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GroundField:
+        m_Texture: {fileID: 2800000, guid: 373ee81ccc1676244ba11141a74cc50c, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 9aeba4925ddb6f34ba8f5baeae606aa6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RoomProbe:
+        m_Texture: {fileID: 8900000, guid: 4e4697649fd5b3d49b05e1ba04940ae1, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Metres: 2.7
+    - _Neutral: 0.88
+    - _RailHaze: 1
+    - _Wet: 0.58
+    m_Colors:
+    - _FixtureMin: {r: -8.739998, g: -0.5999999, b: -155.12, a: 0}
+    - _FixtureSize: {r: 17.48, g: 9.1, b: 47.309998, a: 0}
+    - _ProbeOrigin: {r: 0.00000157361, g: 2, b: -115, a: 0}
+    - _RoomMax: {r: 8.640001, g: 7.5, b: -107.91, a: 0}
+    - _RoomMin: {r: -8.6399975, g: -0.5, b: -155.01999, a: 0}
+    - _Tint: {r: 1, g: 0.9529412, b: 0.8, a: 1}
+  m_BuildTextureStacks: []

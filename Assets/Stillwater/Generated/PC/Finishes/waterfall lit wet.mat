@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: waterfall lit wet
+  m_Shader: {fileID: 4800000, guid: ee8b5686407946a4fb77257384b4ca22, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - SW_FIXTURE_VOLUME
+  - SW_WET
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Field:
+        m_Texture: {fileID: 2800000, guid: 4d520e972fc0878408f9297fa28416ca, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FixtureColor:
+        m_Texture: {fileID: 11700000, guid: ecf1e91af170451d5a6aadb093c0fba9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FixtureDirection:
+        m_Texture: {fileID: 11700000, guid: 8c797f766f9ba7abe8b77500b58c85b3, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GroundField:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: ae4414d8bbc0b3b4dab2e054d84dacd1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RoomProbe:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _StoneRelief:
+        m_Texture: {fileID: 2800000, guid: c39cb48d4172aae42a886b6c2e225679, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Emission: 0
+    - _Flood: 0
+    - _RailHaze: 1
+    - _ReviewTime: -1
+    - _Scale: 5.1
+    - _Sheen: 0.62
+    m_Colors:
+    - _Color: {r: 0.5686275, g: 0.63529414, b: 0.61960787, a: 1}
+    - _FixtureMin: {r: 590, g: -0.6000004, b: 130, a: 0}
+    - _FixtureSize: {r: 100, g: 36.6, b: 140, a: 0}
+    - _ProbeOrigin: {r: 0, g: 0, b: 0, a: 0}
+    - _RoomMax: {r: 30, g: 18, b: 30, a: 0}
+    - _RoomMin: {r: -30, g: 0, b: -30, a: 0}
+  m_BuildTextureStacks: []

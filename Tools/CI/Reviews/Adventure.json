@@ -1,9 +1,9 @@
 {
-    "revision": "14cfb2e8fdb76ca572582b006aacce5d0fc3d982",
+    "revision": "12560018364c922197a9d877b71213433fd459e2",
     "unity": "2022.3.22f1",
     "device": "llvmpipe (LLVM 15.0.7, 256 bits)",
     "graphicsApi": "OpenGLCore",
-    "utc": "2026-11-07T06:02:32.1177970Z",
+    "utc": "2026-11-07T08:31:30.0425170Z",
     "authoringSucceeded": true,
     "reviewPassed": true,
     "method": "Both scenes authored from this revision on hosted Mesa/OpenGL, including all PC reflection captures. These editor images exercise shaders and serialized wiring, not live VRChat networking, XR, URL decoding, or headset performance. Quest materials are reviewed in the desktop editor; this is not an Android build.",
@@ -11,20 +11,80 @@
         {
             "edition": "PC",
             "scene": "Assets/Stillwater/Scenes/liminal uwu - PC.unity",
-            "sha256": "b8d6fb19b5b1857a47cb6ce00cf2a10737f69147956c220f79bd66f3a7ee1ee6",
-            "rendererCount": 203,
-            "enabledRendererCount": 198,
-            "colliderCount": 1025,
-            "reflectionCount": 17,
+            "sha256": "9010d3dc3bce3e4341d37aefed626759c675c63ab3044a41cfd54d5e2d5f52ed",
+            "rendererCount": 335,
+            "enabledRendererCount": 330,
+            "colliderCount": 1535,
+            "reflectionCount": 21,
             "trainSeats": 6,
             "nativeVideoPlayers": 1,
-            "trianglesAllLods": 488640,
-            "audioZones": 38,
-            "visibilityZones": 38,
-            "visibilityRenderers": 201,
+            "trianglesAllLods": 560132,
+            "audioZones": 42,
+            "visibilityZones": 42,
+            "visibilityRenderers": 333,
             "visibilityPortals": 2,
-            "adventureDoors": 15,
+            "adventureDoors": 19,
             "personalPlatformLights": 2,
+            "loungeSeats": 4,
+            "uwuBalls": 24,
+            "formationPieces": 32,
+            "floatingStreetObjects": 44,
+            "authoredEnabledLights": 0,
+            "practicalLights": 192,
+            "fixtureVolumes": 4,
+            "nativeStations": 11,
+            "wallGravityReady": true,
+            "illuminatedBallCenters": 24,
+            "ballReadabilityViews": 4,
+            "minimumBallFixtureEnergy": 0.048561111092567447,
+            "minimumBallMedianBrightness": 0.22614379227161408,
+            "minimumBallReadableFraction": 1.0,
+            "fixtures": [
+                {
+                    "room": "hub",
+                    "colorAsset": "Assets/Stillwater/Generated/PC/Finishes/hub fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/PC/Finishes/hub fixture direction.asset",
+                    "litMaterials": 20,
+                    "width": 32,
+                    "height": 18,
+                    "depth": 32,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.1555461287498474
+                },
+                {
+                    "room": "ballroom",
+                    "colorAsset": "Assets/Stillwater/Generated/PC/Finishes/ballroom fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/PC/Finishes/ballroom fixture direction.asset",
+                    "litMaterials": 16,
+                    "width": 32,
+                    "height": 18,
+                    "depth": 32,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.07985139638185501
+                },
+                {
+                    "room": "lounge",
+                    "colorAsset": "Assets/Stillwater/Generated/PC/Finishes/lounge fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/PC/Finishes/lounge fixture direction.asset",
+                    "litMaterials": 17,
+                    "width": 32,
+                    "height": 18,
+                    "depth": 32,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.06963784247636795
+                },
+                {
+                    "room": "formation",
+                    "colorAsset": "Assets/Stillwater/Generated/PC/Finishes/formation fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/PC/Finishes/formation fixture direction.asset",
+                    "litMaterials": 12,
+                    "width": 32,
+                    "height": 18,
+                    "depth": 32,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.012136183679103852
+                }
+            ],
             "carriageAudioBound": true,
             "carriageAudioSeconds": 180.0,
             "carriageAudioSpatialBlend": 0.0,
@@ -347,6 +407,66 @@
                 },
                 {
                     "index": 20,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 609.0,
+                        "y": -3.0,
+                        "z": 367.0
+                    },
+                    "max": {
+                        "x": 671.0,
+                        "y": 31.0,
+                        "z": 433.0
+                    }
+                },
+                {
+                    "index": 21,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 766.0,
+                        "y": -3.0,
+                        "z": 367.0
+                    },
+                    "max": {
+                        "x": 834.0,
+                        "y": 31.0,
+                        "z": 433.0
+                    }
+                },
+                {
+                    "index": 22,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 761.0,
+                        "y": -3.0,
+                        "z": 161.0
+                    },
+                    "max": {
+                        "x": 839.0,
+                        "y": 39.0,
+                        "z": 239.0
+                    }
+                },
+                {
+                    "index": 23,
+                    "clip": "Assets/Stillwater/Media/Audio/space.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 960.0,
+                        "y": -6.0,
+                        "z": 160.0
+                    },
+                    "max": {
+                        "x": 1040.0,
+                        "y": 70.0,
+                        "z": 240.0
+                    }
+                },
+                {
+                    "index": 24,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -361,7 +481,7 @@
                     }
                 },
                 {
-                    "index": 21,
+                    "index": 25,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -376,7 +496,7 @@
                     }
                 },
                 {
-                    "index": 22,
+                    "index": 26,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -391,7 +511,7 @@
                     }
                 },
                 {
-                    "index": 23,
+                    "index": 27,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -406,7 +526,7 @@
                     }
                 },
                 {
-                    "index": 24,
+                    "index": 28,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -421,7 +541,7 @@
                     }
                 },
                 {
-                    "index": 25,
+                    "index": 29,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -436,7 +556,7 @@
                     }
                 },
                 {
-                    "index": 26,
+                    "index": 30,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -451,7 +571,7 @@
                     }
                 },
                 {
-                    "index": 27,
+                    "index": 31,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -466,7 +586,7 @@
                     }
                 },
                 {
-                    "index": 28,
+                    "index": 32,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -481,7 +601,7 @@
                     }
                 },
                 {
-                    "index": 29,
+                    "index": 33,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -496,7 +616,7 @@
                     }
                 },
                 {
-                    "index": 30,
+                    "index": 34,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -511,7 +631,7 @@
                     }
                 },
                 {
-                    "index": 31,
+                    "index": 35,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -526,7 +646,7 @@
                     }
                 },
                 {
-                    "index": 32,
+                    "index": 36,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -541,7 +661,7 @@
                     }
                 },
                 {
-                    "index": 33,
+                    "index": 37,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -556,7 +676,7 @@
                     }
                 },
                 {
-                    "index": 34,
+                    "index": 38,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -571,7 +691,7 @@
                     }
                 },
                 {
-                    "index": 35,
+                    "index": 39,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -586,7 +706,7 @@
                     }
                 },
                 {
-                    "index": 36,
+                    "index": 40,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -601,7 +721,7 @@
                     }
                 },
                 {
-                    "index": 37,
+                    "index": 41,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -619,87 +739,107 @@
             "reflections": [
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/hub reflection.asset",
-                    "sha256": "cfad99fd2c93da6f8a16299acb0a529cebdbfd5ce40f06cb00197529cc923f32",
+                    "sha256": "e27e40abad2b602fbf54bc2b432da58006bc212deed884803c1ebbd3a1888674",
                     "resolution": 256
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/rail reflection.asset",
-                    "sha256": "04ca604660d15aa9e489f305b16e265720fb7148298706b02a1993d8ea9f483a",
+                    "sha256": "18fd6b920751269075139a825ba256975a50a373f26a6bfa8fc4240bb49bdcaa",
                     "resolution": 256
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/air reflection.asset",
-                    "sha256": "83d56d5ce2361d336280f960ea78e09358453c12c883b53b4b0a8110af7c8a57",
+                    "sha256": "dcaa334c31aadba3a509fec2c6eb2a4c7ac28f5fd25086e599185153575e48e8",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/grove reflection.asset",
-                    "sha256": "457d037ccaf5660e0c894b4f0f80e2670dc246a8276f15ad7f33081a42bbcbf1",
+                    "sha256": "e2f48367c255af6dff7f17afcf99b1f9852f3b62d3664f9b66e68e4e7e560150",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/motor reflection.asset",
-                    "sha256": "cedcd2c4f1148569b273d255167fc066dec37b5de3c7848b7a22c3abd82aeeb4",
+                    "sha256": "a2bf949e34c5a3bef5cc2ac64d4397b6d4ad56e9268a33e8bbf0ab67ffa4ac41",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/gravity reflection.asset",
-                    "sha256": "995723ef2d0f184ec810042cdb41a7f2ce4f83ed198f4215c4cf863220492327",
+                    "sha256": "9049b4be53b29a0f0d79b23cb964f1499733f2ceb34468ee645fa4d226184e00",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/observatory reflection.asset",
-                    "sha256": "18a3016e372b3e2d8b94b4affeb9fc676925e84928dc08cc91b36f190047735b",
+                    "sha256": "0a49b203aab9c32a4b6fba258dd8ae60752e8b3ae1bffffcebe8b588fbf6d6b4",
                     "resolution": 256
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/gallery reflection.asset",
-                    "sha256": "a8c824f1458a4a3d410f04a827a0c5681da5fe6dd8d00f22e5c72353c9a452b7",
+                    "sha256": "4ca3ec6d976bb9fccb66301a9bbfa69ba14d50f0cc8420bedc0536cf23e02b24",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/service reflection.asset",
-                    "sha256": "615db7402aeb227bc60d45529843f3bcdf846fb4317c3e40254d5d5e2f33969b",
+                    "sha256": "3b8f026a16567908433f98c74286d43e24002432b84a20992f5a02aea890d0c7",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/billboard reflection.asset",
-                    "sha256": "69274e229a22ff0ab5079fa9f441d3c0b6dd0d0baeafdba4c0dcfd539a00f3ba",
+                    "sha256": "20ee33671873afedf657d83c3ea28bd01dedda7533f7fa26833e00be5dc5146f",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/concourse reflection.asset",
-                    "sha256": "d7e704050f0518ef347d38e55e9f67ff9d7e44429b7fd6cb553467720e4eca1b",
+                    "sha256": "13104dd3b8df4dd6df17f736776066d6764a2324f2c778391850f95a141e182e",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/causeway reflection.asset",
-                    "sha256": "899f504426d48864371593c8221c01e00131a063bae8011625122653a77aed6f",
+                    "sha256": "a76d10a31643fdac8ac596873e881fe2debee5eb84dba471007fc66370aa44c5",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/stacks reflection.asset",
-                    "sha256": "5c75238e8e9bd66f3335185e984f31d6bb5b04fad18428fb69081b6e03a1a0a4",
+                    "sha256": "0ebed20573a5a27fd498766312a90e571e7e2c0e6862f30abafad122e480056a",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/returns reflection.asset",
-                    "sha256": "e79db7b3595a9f71fb7702b73fc4a71615b07e3cb88a5ddb51aaf7ded120d910",
+                    "sha256": "7f2fadcbd4c9d1f962e4bd0b9b4636ae1372223393898d31afac02e2dc209fad",
                     "resolution": 128
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/baths reflection.asset",
-                    "sha256": "237c8a7522d62a1a0d9628023ab703619b51267a2d59b4dc3143e75bf4886fdd",
+                    "sha256": "8e41c6d568cf4e3e8ae4c56a03d41ca84f7b7bee7dd54e45f519509428b1f92d",
                     "resolution": 256
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/annex reflection.asset",
-                    "sha256": "1ec86fd3369e3cd29a24db0488fb6402000b24a2d504ba92939095370ca6886b",
+                    "sha256": "4c351340fb24cc0ce013d4b2291f42be88433e2cd32bb30e651c9290ccfc4551",
                     "resolution": 256
                 },
                 {
                     "asset": "Assets/Stillwater/Generated/PC/Finishes/waterfall reflection.asset",
-                    "sha256": "90e6eeb6e20373c8add613d79d12d653ebe43beae9bf824a0c6add9abcf3a021",
+                    "sha256": "4d68513ac76bc8f0cece99ae374abae39d53bf3aac7d3e9e202790353720dd22",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/ballroom reflection.asset",
+                    "sha256": "6bbba27ed2ad61e0be91a5ffba933cbb4e57bb742a0e82fa6484b5168a8ed98e",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/lounge reflection.asset",
+                    "sha256": "82a9f2204720bc3bc277f5dde4cd79f4b3845e97d706805fe4bea84b71ed4e90",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/formation reflection.asset",
+                    "sha256": "b7ece10cb9316ea98f6cdcbec2aa294d484df3f7a55f234bc96b964a416c0ba6",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/planet reflection.asset",
+                    "sha256": "cf82e8e0a197167c8394bd17b00023242fe81c25f4b22c0bda00c498b14ed2f1",
                     "resolution": 128
                 }
             ]
@@ -707,20 +847,80 @@
         {
             "edition": "Quest",
             "scene": "Assets/Stillwater/Scenes/liminal uwu - Quest.unity",
-            "sha256": "218e411bf92f8fa706249357e882ae6adc76f5a4161e83525b4a4807f4e43bf4",
-            "rendererCount": 199,
-            "enabledRendererCount": 194,
-            "colliderCount": 1025,
+            "sha256": "f24591d21983e1c9584b89993e52ad9367ff9632df001a65b8ff8126cebc717c",
+            "rendererCount": 299,
+            "enabledRendererCount": 294,
+            "colliderCount": 1471,
             "reflectionCount": 0,
             "trainSeats": 6,
             "nativeVideoPlayers": 1,
-            "trianglesAllLods": 244084,
-            "audioZones": 38,
-            "visibilityZones": 38,
-            "visibilityRenderers": 197,
+            "trianglesAllLods": 277276,
+            "audioZones": 42,
+            "visibilityZones": 42,
+            "visibilityRenderers": 297,
             "visibilityPortals": 2,
-            "adventureDoors": 15,
+            "adventureDoors": 19,
             "personalPlatformLights": 2,
+            "loungeSeats": 4,
+            "uwuBalls": 24,
+            "formationPieces": 16,
+            "floatingStreetObjects": 28,
+            "authoredEnabledLights": 0,
+            "practicalLights": 0,
+            "fixtureVolumes": 4,
+            "nativeStations": 11,
+            "wallGravityReady": true,
+            "illuminatedBallCenters": 24,
+            "ballReadabilityViews": 4,
+            "minimumBallFixtureEnergy": 0.05442386865615845,
+            "minimumBallMedianBrightness": 0.2522875964641571,
+            "minimumBallReadableFraction": 1.0,
+            "fixtures": [
+                {
+                    "room": "hub",
+                    "colorAsset": "Assets/Stillwater/Generated/Quest/Finishes/hub fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/Quest/Finishes/hub fixture direction.asset",
+                    "litMaterials": 20,
+                    "width": 18,
+                    "height": 10,
+                    "depth": 18,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.15724481642246247
+                },
+                {
+                    "room": "ballroom",
+                    "colorAsset": "Assets/Stillwater/Generated/Quest/Finishes/ballroom fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/Quest/Finishes/ballroom fixture direction.asset",
+                    "litMaterials": 16,
+                    "width": 18,
+                    "height": 10,
+                    "depth": 18,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.08867667615413666
+                },
+                {
+                    "room": "lounge",
+                    "colorAsset": "Assets/Stillwater/Generated/Quest/Finishes/lounge fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/Quest/Finishes/lounge fixture direction.asset",
+                    "litMaterials": 17,
+                    "width": 18,
+                    "height": 10,
+                    "depth": 18,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.07103688269853592
+                },
+                {
+                    "room": "formation",
+                    "colorAsset": "Assets/Stillwater/Generated/Quest/Finishes/formation fixture light.asset",
+                    "directionAsset": "Assets/Stillwater/Generated/Quest/Finishes/formation fixture direction.asset",
+                    "litMaterials": 12,
+                    "width": 18,
+                    "height": 10,
+                    "depth": 18,
+                    "maximumChannel": 1.0,
+                    "meanChannel": 0.012044300325214863
+                }
+            ],
             "carriageAudioBound": true,
             "carriageAudioSeconds": 180.0,
             "carriageAudioSpatialBlend": 0.0,
@@ -1043,6 +1243,66 @@
                 },
                 {
                     "index": 20,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 609.0,
+                        "y": -3.0,
+                        "z": 367.0
+                    },
+                    "max": {
+                        "x": 671.0,
+                        "y": 31.0,
+                        "z": 433.0
+                    }
+                },
+                {
+                    "index": 21,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 766.0,
+                        "y": -3.0,
+                        "z": 367.0
+                    },
+                    "max": {
+                        "x": 834.0,
+                        "y": 31.0,
+                        "z": 433.0
+                    }
+                },
+                {
+                    "index": 22,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 761.0,
+                        "y": -3.0,
+                        "z": 161.0
+                    },
+                    "max": {
+                        "x": 839.0,
+                        "y": 39.0,
+                        "z": 239.0
+                    }
+                },
+                {
+                    "index": 23,
+                    "clip": "Assets/Stillwater/Media/Audio/space.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 960.0,
+                        "y": -6.0,
+                        "z": 160.0
+                    },
+                    "max": {
+                        "x": 1040.0,
+                        "y": 70.0,
+                        "z": 240.0
+                    }
+                },
+                {
+                    "index": 24,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1057,7 +1317,7 @@
                     }
                 },
                 {
-                    "index": 21,
+                    "index": 25,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1072,7 +1332,7 @@
                     }
                 },
                 {
-                    "index": 22,
+                    "index": 26,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1087,7 +1347,7 @@
                     }
                 },
                 {
-                    "index": 23,
+                    "index": 27,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1102,7 +1362,7 @@
                     }
                 },
                 {
-                    "index": 24,
+                    "index": 28,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1117,7 +1377,7 @@
                     }
                 },
                 {
-                    "index": 25,
+                    "index": 29,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1132,7 +1392,7 @@
                     }
                 },
                 {
-                    "index": 26,
+                    "index": 30,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1147,7 +1407,7 @@
                     }
                 },
                 {
-                    "index": 27,
+                    "index": 31,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1162,7 +1422,7 @@
                     }
                 },
                 {
-                    "index": 28,
+                    "index": 32,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1177,7 +1437,7 @@
                     }
                 },
                 {
-                    "index": 29,
+                    "index": 33,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1192,7 +1452,7 @@
                     }
                 },
                 {
-                    "index": 30,
+                    "index": 34,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1207,7 +1467,7 @@
                     }
                 },
                 {
-                    "index": 31,
+                    "index": 35,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1222,7 +1482,7 @@
                     }
                 },
                 {
-                    "index": 32,
+                    "index": 36,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1237,7 +1497,7 @@
                     }
                 },
                 {
-                    "index": 33,
+                    "index": 37,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1252,7 +1512,7 @@
                     }
                 },
                 {
-                    "index": 34,
+                    "index": 38,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1267,7 +1527,7 @@
                     }
                 },
                 {
-                    "index": 35,
+                    "index": 39,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1282,7 +1542,7 @@
                     }
                 },
                 {
-                    "index": 36,
+                    "index": 40,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1297,7 +1557,7 @@
                     }
                 },
                 {
-                    "index": 37,
+                    "index": 41,
                     "clip": "Assets/Stillwater/Media/Audio/annex.wav",
                     "rainy": false,
                     "min": {
@@ -1318,14 +1578,19 @@
     "images": [
         {
             "file": "PC/rain-exchange.png",
-            "sha256": "14a78ce3a4afc3fbc8986895730a8f4e60b09aefbe32a266155268f7af557420",
+            "sha256": "fe217c2e65c875218e911c16858a7d9de9a03b3dcbe626f1cd3830889ac8f41b",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.17220062017440797,
+            "meanBrightness": 0.22610493004322053,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.07461035251617432,
+            "litFraction": 0.8079511523246765,
+            "coloredLitFraction": 0.38672754168510439,
+            "lowerFrameBrightness": 0.19472014904022218,
+            "lowerFrameLitFraction": 0.9999911785125732,
             "position": {
                 "x": 0.0,
                 "y": 1.7200000286102296,
@@ -1339,14 +1604,19 @@
         },
         {
             "file": "PC/side-street-receiver.png",
-            "sha256": "85e9df2fe7bc4b0cef77f6d91b8869a92f5899b26a9089a48de84df62623f7d0",
+            "sha256": "72bbdc71800e3d0808db3d4adbc147faba8102e02fa40accd63794aaa73d3c97",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.1399707794189453,
+            "meanBrightness": 0.0908195897936821,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.16029687225818635,
+            "litFraction": 0.43535059690475466,
+            "coloredLitFraction": 0.18205077946186067,
+            "lowerFrameBrightness": 0.08404529094696045,
+            "lowerFrameLitFraction": 0.8107818365097046,
             "position": {
                 "x": 18.0,
                 "y": 1.7400000095367432,
@@ -1360,14 +1630,19 @@
         },
         {
             "file": "PC/ad-alley.png",
-            "sha256": "8e0da55abf083cc7edd41ac9e330b52c979b48c3c8f0ed2cb4fdae6dd4b65b35",
+            "sha256": "184fdc74a20b2123d2d8698eec7f0ca3da6fbde2525b53cb313bfdfd1255c887",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.13652262091636659,
+            "meanBrightness": 0.124545156955719,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.16001367568969727,
+            "litFraction": 0.4900752007961273,
+            "coloredLitFraction": 0.2959004044532776,
+            "lowerFrameBrightness": 0.13309605419635774,
+            "lowerFrameLitFraction": 0.8047873377799988,
             "position": {
                 "x": 229.0,
                 "y": 1.75,
@@ -1381,14 +1656,19 @@
         },
         {
             "file": "PC/last-concourse.png",
-            "sha256": "d26c68b4f9e7bc2ff9138b49a9e001c02fbf3403dc4358eca563229718a601e2",
+            "sha256": "f2baf745d6b147767fa5f713097abbbbf873a99da538bef93fa005658701e22d",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.1658284068107605,
+            "meanBrightness": 0.18189914524555207,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.018266601487994195,
+            "litFraction": 0.7010419964790344,
+            "coloredLitFraction": 0.46973827481269839,
+            "lowerFrameBrightness": 0.1340043842792511,
+            "lowerFrameLitFraction": 0.8855380415916443,
             "position": {
                 "x": 384.0,
                 "y": 1.75,
@@ -1402,14 +1682,19 @@
         },
         {
             "file": "PC/orbital-causeway.png",
-            "sha256": "22395993d14d3aaa1bab95ee1fdc5ee4d12f00be776644bc99db3ca845674bc2",
+            "sha256": "6502e85793828b7c7bb5c854b5ab83886afb9bbf11c3b939fe9c8c1ee3238b68",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.1656557023525238,
+            "meanBrightness": 0.13196086883544923,
             "fieldOfView": 82.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.2502041161060333,
+            "litFraction": 0.4214707016944885,
+            "coloredLitFraction": 0.26057031750679018,
+            "lowerFrameBrightness": 0.07587774097919464,
+            "lowerFrameLitFraction": 0.6068785190582275,
             "position": {
                 "x": 397.0,
                 "y": 1.75,
@@ -1423,14 +1708,19 @@
         },
         {
             "file": "PC/quiet-stacks.png",
-            "sha256": "ea92bca56af7f6f7546c8fdb5d03c64c05da5acd1e454cdcdf35333909eabf6d",
+            "sha256": "6735931ec96f53fc6e35db758a04588c91b058fc3b9c72db2a920e53a3029ad8",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.19747920334339143,
+            "meanBrightness": 0.08271157741546631,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.11227734386920929,
+            "litFraction": 0.30698341131210329,
+            "coloredLitFraction": 0.10071972757577896,
+            "lowerFrameBrightness": 0.10575815290212631,
+            "lowerFrameLitFraction": 0.7815760374069214,
             "position": {
                 "x": 224.0,
                 "y": 1.75,
@@ -1444,14 +1734,19 @@
         },
         {
             "file": "PC/service-returns.png",
-            "sha256": "5ca66b23cafd20c8dc3e673e65d7eea091e202dd3b0316decc5f0822311bc010",
+            "sha256": "91d5a581cbcf2c501b7a507d8c7ba46872f103d2fdf88e5ee164d00bdf6a52fb",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.23358836770057679,
+            "meanBrightness": 0.16114091873168946,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.00047851563431322575,
+            "litFraction": 0.7872588038444519,
+            "coloredLitFraction": 0.13223925232887269,
+            "lowerFrameBrightness": 0.11703792959451676,
+            "lowerFrameLitFraction": 1.0,
             "position": {
                 "x": 226.0,
                 "y": 1.75,
@@ -1465,14 +1760,19 @@
         },
         {
             "file": "PC/waterfall-chasm.png",
-            "sha256": "d0b99badb579035c163d8598de3d2642724e51bffd594572f0c82031a4afe757",
+            "sha256": "ca4057d43ff299d849f36029fb528be13c88f1d3327cf29bd28258cde969ff23",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.4459391236305237,
+            "meanBrightness": 0.4449440836906433,
             "fieldOfView": 88.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.06203320249915123,
+            "litFraction": 0.8603711128234863,
+            "coloredLitFraction": 0.8435302972793579,
+            "lowerFrameBrightness": 0.3490234315395355,
+            "lowerFrameLitFraction": 0.8153401017189026,
             "position": {
                 "x": 640.0,
                 "y": 2.0,
@@ -1486,14 +1786,19 @@
         },
         {
             "file": "PC/uwu-adventure-doors.png",
-            "sha256": "95cd4391916da0c1393ad9d195840ba3c5efaf97c5a62d37575c3af6cbc60d22",
+            "sha256": "1792ed656279b92e3f2299549096068bdc6e255eac2cffd834320efa63836e6c",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.15742072463035584,
+            "meanBrightness": 0.16621731221675874,
             "fieldOfView": 82.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.10461132973432541,
+            "litFraction": 0.7721874713897705,
+            "coloredLitFraction": 0.2922919988632202,
+            "lowerFrameBrightness": 0.2046179622411728,
+            "lowerFrameLitFraction": 1.0,
             "position": {
                 "x": 0.0,
                 "y": 1.75,
@@ -1507,14 +1812,19 @@
         },
         {
             "file": "PC/personal-platform-lights.png",
-            "sha256": "b9117e685a0a38f8445f5e2675c5728ac62bfb66663c1d0938abef97d909b7c7",
+            "sha256": "0d72b7ae2993b4912211afe6913276cc1d03b1714ebfc0e36cda7e7767817305",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.23883582651615144,
+            "meanBrightness": 0.18194638192653657,
             "fieldOfView": 80.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.009231445379555226,
+            "litFraction": 0.9444785118103027,
+            "coloredLitFraction": 0.32834571599960329,
+            "lowerFrameBrightness": 0.1863226294517517,
+            "lowerFrameLitFraction": 1.0,
             "position": {
                 "x": 14.0,
                 "y": 2.0999999046325685,
@@ -1527,15 +1837,306 @@
             }
         },
         {
+            "file": "PC/suspended-street-life.png",
+            "sha256": "4b1a9bf30671d9fa2dc400a8d6dd6cd72071cfca0b978a2ca2dcf006d7f01f70",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.2122298926115036,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.14937597513198853,
+            "litFraction": 0.6288877129554749,
+            "coloredLitFraction": 0.3613007664680481,
+            "lowerFrameBrightness": 0.2233324646949768,
+            "lowerFrameLitFraction": 0.9859639406204224,
+            "position": {
+                "x": -9.0,
+                "y": 1.75,
+                "z": -20.0
+            },
+            "forward": {
+                "x": 0.48127296566963198,
+                "y": 0.43694519996643069,
+                "z": 0.7599047422409058
+            }
+        },
+        {
+            "file": "PC/uwu-ballroom.png",
+            "sha256": "0d14e9415cdeab7a9e261425a80f519c910c17fe4ac62b11ff6cf3f091819b96",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.2106083631515503,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.03424316272139549,
+            "litFraction": 0.8698593974113464,
+            "coloredLitFraction": 0.3340986371040344,
+            "lowerFrameBrightness": 0.1528407633304596,
+            "lowerFrameLitFraction": 0.9272615313529968,
+            "position": {
+                "x": 640.0,
+                "y": 1.899999976158142,
+                "z": 376.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.09950372576713562,
+                "z": 0.9950371980667114
+            }
+        },
+        {
+            "file": "PC/uwu-ball-readability-08.png",
+            "sha256": "fdb6a8a314d80ca36bbe0ad148b8cf735248b0316e5e225ad618047e955d06f0",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.2673834562301636,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.5395050048828125,
+            "litFraction": 0.4604949951171875,
+            "coloredLitFraction": 0.4604949951171875,
+            "lowerFrameBrightness": 0.14062361419200898,
+            "lowerFrameLitFraction": 0.31911763548851015,
+            "position": {
+                "x": 631.1324462890625,
+                "y": 3.1480233669281008,
+                "z": 391.60028076171877
+            },
+            "forward": {
+                "x": -0.4929753839969635,
+                "y": 0.06938179582357407,
+                "z": 0.8672724366188049
+            }
+        },
+        {
+            "file": "PC/uwu-ball-readability-11.png",
+            "sha256": "b9614206ed79a6155d99b550f3c0ca3b418522a4a91a0997aeb0d5e3ffdd447d",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.26994940638542178,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.539520263671875,
+            "litFraction": 0.460479736328125,
+            "coloredLitFraction": 0.4590606689453125,
+            "lowerFrameBrightness": 0.15791545808315278,
+            "lowerFrameLitFraction": 0.3196231722831726,
+            "position": {
+                "x": 649.0762329101563,
+                "y": 4.387570858001709,
+                "z": 391.9674987792969
+            },
+            "forward": {
+                "x": 0.489695280790329,
+                "y": 0.1342129409313202,
+                "z": 0.8615018725395203
+            }
+        },
+        {
+            "file": "PC/uwu-ball-readability-14.png",
+            "sha256": "7c5c3140f026dfad4e80ffe80da84863a0c9e40db6aba8c90e7aaa2aa719a62c",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.12350154668092728,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.54119873046875,
+            "litFraction": 0.45880126953125,
+            "coloredLitFraction": 0.4568023681640625,
+            "lowerFrameBrightness": 0.07271368056535721,
+            "lowerFrameLitFraction": 0.3181525766849518,
+            "position": {
+                "x": 630.2888793945313,
+                "y": 1.9719343185424805,
+                "z": 402.076171875
+            },
+            "forward": {
+                "x": -0.34899619221687319,
+                "y": 0.002585161477327347,
+                "z": 0.9371205568313599
+            }
+        },
+        {
+            "file": "PC/uwu-ball-readability-17.png",
+            "sha256": "0bcfae694944706cb63d77b66eca5d3a8232f8538227cab32d6ba963f0db6c3f",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.15506109595298768,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.5388641357421875,
+            "litFraction": 0.4611358642578125,
+            "coloredLitFraction": 0.4611358642578125,
+            "lowerFrameBrightness": 0.09824772924184799,
+            "lowerFrameLitFraction": 0.3195772171020508,
+            "position": {
+                "x": 649.8518676757813,
+                "y": 3.2865593433380129,
+                "z": 402.4541015625
+            },
+            "forward": {
+                "x": 0.3485771417617798,
+                "y": 0.04905907064676285,
+                "z": 0.9359952807426453
+            }
+        },
+        {
+            "file": "PC/quiet-lounge.png",
+            "sha256": "b5f6016995b0253a639666986b95305fcbc9758f9a732a4a9c1b05a5bb33fef8",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.15138551592826844,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.04240820184350014,
+            "litFraction": 0.7011171579360962,
+            "coloredLitFraction": 0.3488828241825104,
+            "lowerFrameBrightness": 0.14479725062847138,
+            "lowerFrameLitFraction": 0.9928541779518127,
+            "position": {
+                "x": 800.0,
+                "y": 1.899999976158142,
+                "z": 377.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.2195121943950653,
+                "z": 0.9756097793579102
+            }
+        },
+        {
+            "file": "PC/lounge-light-pools.png",
+            "sha256": "19a8c21c8266c7da4979e69b7e729045cdbddde5c6305e3fdf0c839fa5de874c",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.14548921585083009,
+            "fieldOfView": 76.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.009070312604308129,
+            "litFraction": 0.7834131121635437,
+            "coloredLitFraction": 0.2950068414211273,
+            "lowerFrameBrightness": 0.13501006364822389,
+            "lowerFrameLitFraction": 1.0,
+            "position": {
+                "x": 800.0,
+                "y": 2.5999999046325685,
+                "z": 386.0
+            },
+            "forward": {
+                "x": 0.6323580145835877,
+                "y": -0.05269649624824524,
+                "z": 0.7728819251060486
+            }
+        },
+        {
+            "file": "PC/remembering-hall-assembled.png",
+            "sha256": "71bc949f944df4755d750bdc14c8172fe16b118cbe60d9863796f444383bfb5e",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.10196280479431153,
+            "fieldOfView": 85.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.2016884833574295,
+            "litFraction": 0.3764902353286743,
+            "coloredLitFraction": 0.21923828125,
+            "lowerFrameBrightness": 0.1012219488620758,
+            "lowerFrameLitFraction": 0.8367481231689453,
+            "position": {
+                "x": 796.0,
+                "y": 2.0,
+                "z": 173.0
+            },
+            "forward": {
+                "x": 0.33699360489845278,
+                "y": 0.2808280289173126,
+                "z": 0.8986495137214661
+            }
+        },
+        {
+            "file": "PC/remembering-hall-scattered.png",
+            "sha256": "9d0c9a823c6bb61bb305f6d64aca955756534f74e4f1664921e7d81795c8bb95",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.10074025392532349,
+            "fieldOfView": 85.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.2129794955253601,
+            "litFraction": 0.3709453046321869,
+            "coloredLitFraction": 0.21631835401058198,
+            "lowerFrameBrightness": 0.09958446770906449,
+            "lowerFrameLitFraction": 0.8203213214874268,
+            "position": {
+                "x": 796.0,
+                "y": 2.0,
+                "z": 173.0
+            },
+            "forward": {
+                "x": 0.33699360489845278,
+                "y": 0.2808280289173126,
+                "z": 0.8986495137214661
+            }
+        },
+        {
+            "file": "PC/gravity-orbit-room.png",
+            "sha256": "0b75a1c5d4f4c1ee569c7b1a7509242f326a41500eecdaee27a22c19e3fe2a9b",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.12471610307693482,
+            "fieldOfView": 88.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.12345312535762787,
+            "litFraction": 0.42225292325019839,
+            "coloredLitFraction": 0.21040038764476777,
+            "lowerFrameBrightness": 0.13890433311462403,
+            "lowerFrameLitFraction": 0.7877731323242188,
+            "position": {
+                "x": 1017.0,
+                "y": 8.0,
+                "z": 166.0
+            },
+            "forward": {
+                "x": -0.40002769231796267,
+                "y": 0.4470897614955902,
+                "z": 0.8000553846359253
+            }
+        },
+        {
             "file": "PC/sky-far.png",
-            "sha256": "e4c57e471347bd42f1047d7084f93d65be7d47006078bc0eee8326bbe909f79a",
+            "sha256": "c181cc108f6dbb80f0135fc3cc6fcf1df91c3f6b6c4bf1632f794309212bad41",
             "width": 800,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.1405676007270813,
+            "meanBrightness": 0.14056499302387238,
             "fieldOfView": 77.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.44152501225471499,
+            "litFraction": 0.40935155749320986,
+            "coloredLitFraction": 0.3947671949863434,
+            "lowerFrameBrightness": 0.043455686420202258,
+            "lowerFrameLitFraction": 0.30376410484313967,
             "position": {
                 "x": -80.0,
                 "y": 1.7400000095367432,
@@ -1549,14 +2150,19 @@
         },
         {
             "file": "PC/distant-nebula.png",
-            "sha256": "e430ca72a93993a5275284923b2035c311d8b753bcca55b47f085b9f5b9b851b",
+            "sha256": "54a789baa3c0605f93879d8d93e9ee04d5ca4ad49325e3429b0f2e7ac437f158",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.07125991582870484,
+            "meanBrightness": 0.07125798612833023,
             "fieldOfView": 110.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.07093749940395355,
+            "litFraction": 0.3280410170555115,
+            "coloredLitFraction": 0.0000654296891298145,
+            "lowerFrameBrightness": 0.026333792135119439,
+            "lowerFrameLitFraction": 0.0814732164144516,
             "position": {
                 "x": -80.0,
                 "y": 1.7400000095367432,
@@ -1570,14 +2176,19 @@
         },
         {
             "file": "PC/sky-approach.png",
-            "sha256": "9ba1edacddeb7f62b066c856ecf452eae2aa6d051b70ed2afc49a25bf634910a",
+            "sha256": "c8d1b7c58c10745ff0de0da7a6a7729336db08e05e7e6d38b78ed83af25d39b2",
             "width": 800,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.4283299744129181,
+            "meanBrightness": 0.42832884192466738,
             "fieldOfView": 100.0,
             "approachScale": 3.0999999046325685,
             "filmSecond": -1.0,
+            "darkFraction": 0.2245437502861023,
+            "litFraction": 0.7731421589851379,
+            "coloredLitFraction": 0.651256263256073,
+            "lowerFrameBrightness": 0.33346807956695559,
+            "lowerFrameLitFraction": 0.9128571152687073,
             "position": {
                 "x": -80.0,
                 "y": 1.7400000095367432,
@@ -1591,14 +2202,19 @@
         },
         {
             "file": "PC/train-summit.png",
-            "sha256": "1f268be4284611b38bca12cc2758ac3042ef70886e2e5e003c170da15a39da95",
+            "sha256": "a2989c2ac0afa2cbcc26b8a2dbe8ddbebf07d8592cbcc0f68e23971427d031f0",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.37981879711151125,
+            "meanBrightness": 0.3013834059238434,
             "fieldOfView": 74.0,
             "approachScale": 3.0999999046325685,
             "filmSecond": -1.0,
+            "darkFraction": 0.15309862792491914,
+            "litFraction": 0.8373544812202454,
+            "coloredLitFraction": 0.5939306616783142,
+            "lowerFrameBrightness": 0.19963277876377107,
+            "lowerFrameLitFraction": 0.9989074468612671,
             "position": {
                 "x": 16.68000030517578,
                 "y": 243.99545288085938,
@@ -1612,14 +2228,19 @@
         },
         {
             "file": "PC/film-02.png",
-            "sha256": "b23f0d29cce2c03e760e664da5ac47e1426eea969bbd5cf8e8f4d19acaee33cc",
+            "sha256": "480e7f4cd013668e234a19ab0ba7c72501c93dc49bf7d51e5ae59b9c26d8c075",
             "width": 1280,
             "height": 720,
             "magentaPixels": 0,
-            "meanBrightness": 0.13228720426559449,
+            "meanBrightness": 0.1322842240333557,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 2.0,
+            "darkFraction": 0.45217230916023257,
+            "litFraction": 0.4548133611679077,
+            "coloredLitFraction": 0.3446180522441864,
+            "lowerFrameBrightness": 0.09487564861774445,
+            "lowerFrameLitFraction": 0.5414843559265137,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -1633,14 +2254,19 @@
         },
         {
             "file": "PC/film-11.png",
-            "sha256": "c98cb1e63cdb751cd6c4454de74dd7b257d05f0afa2bc74a402ebfc9c45c9e82",
+            "sha256": "4f3477048698fb70586e1385be05020a9529a76cbfef3c998925ad5952ad1f1c",
             "width": 1280,
             "height": 720,
             "magentaPixels": 0,
-            "meanBrightness": 0.23158609867095948,
+            "meanBrightness": 0.23158128559589387,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 11.0,
+            "darkFraction": 0.24705837666988374,
+            "litFraction": 0.6110405921936035,
+            "coloredLitFraction": 0.5845919847488403,
+            "lowerFrameBrightness": 0.15256960690021516,
+            "lowerFrameLitFraction": 0.6334179639816284,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -1654,14 +2280,19 @@
         },
         {
             "file": "PC/film-18.png",
-            "sha256": "a06dc3da9c0e4b806628263c5cc418ac48cfb0e9cc51f318667cc7d9ccaec88b",
+            "sha256": "3569025075668835be8e245d440b98f56c0118a25f01536c7544c1c16894ac99",
             "width": 1280,
             "height": 720,
             "magentaPixels": 0,
-            "meanBrightness": 0.25808438658714297,
+            "meanBrightness": 0.25807952880859377,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 18.0,
+            "darkFraction": 0.3102962374687195,
+            "litFraction": 0.6154958605766296,
+            "coloredLitFraction": 0.576746940612793,
+            "lowerFrameBrightness": 0.21149227023124696,
+            "lowerFrameLitFraction": 0.7200586199760437,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -1683,6 +2314,11 @@
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 23.0,
+            "darkFraction": 1.0,
+            "litFraction": 0.0,
+            "coloredLitFraction": 0.0,
+            "lowerFrameBrightness": 0.0,
+            "lowerFrameLitFraction": 0.0,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -1696,14 +2332,19 @@
         },
         {
             "file": "PC/local-controls.png",
-            "sha256": "cb7c841660aba8ef7b4fe345f8da7ab8e648199156f2224c35c8ad906a225488",
+            "sha256": "4fbbd82e1bec60c8c6dbab1a77508beaf879bb5f98ebfea0fb0168623dbccc64",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.04462207108736038,
+            "meanBrightness": 0.044611334800720218,
             "fieldOfView": 65.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.0,
+            "litFraction": 0.05275293067097664,
+            "coloredLitFraction": 0.027570312842726709,
+            "lowerFrameBrightness": 0.031592682003974918,
+            "lowerFrameLitFraction": 0.009524788707494736,
             "position": {
                 "x": 0.0,
                 "y": -2000.0,
@@ -1717,14 +2358,19 @@
         },
         {
             "file": "Quest/rain-exchange.png",
-            "sha256": "82a90b10a8598f372efd3791a6cccaed6026ce30be0e5c6fb5422e5a251ae03d",
+            "sha256": "eb01bef614d3966ab0d896abba4c0b695d45a47f03dc75497998c742df29f986",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.13393768668174745,
+            "meanBrightness": 0.18552906811237336,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.1338232457637787,
+            "litFraction": 0.7642207145690918,
+            "coloredLitFraction": 0.32124119997024538,
+            "lowerFrameBrightness": 0.12710636854171754,
+            "lowerFrameLitFraction": 0.9999911785125732,
             "position": {
                 "x": 0.0,
                 "y": 1.7200000286102296,
@@ -1738,14 +2384,19 @@
         },
         {
             "file": "Quest/side-street-receiver.png",
-            "sha256": "e34cc0e9174d6e05ea76ca4d9882cced9185fc9d374867478e2fd268e9bcc551",
+            "sha256": "d925fe7d614c7dbd3c5042e69ee6c79064723848a988cfe220147fa097424742",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.10886309295892716,
+            "meanBrightness": 0.07249480485916138,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.24658788740634919,
+            "litFraction": 0.3291015625,
+            "coloredLitFraction": 0.18700586259365083,
+            "lowerFrameBrightness": 0.05403797701001167,
+            "lowerFrameLitFraction": 0.6424106955528259,
             "position": {
                 "x": 18.0,
                 "y": 1.7400000095367432,
@@ -1759,14 +2410,19 @@
         },
         {
             "file": "Quest/ad-alley.png",
-            "sha256": "1a7655de35d22003dbdf3d0f4ffb9d67bf0f0539db08b9ad09ec2361bc0703bf",
+            "sha256": "9297e0f5c5bef198016de6dd1a9ecb173ac5e9c921e34d43500975e6f2952171",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.07794570177793503,
+            "meanBrightness": 0.07768465578556061,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.29762598872184756,
+            "litFraction": 0.33608105778694155,
+            "coloredLitFraction": 0.16219335794448853,
+            "lowerFrameBrightness": 0.07725322991609574,
+            "lowerFrameLitFraction": 0.935027003288269,
             "position": {
                 "x": 229.0,
                 "y": 1.75,
@@ -1780,14 +2436,19 @@
         },
         {
             "file": "Quest/last-concourse.png",
-            "sha256": "1d0523be0da515c2ec99113e117ec6ad37fa0cec0a6e53db993799399d53b306",
+            "sha256": "f10f5557674b00b3b5d30cda32fbc073d34c10c9692f455c5228962afe447af0",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.12501132488250733,
+            "meanBrightness": 0.14372235536575318,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.05994043126702309,
+            "litFraction": 0.49501368403434756,
+            "coloredLitFraction": 0.41544434428215029,
+            "lowerFrameBrightness": 0.03725995495915413,
+            "lowerFrameLitFraction": 0.45030251145362856,
             "position": {
                 "x": 384.0,
                 "y": 1.75,
@@ -1801,14 +2462,19 @@
         },
         {
             "file": "Quest/orbital-causeway.png",
-            "sha256": "0a6f33f373b665e7ba722e3988288ee4bdcd61cc60c9a69388426729fb3831b9",
+            "sha256": "166afd7186bdc01ab78ad5124d1b298f86342c670a5298416f1ce086ff0bf153",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.09893657267093659,
+            "meanBrightness": 0.07215715199708939,
             "fieldOfView": 82.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.37462109327316286,
+            "litFraction": 0.26216307282447817,
+            "coloredLitFraction": 0.0987861305475235,
+            "lowerFrameBrightness": 0.059002622961997989,
+            "lowerFrameLitFraction": 0.6102443337440491,
             "position": {
                 "x": 397.0,
                 "y": 1.75,
@@ -1822,14 +2488,19 @@
         },
         {
             "file": "Quest/quiet-stacks.png",
-            "sha256": "16593f2946075f18e700c1d07780b3538f5d08d491264efe517c0311aeeff568",
+            "sha256": "9a2657e5ca58167d67fb6600ec3f9f1b183841ebbe20488b653e7ac28b527ac7",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.13847723603248597,
+            "meanBrightness": 0.05593693628907204,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.1416953057050705,
+            "litFraction": 0.1550019532442093,
+            "coloredLitFraction": 0.06510839611291886,
+            "lowerFrameBrightness": 0.04480937123298645,
+            "lowerFrameLitFraction": 0.6323866248130798,
             "position": {
                 "x": 224.0,
                 "y": 1.75,
@@ -1843,14 +2514,19 @@
         },
         {
             "file": "Quest/service-returns.png",
-            "sha256": "dad2f57d6b17f43f0b57088e68b6010381b16ab92137d65800a9f545d9b72359",
+            "sha256": "084ac8bc9976a6542323657f3d4ab4782a5e32ee20c4d7be74894f5f2e298993",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.21358056366443635,
+            "meanBrightness": 0.1986808478832245,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.006189452949911356,
+            "litFraction": 0.8859052658081055,
+            "coloredLitFraction": 0.37761425971984866,
+            "lowerFrameBrightness": 0.11459553241729737,
+            "lowerFrameLitFraction": 0.9799636006355286,
             "position": {
                 "x": 226.0,
                 "y": 1.75,
@@ -1864,14 +2540,19 @@
         },
         {
             "file": "Quest/waterfall-chasm.png",
-            "sha256": "d34abf4940c1e3040715030d9c126d2de174073a6e7e17099b0e3e798e3fbd62",
+            "sha256": "f1bb78cbd60a003e79684612ec48cce17275e3ebee5c7d9ea560a81b63a62a8d",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.40269073843955996,
+            "meanBrightness": 0.4018334150314331,
             "fieldOfView": 88.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.16924414038658143,
+            "litFraction": 0.7526708841323853,
+            "coloredLitFraction": 0.7487626671791077,
+            "lowerFrameBrightness": 0.3404160141944885,
+            "lowerFrameLitFraction": 0.804725706577301,
             "position": {
                 "x": 640.0,
                 "y": 2.0,
@@ -1885,14 +2566,19 @@
         },
         {
             "file": "Quest/uwu-adventure-doors.png",
-            "sha256": "57c6386b5476ca89538c926d17d582e8dc31c025a0546e44eb732f37e90502bd",
+            "sha256": "dec922bff991d8357fcf8c146883215bd9747309e8508cd851bf02cbff14abe5",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.12463297694921494,
+            "meanBrightness": 0.1428140252828598,
             "fieldOfView": 82.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.1588476598262787,
+            "litFraction": 0.7655810713768005,
+            "coloredLitFraction": 0.2593662142753601,
+            "lowerFrameBrightness": 0.14539046585559846,
+            "lowerFrameLitFraction": 1.0,
             "position": {
                 "x": 0.0,
                 "y": 1.75,
@@ -1906,14 +2592,19 @@
         },
         {
             "file": "Quest/personal-platform-lights.png",
-            "sha256": "3f2d9ecdc7eabba940760be70e749253296e1ea4d199d2266bae3e1a284c38c3",
+            "sha256": "c40ac09198b603c4926a4d2b97262aa8b1cb3391ae1f31205819dfbe01135c61",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.20194436609745027,
+            "meanBrightness": 0.11765611916780472,
             "fieldOfView": 80.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.19863475859165193,
+            "litFraction": 0.5716572403907776,
+            "coloredLitFraction": 0.21162499487400056,
+            "lowerFrameBrightness": 0.12366405129432678,
+            "lowerFrameLitFraction": 0.9986724853515625,
             "position": {
                 "x": 14.0,
                 "y": 2.0999999046325685,
@@ -1926,15 +2617,306 @@
             }
         },
         {
+            "file": "Quest/suspended-street-life.png",
+            "sha256": "6d343a4d710021d3d28c3cb62434ffb0cfb1861675f9be1b19e2699b061ae33f",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.17129066586494447,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.253108412027359,
+            "litFraction": 0.5835956931114197,
+            "coloredLitFraction": 0.3171728551387787,
+            "lowerFrameBrightness": 0.17523346841335298,
+            "lowerFrameLitFraction": 0.9858141541481018,
+            "position": {
+                "x": -9.0,
+                "y": 1.75,
+                "z": -20.0
+            },
+            "forward": {
+                "x": 0.48127296566963198,
+                "y": 0.43694519996643069,
+                "z": 0.7599047422409058
+            }
+        },
+        {
+            "file": "Quest/uwu-ballroom.png",
+            "sha256": "a8280c0dedb76551f6fd9ce51b49f68eb35cf9debd253bae3833dabd725b3568",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.15723206102848054,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.190367192029953,
+            "litFraction": 0.5923573970794678,
+            "coloredLitFraction": 0.29271581768989565,
+            "lowerFrameBrightness": 0.05356913059949875,
+            "lowerFrameLitFraction": 0.5799400806427002,
+            "position": {
+                "x": 640.0,
+                "y": 1.899999976158142,
+                "z": 376.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.09950372576713562,
+                "z": 0.9950371980667114
+            }
+        },
+        {
+            "file": "Quest/uwu-ball-readability-08.png",
+            "sha256": "3a47463372331555682fd3d41c8b5fb70072e525f7373ce500712ee309ce550e",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.2640340328216553,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.5558013916015625,
+            "litFraction": 0.4441986083984375,
+            "coloredLitFraction": 0.4441986083984375,
+            "lowerFrameBrightness": 0.13619618117809297,
+            "lowerFrameLitFraction": 0.3047334551811218,
+            "position": {
+                "x": 631.1324462890625,
+                "y": 3.1480233669281008,
+                "z": 391.60028076171877
+            },
+            "forward": {
+                "x": -0.4929753839969635,
+                "y": 0.06938179582357407,
+                "z": 0.8672724366188049
+            }
+        },
+        {
+            "file": "Quest/uwu-ball-readability-11.png",
+            "sha256": "1b3332866f478a6d772cbf3869dbc2534a1ecf1cc52a92db52df9042bddb36c3",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.2595227062702179,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.554412841796875,
+            "litFraction": 0.445587158203125,
+            "coloredLitFraction": 0.4442291259765625,
+            "lowerFrameBrightness": 0.15205997228622437,
+            "lowerFrameLitFraction": 0.30583640933036806,
+            "position": {
+                "x": 649.0762329101563,
+                "y": 4.387570858001709,
+                "z": 391.9674987792969
+            },
+            "forward": {
+                "x": 0.489695280790329,
+                "y": 0.1342129409313202,
+                "z": 0.8615018725395203
+            }
+        },
+        {
+            "file": "Quest/uwu-ball-readability-14.png",
+            "sha256": "c5aa41d098b2808783ce686a2db634d076ec87b041d5ccd582e6d1937308d13a",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.12592089176177979,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.552093505859375,
+            "litFraction": 0.447906494140625,
+            "coloredLitFraction": 0.446258544921875,
+            "lowerFrameBrightness": 0.07086367160081864,
+            "lowerFrameLitFraction": 0.30707719922065737,
+            "position": {
+                "x": 630.2888793945313,
+                "y": 1.9719343185424805,
+                "z": 402.076171875
+            },
+            "forward": {
+                "x": -0.34899619221687319,
+                "y": 0.002585161477327347,
+                "z": 0.9371205568313599
+            }
+        },
+        {
+            "file": "Quest/uwu-ball-readability-17.png",
+            "sha256": "4d47222614383bf5bcd81e7bb816e12080c57473eff583690bfa72b0b5b089ef",
+            "width": 256,
+            "height": 256,
+            "magentaPixels": 0,
+            "meanBrightness": 0.1590854674577713,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.547698974609375,
+            "litFraction": 0.452301025390625,
+            "coloredLitFraction": 0.452301025390625,
+            "lowerFrameBrightness": 0.09610287845134735,
+            "lowerFrameLitFraction": 0.3095128536224365,
+            "position": {
+                "x": 649.8518676757813,
+                "y": 3.2865593433380129,
+                "z": 402.4541015625
+            },
+            "forward": {
+                "x": 0.3485771417617798,
+                "y": 0.04905907064676285,
+                "z": 0.9359952807426453
+            }
+        },
+        {
+            "file": "Quest/quiet-lounge.png",
+            "sha256": "8b08b605f2e7ee4b6c15eb57a9347bc67b97d6745bc1c137ae2be39a8b98ddbe",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.08914235979318619,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.2581796944141388,
+            "litFraction": 0.3734501898288727,
+            "coloredLitFraction": 0.2180761694908142,
+            "lowerFrameBrightness": 0.05803801864385605,
+            "lowerFrameLitFraction": 0.6370535492897034,
+            "position": {
+                "x": 800.0,
+                "y": 1.899999976158142,
+                "z": 377.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.2195121943950653,
+                "z": 0.9756097793579102
+            }
+        },
+        {
+            "file": "Quest/lounge-light-pools.png",
+            "sha256": "0996c37d83eaa5abf6b95c4bc9aeda46ade59bbb79a6e365c11421bd7f96e282",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.11009727418422699,
+            "fieldOfView": 76.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.04396582022309303,
+            "litFraction": 0.48911231756210329,
+            "coloredLitFraction": 0.25807324051856997,
+            "lowerFrameBrightness": 0.08356525748968125,
+            "lowerFrameLitFraction": 0.995967447757721,
+            "position": {
+                "x": 800.0,
+                "y": 2.5999999046325685,
+                "z": 386.0
+            },
+            "forward": {
+                "x": 0.6323580145835877,
+                "y": -0.05269649624824524,
+                "z": 0.7728819251060486
+            }
+        },
+        {
+            "file": "Quest/remembering-hall-assembled.png",
+            "sha256": "5e7053bca66d7fffb64ef6bba01be38eec3826959cf0930f8c59272fe811aa7c",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.04962367191910744,
+            "fieldOfView": 85.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.5225234627723694,
+            "litFraction": 0.14974218606948853,
+            "coloredLitFraction": 0.11251171678304672,
+            "lowerFrameBrightness": 0.04665793478488922,
+            "lowerFrameLitFraction": 0.28756168484687807,
+            "position": {
+                "x": 796.0,
+                "y": 2.0,
+                "z": 173.0
+            },
+            "forward": {
+                "x": 0.33699360489845278,
+                "y": 0.2808280289173126,
+                "z": 0.8986495137214661
+            }
+        },
+        {
+            "file": "Quest/remembering-hall-scattered.png",
+            "sha256": "67bd87f9856e606e4728639bdce4c69e38e0790bf118cb27269c77dd502aed18",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.05274467542767525,
+            "fieldOfView": 85.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.5072959065437317,
+            "litFraction": 0.1588173806667328,
+            "coloredLitFraction": 0.09877734631299973,
+            "lowerFrameBrightness": 0.04577909782528877,
+            "lowerFrameLitFraction": 0.25758928060531618,
+            "position": {
+                "x": 796.0,
+                "y": 2.0,
+                "z": 173.0
+            },
+            "forward": {
+                "x": 0.33699360489845278,
+                "y": 0.2808280289173126,
+                "z": 0.8986495137214661
+            }
+        },
+        {
+            "file": "Quest/gravity-orbit-room.png",
+            "sha256": "c80324e7ee4a96d30fea6955cf59627f3c5f20d8ce874aa691fc3c4e9f5a83be",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.0756702721118927,
+            "fieldOfView": 88.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "darkFraction": 0.2081318348646164,
+            "litFraction": 0.2628505825996399,
+            "coloredLitFraction": 0.12116698920726776,
+            "lowerFrameBrightness": 0.10266304761171341,
+            "lowerFrameLitFraction": 0.6157248616218567,
+            "position": {
+                "x": 1017.0,
+                "y": 8.0,
+                "z": 166.0
+            },
+            "forward": {
+                "x": -0.40002769231796267,
+                "y": 0.4470897614955902,
+                "z": 0.8000553846359253
+            }
+        },
+        {
             "file": "Quest/sky-far.png",
-            "sha256": "1ae4dce795ac51210de33df9dde378d20a1c20690922d4bd8002c46338f13883",
+            "sha256": "c667a8768d654ada20ae713cc7f859a5444b5005ac0276f4c02cb6d96c5b904d",
             "width": 800,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.020119819790124894,
+            "meanBrightness": 0.020119475200772287,
             "fieldOfView": 77.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.9128890633583069,
+            "litFraction": 0.057996876537799838,
+            "coloredLitFraction": 0.05778593569993973,
+            "lowerFrameBrightness": 0.00012265959230717272,
+            "lowerFrameLitFraction": 0.00006109022797318175,
             "position": {
                 "x": -80.0,
                 "y": 1.7400000095367432,
@@ -1948,14 +2930,19 @@
         },
         {
             "file": "Quest/distant-nebula.png",
-            "sha256": "af62dba6606290f9d3ae97bd33fdc15088f4d8b6e4430d633fecf107c3ca881f",
+            "sha256": "475184e25f982b2ac3e6efe5f301071b6fcb9c5e7e8bb1395191b926b78680ab",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.06338819116353989,
+            "meanBrightness": 0.0633864477276802,
             "fieldOfView": 110.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.3693203032016754,
+            "litFraction": 0.3099062442779541,
+            "coloredLitFraction": 0.00005273437636788003,
+            "lowerFrameBrightness": 0.01597200334072113,
+            "lowerFrameLitFraction": 0.02639508992433548,
             "position": {
                 "x": -80.0,
                 "y": 1.7400000095367432,
@@ -1969,14 +2956,19 @@
         },
         {
             "file": "Quest/sky-approach.png",
-            "sha256": "24e80cb965a20047b9b07dff1b0ffeb4c7e58663b5f0849cee699a100bc9c4fb",
+            "sha256": "de7463511c5c5c05ef777b4dcf4767a96280f7fe76ea74d96980c5aad15ca69a",
             "width": 800,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.16504335403442384,
+            "meanBrightness": 0.16504061222076417,
             "fieldOfView": 100.0,
             "approachScale": 3.0999999046325685,
             "filmSecond": -1.0,
+            "darkFraction": 0.3435765504837036,
+            "litFraction": 0.4910062551498413,
+            "coloredLitFraction": 0.48640313744544985,
+            "lowerFrameBrightness": 0.09509046375751496,
+            "lowerFrameLitFraction": 0.4832095801830292,
             "position": {
                 "x": -80.0,
                 "y": 1.7400000095367432,
@@ -1990,14 +2982,19 @@
         },
         {
             "file": "Quest/train-summit.png",
-            "sha256": "4e0f4384d38835d6325a1409c25644564f60dd4461a4102d025b623f36876d7b",
+            "sha256": "f349adea4d501e700a9a2e566a5cc5cce797bb38837f49ef08d37f84b07c506c",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.32734742760658266,
+            "meanBrightness": 0.24465182423591615,
             "fieldOfView": 74.0,
             "approachScale": 3.0999999046325685,
             "filmSecond": -1.0,
+            "darkFraction": 0.15074999630451203,
+            "litFraction": 0.7970927953720093,
+            "coloredLitFraction": 0.6290878653526306,
+            "lowerFrameBrightness": 0.1966772824525833,
+            "lowerFrameLitFraction": 0.9937499761581421,
             "position": {
                 "x": 16.68000030517578,
                 "y": 243.99545288085938,
@@ -2011,14 +3008,19 @@
         },
         {
             "file": "Quest/film-02.png",
-            "sha256": "a07a9dd8cca80da19f84f370eca69a8728ff2a9bd609baaeae727fc559cc3a56",
+            "sha256": "268263d614e3852ff471768ec042dcd25da906f2e680049a87be16435d1b0216",
             "width": 1280,
             "height": 720,
             "magentaPixels": 0,
-            "meanBrightness": 0.02339331991970539,
+            "meanBrightness": 0.02339269034564495,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 2.0,
+            "darkFraction": 0.8198058009147644,
+            "litFraction": 0.14098958671092988,
+            "coloredLitFraction": 0.038534071296453479,
+            "lowerFrameBrightness": 0.03382384777069092,
+            "lowerFrameLitFraction": 0.2627929747104645,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -2032,14 +3034,19 @@
         },
         {
             "file": "Quest/film-11.png",
-            "sha256": "f82d994f8cf87bdfae3feeca66f68b805f435f816b71d7ccb8a07e17fa722a61",
+            "sha256": "2acda1f8e3b58be2a3ab0a0a88cc450f3237c00943de2cf52d174cec2fe33d07",
             "width": 1280,
             "height": 720,
             "magentaPixels": 0,
-            "meanBrightness": 0.027935869991779329,
+            "meanBrightness": 0.027935026213526727,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 11.0,
+            "darkFraction": 0.7954741716384888,
+            "litFraction": 0.10725586116313935,
+            "coloredLitFraction": 0.09821614623069763,
+            "lowerFrameBrightness": 0.018462494015693666,
+            "lowerFrameLitFraction": 0.11994466185569763,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -2053,14 +3060,19 @@
         },
         {
             "file": "Quest/film-18.png",
-            "sha256": "4253bd520098aaa49fffe44cca824c29b2ca7fc8f8fa424558f640391aee60f6",
+            "sha256": "0d89dd6bcea4e2a7d1fccf3e7136bba88fdac569d484918f7f9fbca2ede25be5",
             "width": 1280,
             "height": 720,
             "magentaPixels": 0,
-            "meanBrightness": 0.04434024542570114,
+            "meanBrightness": 0.04433893412351608,
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 18.0,
+            "darkFraction": 0.6938053369522095,
+            "litFraction": 0.1705522984266281,
+            "coloredLitFraction": 0.1568131446838379,
+            "lowerFrameBrightness": 0.031721312552690509,
+            "lowerFrameLitFraction": 0.21569010615348817,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -2082,6 +3094,11 @@
             "fieldOfView": 74.0,
             "approachScale": 1.0,
             "filmSecond": 23.0,
+            "darkFraction": 1.0,
+            "litFraction": 0.0,
+            "coloredLitFraction": 0.0,
+            "lowerFrameBrightness": 0.0,
+            "lowerFrameLitFraction": 0.0,
             "position": {
                 "x": 0.0,
                 "y": -10000.0,
@@ -2095,14 +3112,19 @@
         },
         {
             "file": "Quest/local-controls.png",
-            "sha256": "cb7c841660aba8ef7b4fe345f8da7ab8e648199156f2224c35c8ad906a225488",
+            "sha256": "4fbbd82e1bec60c8c6dbab1a77508beaf879bb5f98ebfea0fb0168623dbccc64",
             "width": 1280,
             "height": 800,
             "magentaPixels": 0,
-            "meanBrightness": 0.04462207108736038,
+            "meanBrightness": 0.044611334800720218,
             "fieldOfView": 65.0,
             "approachScale": 1.0,
             "filmSecond": -1.0,
+            "darkFraction": 0.0,
+            "litFraction": 0.05275293067097664,
+            "coloredLitFraction": 0.027570312842726709,
+            "lowerFrameBrightness": 0.031592682003974918,
+            "lowerFrameLitFraction": 0.009524788707494736,
             "position": {
                 "x": 0.0,
                 "y": -2000.0,
@@ -2207,6 +3229,41 @@
             "bytecodeAvailable": true
         },
         {
+            "asset": "Assets/Stillwater/Runtime/FloatingStreetObjects.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/609a298a5fcb5cc6f935c2e11b261539.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/LocalPracticalLights.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/09993e58a9de6c854bd0e9fea71bb840.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/LoungeSeat.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/e5ce181fcb205a7887909b34448269e6.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/PlanetGalleryControl.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/8fedba58a62cd16bba294261a00d3930.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/RoomFormation.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/8151b5fe90a4537d8aebb077a2d9aa6a.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
             "asset": "Assets/Stillwater/Runtime/StillwaterGravityPort.asset",
             "compiledAsset": "Assets/SerializedUdonPrograms/c16f99cd6ffe4e45b417c528fe49ccf5.asset",
             "version": "V1SerializationUpdate",
@@ -2214,8 +3271,50 @@
             "bytecodeAvailable": true
         },
         {
+            "asset": "Assets/Stillwater/Runtime/UwuBallPit.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/a7484ac13b4d19402b976fa92c606932.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
             "asset": "Assets/Stillwater/Runtime/WorldAudioDirector.asset",
             "compiledAsset": "Assets/SerializedUdonPrograms/ccf6097f3bdfefc8ea637eaf8b66c52a.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Personal/PlanetMovement/BobysPlanetMovement.asset",
+            "compiledAsset": "Assets/Stillwater/Personal/PlanetMovement/Compiled/4538a0a2cbd80014d831b43f58292264.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Personal/PlanetMovement/PlanetMove_AutoExitManager.asset",
+            "compiledAsset": "Assets/Stillwater/Personal/PlanetMovement/Compiled/4357b7aa4a9df5a46a46f46913e3c6d8.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Personal/PlanetMovement/PlanetMove_GravityField.asset",
+            "compiledAsset": "Assets/Stillwater/Personal/PlanetMovement/Compiled/e0edb1bb47eee294ba4311c0f908c2de.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Personal/PlanetMovement/PlanetMove_GravityFieldGroup.asset",
+            "compiledAsset": "Assets/Stillwater/Personal/PlanetMovement/Compiled/030a475ad86e14a40890cad06dabb039.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Personal/PlanetMovement/PlanetMove_StationListener.asset",
+            "compiledAsset": "Assets/Stillwater/Personal/PlanetMovement/Compiled/c38ce4db25d1ffe42b5e05a95d1f9fa7.asset",
             "version": "V1SerializationUpdate",
             "assemblyError": false,
             "bytecodeAvailable": true

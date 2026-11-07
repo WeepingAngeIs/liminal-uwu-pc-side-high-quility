@@ -1,0 +1,19 @@
+2026-11-07T08:35:26.6938891Z NEW_ROOMS_CLIENTSIM_CHECK 24 non-grabbable local toys: compiled player, floor and pair contacts bounce balls without changing player locomotion
+2026-11-07T08:35:27.5939086Z NEW_ROOMS_CLIENTSIM_CHECK toy physics updates while the visitor is in the room
+2026-11-07T08:35:28.3018180Z NEW_ROOMS_CLIENTSIM_CHECK toy physics pauses when the room is left; observing lifted street objects
+2026-11-07T08:35:30.2397773Z NEW_ROOMS_CLIENTSIM_CHECK street cars, lamps, bins and bushes drift independently, without a synchronized debris line
+2026-11-07T08:35:31.7262479Z NEW_ROOMS_CLIENTSIM_CHECK nearby reconstruction begins gradually above a permanent physical floor
+2026-11-07T08:35:32.6192156Z NEW_ROOMS_CLIENTSIM_CHECK moving away reverses incomplete formation without snapping or removing the foundation
+2026-11-07T08:35:33.3105589Z NEW_ROOMS_CLIENTSIM_CHECK returning before dissolution completes resumes assembly from the current state
+2026-11-07T08:35:40.2121380Z NEW_ROOMS_CLIENTSIM_CHECK nearby fragments finish precisely at their authored architectural positions
+2026-11-07T08:35:49.0404987Z NEW_ROOMS_CLIENTSIM_CHECK distant formation fully disperses while its physical foundation remains; entering a lounge chair
+2026-11-07T08:35:49.0422007Z NEW_ROOMS_CLIENTSIM_CHECK lounge chair interaction enters its native VRChat station
+2026-11-07T08:35:49.0434147Z NEW_ROOMS_CLIENTSIM_CHECK lounge chair exits freely without retaining a seated flag or altering locomotion
+2026-11-07T08:35:49.6631712Z NEW_ROOMS_CLIENTSIM_CHECK only up to four nearby shadowless PC practical lights illuminate the visitor
+2026-11-07T08:35:50.2740169Z NEW_ROOMS_CLIENTSIM_CHECK all practical lights switch off outside their range; entering the licensed wall-gravity controller
+2026-11-07T08:35:50.2781961Z NEW_ROOMS_CLIENTSIM_CHECK the gravity room activates the original controller through its native station
+2026-11-07T08:35:50.2785099Z NEW_ROOMS_CLIENTSIM_CHECK licensed controller maintains real sideways wall orientation with finite physical motion
+2026-11-07T08:35:50.6644639Z NEW_ROOMS_CLIENTSIM_CHECK licensed controller maintains upside-down ceiling orientation; requesting ordinary-floor return
+2026-11-07T08:35:52.4790296Z NEW_ROOMS_CLIENTSIM_CHECK wall/ceiling station returns upright to the clear lobby with ordinary locomotion restored
+2026-11-07T08:35:53.2888738Z NEW_ROOMS_CLIENTSIM_CHECK respawning during staged gravity exit tests cancellation of a queued return
+2026-11-07T08:35:54.6759660Z NEW_ROOMS_CLIENTSIM_PASS Compiled Udon/ClientSim verified 24 local non-grabbable balls, player/floor/pair bounce with no player forces, distant sleep, independent floating props, slow reversible reconstruction over a permanent floor, four lounge stations with native enter/exit, four-light PC budget/range shutdown, original licensed sideways and ceiling gravity, ordinary return and respawn cancellation. No headset frame-rate or multi-client synchronization measurement.

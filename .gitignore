@@ -101,3 +101,15 @@ __pycache__/
 # Owner-licensed source assets are restored from authenticated encryption in CI.
 /Assets/Stillwater/Personal/
 /Assets/Stillwater/Personal.meta
+
+!/Assets/SerializedUdonPrograms/609a298a5fcb5cc6f935c2e11b261539.asset*
+
+!/Assets/SerializedUdonPrograms/09993e58a9de6c854bd0e9fea71bb840.asset*
+
+!/Assets/SerializedUdonPrograms/e5ce181fcb205a7887909b34448269e6.asset*
+
+!/Assets/SerializedUdonPrograms/8fedba58a62cd16bba294261a00d3930.asset*
+
+!/Assets/SerializedUdonPrograms/8151b5fe90a4537d8aebb077a2d9aa6a.asset*
+
+!/Assets/SerializedUdonPrograms/a7484ac13b4d19402b976fa92c606932.asset*

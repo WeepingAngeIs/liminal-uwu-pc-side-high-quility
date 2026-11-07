@@ -1,31 +1,31 @@
-2026-11-07T06:03:44.2125676Z EXPANSION_CLIENTSIM_CHECK live VM bindings, 6 seats, common audio controls
-2026-11-07T06:03:45.2114969Z EXPANSION_CLIENTSIM_CHECK wet room audible, occupied room rendered, distant room hidden, colliders retained
-2026-11-07T06:03:45.6134409Z EXPANSION_CLIENTSIM_CHECK portable menu opened
-2026-11-07T06:03:46.0186151Z EXPANSION_CLIENTSIM_CHECK all three real slider events changed local volumes
-2026-11-07T06:03:47.0252357Z EXPANSION_CLIENTSIM_CHECK dry room stopped rain and switched atmosphere without losing slider values
-2026-11-07T06:03:48.0284874Z EXPANSION_CLIENTSIM_CHECK sealed maintenance passage retains collision without revealing its former destination
-2026-11-07T06:03:49.0476140Z EXPANSION_CLIENTSIM_CHECK billboard room restarts rain, portable menu toggles
-2026-11-07T06:03:50.4675056Z EXPANSION_CLIENTSIM_CHECK recorded distant aperture size
-2026-11-07T06:03:53.0149354Z EXPANSION_CLIENTSIM_CHECK local black-hole scale increases on approach
-2026-11-07T06:03:54.4851280Z EXPANSION_CLIENTSIM_CHECK seat immunity and local rumble gain
-2026-11-07T06:03:54.4866074Z EXPANSION_CLIENTSIM_CHECK unseated pull changes velocity and position; seat entry restores movement
-2026-11-07T06:03:55.1563552Z EXPANSION_CLIENTSIM_CHECK seat cancellation persists while seated
-2026-11-07T06:03:55.1575710Z EXPANSION_CLIENTSIM_CHECK started second pull for field-exit check
-2026-11-07T06:03:55.4975043Z EXPANSION_CLIENTSIM_CHECK leaving field restores all movement and local presentation
-2026-11-07T06:03:56.0029734Z EXPANSION_CLIENTSIM_CHECK explicit return invoked during active pull
-2026-11-07T06:03:57.2035497Z EXPANSION_CLIENTSIM_CHECK explicit return restores movement and arrival
-2026-11-07T06:03:57.7127250Z EXPANSION_CLIENTSIM_CHECK real ClientSim respawn requested while being pulled
-2026-11-07T06:03:59.0194906Z EXPANSION_CLIENTSIM_CHECK respawn restores movement/presentation, clears seat flag and closes menu
-2026-11-07T06:03:59.5274723Z EXPANSION_CLIENTSIM_CHECK automatic pull return started
-2026-11-07T06:04:03.3796422Z EXPANSION_CLIENTSIM_CHECK train remains parked throughout exploration; entered first adventure door
-2026-11-07T06:04:03.6957928Z EXPANSION_CLIENTSIM_CHECK first walk-through portal arrived at its actual landing
-2026-11-07T06:04:03.8931289Z EXPANSION_CLIENTSIM_CHECK portal cooldown suppresses immediate second-door traversal
-2026-11-07T06:04:04.2907209Z EXPANSION_CLIENTSIM_CHECK alternate branch portal arrived; shared train started with fresh boarding period
-2026-11-07T06:04:04.7952441Z EXPANSION_CLIENTSIM_CHECK start is irreversible/idempotent and preserves boarding dwell; advanced shared clock
-2026-11-07T06:04:05.2186588Z EXPANSION_CLIENTSIM_CHECK shared epoch resolves the moving train after one completed round trip
-2026-11-07T06:04:05.6213772Z EXPANSION_CLIENTSIM_CHECK repeating train returns to boarding and keeps carriage ambience silent during dwell
-2026-11-07T06:04:06.0215291Z EXPANSION_CLIENTSIM_CHECK moving train gives seated rider quiet local ambience through atmosphere volume
-2026-11-07T06:04:06.4318743Z EXPANSION_CLIENTSIM_CHECK atmosphere slider fully mutes carriage ambience
-2026-11-07T06:04:06.8565482Z EXPANSION_CLIENTSIM_CHECK atmosphere slider restores carriage ambience; moving into coach aisle
-2026-11-07T06:04:07.3519048Z EXPANSION_CLIENTSIM_CHECK unseated player inside the moving coach hears carriage ambience
-2026-11-07T06:04:07.6743410Z EXPANSION_CLIENTSIM_PASS Compiled Udon/ClientSim verified room audio, independent sliders, portable menu, isolated districts with persistent colliders, six seats, aperture growth/pull/immunity/return, two walk-through routes and cooldown, initial parked train, one-time start, boarding dwell, repeating epoch and private carriage audio eligibility/gain/mute through the atmosphere slider. No external video URL or multi-client session was exercised.
+2026-11-07T08:34:19.5606836Z EXPANSION_CLIENTSIM_CHECK live VM bindings, 6 seats, common audio controls
+2026-11-07T08:34:20.5632554Z EXPANSION_CLIENTSIM_CHECK wet room audible, occupied room rendered, distant room hidden, colliders retained
+2026-11-07T08:34:20.9617090Z EXPANSION_CLIENTSIM_CHECK portable menu opened
+2026-11-07T08:34:21.3728358Z EXPANSION_CLIENTSIM_CHECK all three real slider events changed local volumes
+2026-11-07T08:34:22.3755984Z EXPANSION_CLIENTSIM_CHECK dry room stopped rain and switched atmosphere without losing slider values
+2026-11-07T08:34:23.3902685Z EXPANSION_CLIENTSIM_CHECK sealed maintenance passage retains collision without revealing its former destination
+2026-11-07T08:34:24.3996832Z EXPANSION_CLIENTSIM_CHECK billboard room restarts rain, portable menu toggles
+2026-11-07T08:34:26.2598682Z EXPANSION_CLIENTSIM_CHECK recorded distant aperture size
+2026-11-07T08:34:29.1274438Z EXPANSION_CLIENTSIM_CHECK local black-hole scale increases on approach
+2026-11-07T08:34:30.3894596Z EXPANSION_CLIENTSIM_CHECK seat immunity and local rumble gain
+2026-11-07T08:34:30.3941525Z EXPANSION_CLIENTSIM_CHECK unseated pull changes velocity and position; seat entry restores movement
+2026-11-07T08:34:31.0866987Z EXPANSION_CLIENTSIM_CHECK seat cancellation persists while seated
+2026-11-07T08:34:31.0887078Z EXPANSION_CLIENTSIM_CHECK started second pull for field-exit check
+2026-11-07T08:34:31.0907833Z EXPANSION_CLIENTSIM_CHECK leaving field restores all movement and local presentation
+2026-11-07T08:34:31.3463812Z EXPANSION_CLIENTSIM_CHECK explicit return invoked during active pull
+2026-11-07T08:34:32.5437046Z EXPANSION_CLIENTSIM_CHECK explicit return restores movement and arrival
+2026-11-07T08:34:33.0504266Z EXPANSION_CLIENTSIM_CHECK real ClientSim respawn requested while being pulled
+2026-11-07T08:34:34.3503448Z EXPANSION_CLIENTSIM_CHECK respawn restores movement/presentation, clears seat flag and closes menu
+2026-11-07T08:34:34.8546293Z EXPANSION_CLIENTSIM_CHECK automatic pull return started
+2026-11-07T08:34:38.6998667Z EXPANSION_CLIENTSIM_CHECK train remains parked throughout exploration; entered first adventure door
+2026-11-07T08:34:39.0046081Z EXPANSION_CLIENTSIM_CHECK first walk-through portal arrived at its actual landing
+2026-11-07T08:34:39.2074858Z EXPANSION_CLIENTSIM_CHECK portal cooldown suppresses immediate second-door traversal
+2026-11-07T08:34:39.6274071Z EXPANSION_CLIENTSIM_CHECK alternate branch portal arrived; shared train started with fresh boarding period
+2026-11-07T08:34:40.1277851Z EXPANSION_CLIENTSIM_CHECK start is irreversible/idempotent and preserves boarding dwell; advanced shared clock
+2026-11-07T08:34:40.5355836Z EXPANSION_CLIENTSIM_CHECK shared epoch resolves the moving train after one completed round trip
+2026-11-07T08:34:40.9357921Z EXPANSION_CLIENTSIM_CHECK repeating train returns to boarding and keeps carriage ambience silent during dwell
+2026-11-07T08:34:41.3396762Z EXPANSION_CLIENTSIM_CHECK moving train gives seated rider quiet local ambience through atmosphere volume
+2026-11-07T08:34:41.7430626Z EXPANSION_CLIENTSIM_CHECK atmosphere slider fully mutes carriage ambience
+2026-11-07T08:34:42.1583315Z EXPANSION_CLIENTSIM_CHECK atmosphere slider restores carriage ambience; moving into coach aisle
+2026-11-07T08:34:42.6305924Z EXPANSION_CLIENTSIM_CHECK unseated player inside the moving coach hears carriage ambience
+2026-11-07T08:34:42.9563060Z EXPANSION_CLIENTSIM_PASS Compiled Udon/ClientSim verified room audio, independent sliders, portable menu, isolated districts with persistent colliders, six seats, aperture growth/pull/immunity/return, two walk-through routes and cooldown, initial parked train, one-time start, boarding dwell, repeating epoch and private carriage audio eligibility/gain/mute through the atmosphere slider. No external video URL or multi-client session was exercised.

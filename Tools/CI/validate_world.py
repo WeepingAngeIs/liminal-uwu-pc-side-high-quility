@@ -124,10 +124,26 @@ def check_scene(edition):
     require(len(by_kind[65]) >= 70, "Missing architectural colliders")
     target = ROOT / "Generated" / edition
     other = "Quest" if edition == "PC" else "PC"
+    used_finishes = {path: read(path) for path in (target / "Finishes").glob("*.mat")
+                     if asset_guid(path) in source_guids}
+    def finish_signature(body):
+        texture = re.search(r"^    - _MainTex:\n        m_Texture: (.+)$", body, re.M)
+        return (guid(value(body, "m_Shader")), guid(texture[1]) if texture else "",
+                tuple(re.findall(r"^    - (_Color|_Emission|_Scale|_Sheen): (.+)$", body, re.M)))
     for key in ("wet", "ice", "pink", "amber", "art0", "art1", "art2", "art3"):
         mat = target / "Finishes" / (key + ".mat")
-        require(asset_guid(mat) in source_guids, f"{edition} has no instances of {key}")
-        require(asset_guid(ROOT / "Shaders/StationFinish.shader") in read(mat), "Finish shader mismatch")
+        original = read(mat)
+        require(asset_guid(ROOT / "Shaders/StationFinish.shader") in original, "Finish shader mismatch")
+        # Room irradiance and reflection variants retain the original finish's
+        # print/atlas, colour, emission and surface parameters. Check the actual
+        # referenced variants as well as an unmodified base material.
+        copies = [body for path, body in used_finishes.items()
+                  if path == mat or path.stem.endswith(" lit " + key)]
+        require(copies, f"{edition} has no rendered instances of {key}")
+        keywords = set(re.findall(r"^  - (SW_\w+)$", original, re.M))
+        require(all(finish_signature(body) == finish_signature(original)
+                    and keywords <= set(re.findall(r"^  - (SW_\w+)$", body, re.M)) for body in copies),
+                f"{edition} {key} variants lost their original texture or finish properties")
     wet = read(target / "Finishes/wet.mat")
     require("SW_WET" in wet, "Wet floor variant is missing")
     require(("SW_MOBILE" in wet) == (edition == "Quest"), "Wrong platform water variant")
@@ -147,12 +163,14 @@ def check_scene(edition):
             data = bytes.fromhex(value(read(path), "_typelessdata"))
             # Unity's fallback on a missing shader is exact saturated magenta.
             require(data.count(bytes((255, 0, 255, 255))) < 30, f"Broken shader color in {path.name}")
-        hub_floor = target / "Finishes/hub wet.mat"
-        floor_yaml = read(hub_floor)
-        require(asset_guid(hub_floor) in source_guids and "SW_PROBE" in floor_yaml
-                and asset_guid(target / "Finishes/hub reflection.asset") in floor_yaml
-                and asset_guid(target / "Finishes/hub pavement irradiance.asset") in floor_yaml,
-                "Hub floor requires its own captured architecture reflection and pavement lighting")
+        hub_floors = [body for path, body in used_finishes.items() if path.stem.startswith("hub ")
+                      and "SW_WET" in body]
+        required_bindings = [asset_guid(target / "Finishes" / name) for name in
+                             ("hub reflection.asset", "hub pavement irradiance.asset",
+                              "hub fixture light.asset", "hub fixture direction.asset")]
+        require(hub_floors and all("SW_PROBE" in body and "SW_FIXTURE_VOLUME" in body
+                                  and all(binding in body for binding in required_bindings) for body in hub_floors),
+                "Hub floor requires its captured reflection, pavement detail and actual fixture lighting")
     require(not any(" / room tone" in name for oid, name in names.items()
                     if any(file_id(value(b, "m_GameObject")) == oid for _, b in by_kind[82])),
             "Legacy point ambience must not compete with the room-wide local audio buses")

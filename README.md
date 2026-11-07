@@ -4,7 +4,7 @@
 
 Glowing, winking **uwu** doors take you through nineteen liminal districts. Choose one of two initial paths; both rejoin the adventure and lead to the Aperture Express finale. The old tunnel interchanges are shuttered, so they no longer create confusing shortcuts. Shrinking side wings and gravity galleries remain optional detours. There is no full-area map in the world.
 
-This revision adds **The Falling Hours**, a giant roofless waterworks between two walls, and changes the train to a player-started service. PC and Quest share the same route, landings and track collisions; PC retains richer materials, reflections and water detail. Hosted review evidence accompanies the authored scenes; headset performance and multi-client playback still need device testing.
+Four new stops add bouncy uwu balls, a quiet seated lounge, slowly forming architecture and continuous wall-and-ceiling walking. Floating street objects and light from actual neon and fixtures deepen the night atmosphere. PC and Quest share the adventure route and collisions; Quest uses simpler geometry and lighting. The player-started train remains the finale.
 
 ## Catch the Aperture Express
 
@@ -50,6 +50,14 @@ The open streets now hold independently drifting lamps, streetlights, cars, bins
 
 The reconstruction behavior follows [phi16's explanation of Slice of Time](https://phi16.hatenablog.com/entry/2020/08/16/032618): architecture reacts to viewer proximity while collision remains stable. These room meshes and their movement paths are original; no protected world assets were extracted.
 
+| The Soft Terminal | The Still Hour |
+| --- | --- |
+| ![Illuminated uwu balls beneath the black hole](Preview/The%20Soft%20Terminal.png) | ![Quiet lounge and warm floor lighting](Preview/The%20Still%20Hour.png) |
+
+| The Remembering Hall | The Falling Up |
+| --- | --- |
+| ![Architecture that forms around the visitor](Preview/The%20Remembering%20Hall.png) | ![Continuous wall and ceiling walking ring](Preview/The%20Falling%20Up.png) |
+
 ## Local controls and billboard video
 
 On desktop, press **↑** to open the panel and **↓** to close it. In VR, use the **MENU** button above your left wrist. Ad Alley also has a sidewalk console. Keyboard input is unavailable while VRChat's own menus or text entry capture it.
@@ -78,9 +86,9 @@ The hosted checks inspect nineteen districts and nineteen adventure doors, the t
 
 The licensed export workflow bakes occlusion on the runner, exports Windows and Android bundles, checks the Quest download size and exercises the gravity ride in ClientSim. To publish, use the same VRChat world blueprint ID for both uploads. [Remote build setup](Tools/CI/README.md) · [VRChat cross-platform publishing](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
 
-The [expansion review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42334991175) captured 32 images, refreshed sixteen PC reflection maps and compiled the world interactions. Both sky variants passed black-center and continuous-rim checks. ClientSim exercised room audio, all three sliders, the portable menu, visibility with persistent collisions, approach growth, seat immunity, pull movement, cancellation and return to arrival. [Visual report](Tools/CI/Reviews/Expansion.json) � [Runtime results](Tools/CI/Reviews/Expansion-runtime.txt). These checks use hosted software rendering and desktop simulation. Headset frame rate, single-pass stereo, video orientation and late-joining playback need device tests.
+The [latest hosted review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42355338794) captured 60 images across both editions, refreshed 21 PC reflection maps and passed 48 ClientSim checks. It checks actual doorway/landing clearance, the walkable track, the parked train and one-time start, room audio and carriage ambience, local controls, visibility, black-hole approach/pull/return, non-grabbable ball contacts, slow reversible reconstruction, lounge seat entry/exit, the four-light PC limit, and the original wall/ceiling gravity controller's return and respawn behavior. All 24 balls receive fixture light; isolated sphere renders also verify readable bodies independently of the bright sky. Both sky variants retain a completely black centre and continuous luminous ring. [Scene and image report](Tools/CI/Reviews/Adventure.json) | [Adventure runtime checks](Tools/CI/Reviews/Adventure-runtime.txt) | [New-room runtime checks](Tools/CI/Reviews/NewRooms-runtime.txt).
 
-The [adventure review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42344837478) checks the actual door and landing clearances, walkable track, waterfall, platform LEDs and carriage audio in both editions. Thirty ClientSim checks cover the compiled interactions, including both opening branches, portal cooldown, the parked train, one-time start, boarding wait, repeating timetable, and seated or standing carriage ambience through the Atmosphere slider. [Adventure report](Tools/CI/Reviews/Adventure.json) | [Runtime results](Tools/CI/Reviews/Adventure-runtime.txt).
+These checks use hosted software rendering and desktop simulation. Headset frame rate, single-pass stereo, video decoding and multi-client behavior still need device testing.
 
 ## References and materials
 
