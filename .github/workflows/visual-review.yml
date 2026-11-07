@@ -1,14 +1,18 @@
-name: Walkable route review
+name: Adventure route and hosted physics review
 on:
   push:
     paths:
       - "Assets/Stillwater/Scenes/**"
       - "Tools/VisualReview/**"
+      - "Tools/CI/Reviews/Adventure*"
+      - "Tools/CI/validate_adventure.py"
       - ".github/workflows/visual-review.yml"
   pull_request:
     paths:
       - "Assets/Stillwater/Scenes/**"
       - "Tools/VisualReview/**"
+      - "Tools/CI/Reviews/Adventure*"
+      - "Tools/CI/validate_adventure.py"
       - ".github/workflows/visual-review.yml"
   workflow_dispatch:
 
@@ -22,14 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install numpy==2.2.6 Pillow==11.3.0
-      - name: Trace both scenes' twelve passages and check arrival clearance
-        run: python Tools/VisualReview/review_routes.py --output route-review
-      - name: Publish annotated maps and measurements
+      - name: Verify adventure routes and exact hosted physics evidence
+        run: python Tools/VisualReview/verify_adventure_review.py --output route-review
+      - name: Publish route measurements and hosted review evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
