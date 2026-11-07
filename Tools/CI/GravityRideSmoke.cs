@@ -18,6 +18,9 @@ public static class GravityRideSmoke
     static double started,phaseStart;
     static int phase,mask;
     static float gravity;
+    static UdonBehaviour journey;
+    static int northernDoor;
+    static Transform northernArrival;
 
     static GravityRideSmoke() { EditorApplication.update += Tick; }
     public static void Begin()
@@ -53,6 +56,32 @@ public static class GravityRideSmoke
     static void Next(double now) { phase++; phaseStart=now; }
     static void Check(bool value,string message) { if(!value) throw new Exception(message); }
     static bool Near(VRCPlayerApi p, Transform t) { return (p.GetPosition()-t.position).sqrMagnitude<4; }
+    static void BindNorthernContinuation()
+    {
+        journey=Port("Adventure progression");
+        var sources=journey.GetProgramVariable("sourceRooms") as string[];
+        var targets=journey.GetProgramVariable("destinationRooms") as string[];
+        var entrances=journey.GetProgramVariable("entrances") as Transform[];
+        var destinations=journey.GetProgramVariable("destinations") as Transform[];
+        var extents=journey.GetProgramVariable("halfExtents") as Vector3[];
+        Check(sources!=null && targets!=null && entrances!=null && destinations!=null && extents!=null,
+            "adventure continuation bindings missing");
+        Check(sources.Length==targets.Length && sources.Length==entrances.Length && sources.Length==destinations.Length
+            && sources.Length==extents.Length,"adventure continuation arrays differ");
+        var matches=Enumerable.Range(0,sources.Length).Where(i=>sources[i]=="gravity" && targets[i]=="grove").ToArray();
+        Check(matches.Length==1,"expected exactly one gravity-to-grove continuation");
+        northernDoor=matches[0];northernArrival=destinations[northernDoor];
+        Check(entrances[northernDoor] && northernArrival,"northern continuation target missing");
+        var landing=(Transform)Port("Northern exit","Western facade gallery").GetProgramVariable("destination");
+        Check(landing,"northern exit landing missing");
+        Vector3 local=entrances[northernDoor].InverseTransformPoint(landing.position),half=extents[northernDoor];
+        // The player-selected Northern exit joins the forward adventure door.
+        // The separate Return to the floor remains an ordinary gravity-room return.
+        Check(Mathf.Abs(local.x)<=half.x && local.y>=-.35f && local.y<=half.y && Mathf.Abs(local.z)<=half.z,
+            "northern exit no longer joins the authored forward door");
+        Check(northernArrival.IsChildOf(GameObject.Find("liminal uwu").transform.Find("grove")),
+            "northern continuation must arrive in the grove");
+    }
     static void Tick()
     {
         if(!SessionState.GetBool(Active,false) || !EditorApplication.isPlaying) return;
@@ -82,12 +111,22 @@ public static class GravityRideSmoke
                 case 3:
                     if(!ready) return;
                     Check(Near(player,(Transform)Port("Wall walk").GetProgramVariable("destination")),"wall arriving");
-                    Port("Northern exit","Western facade gallery").Interact(); Next(now); break;
+                    Port("Return to the floor","Western facade gallery").Interact(); Next(now); break;
                 case 4:
                     if(!ready) return;
-                    Check(Near(player,(Transform)Port("Northern exit","Western facade gallery").GetProgramVariable("destination")),"wall shortcut");
-                    ride.Interact(); Next(now); break;
+                    Check(Near(player,home),"ordinary wall return must remain in the gravity room");
+                    Port("Wall walk").Interact(); Next(now); break;
                 case 5:
+                    if(!ready) return;
+                    Check(Near(player,(Transform)Port("Wall walk").GetProgramVariable("destination")),"second wall arriving");
+                    BindNorthernContinuation();
+                    Port("Northern exit","Western facade gallery").Interact(); Next(now); break;
+                case 6:
+                    if(!ready) return;
+                    Check((int)journey.GetProgramVariable("lastDoor")==northernDoor && Near(player,northernArrival),
+                        "selected northern exit must continue through the gravity-to-grove door");
+                    ride.Interact(); Next(now); break;
+                case 7:
                     Vector3 v=player.GetVelocity();
                     if(v.y>1) mask|=1; if(v.x>1) mask|=2; if(v.z>1) mask|=4;
                     if(v.y< -1) mask|=8; if(v.x< -1) mask|=16; if(v.z< -1) mask|=32;
@@ -95,23 +134,23 @@ public static class GravityRideSmoke
                     Check(mask==63,"missing velocity axes: observed mask "+mask);
                     Check(Mathf.Abs(gravity-player.GetGravityStrength())<.01f,"ride did not restore prior gravity");
                     ride.Interact(); Next(now); break;
-                case 6:
+                case 8:
                     if(!ready || Time.time<1) return;
                     Check(player.GetGravityStrength()<.01f,"ride did not enter zero gravity");
                     ride.RunInputEvent(UdonManager.UDON_INPUT_JUMP,new UdonInputEventArgs(true,HandType.RIGHT));
                     Next(now); break;
-                case 7:
+                case 9:
                     if(!ready) return;
                     Check(Near(player,home) && Mathf.Abs(gravity-player.GetGravityStrength())<.01f,"jump cancellation");
                     ride.Interact(); Next(now); break;
-                case 8:
+                case 10:
                     if(!ready) return;
                     player.Respawn(); Next(now); break;
-                case 9:
+                case 11:
                     if(!ready) return;
                     Check(Mathf.Abs(gravity-player.GetGravityStrength())<.01f,"respawn gravity");
                     Check(player.GetPosition().z>-100,"respawn left player in isolated region");
-                    Finish(true,"PC simulation verified two reversible walking orientations, six local velocity directions, timed return, jump cancel and respawn gravity restoration.");
+                    Finish(true,"PC simulation verified both ordinary gravity-gallery returns, explicit Northern-exit progression through the unique gravity-to-grove door, six local velocity directions, timed return, jump cancel and respawn gravity restoration.");
                     break;
             }
         }
