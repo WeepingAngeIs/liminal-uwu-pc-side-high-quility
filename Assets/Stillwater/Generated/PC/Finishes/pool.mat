@@ -48,6 +48,8 @@ Material:
     m_Floats:
     - _Emission: 0
     - _Flood: 1
+    - _RailHaze: 1
+    - _ReviewTime: -1
     - _Scale: 6.8
     - _Sheen: 0.8
     m_Colors:

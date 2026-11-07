@@ -1,0 +1,21 @@
+2026-11-07T04:03:08.5156492Z LIMINAL_EXPANSION_AUTHORED_AND_REVIEWED
+2026-11-07T04:03:53.9011219Z EXPANSION_CLIENTSIM_CHECK live VM bindings, 6 seats, common audio controls
+2026-11-07T04:03:54.9030536Z EXPANSION_CLIENTSIM_CHECK wet room audible, occupied room rendered, distant room hidden, colliders retained
+2026-11-07T04:03:55.3055128Z EXPANSION_CLIENTSIM_CHECK portable menu opened
+2026-11-07T04:03:55.7171295Z EXPANSION_CLIENTSIM_CHECK all three real slider events changed local volumes
+2026-11-07T04:03:56.7170558Z EXPANSION_CLIENTSIM_CHECK dry room stopped rain and switched atmosphere without losing slider values
+2026-11-07T04:03:57.7304276Z EXPANSION_CLIENTSIM_CHECK passage remains walkable and reveals the room through its forward opening
+2026-11-07T04:03:58.7435243Z EXPANSION_CLIENTSIM_CHECK billboard room restarts rain, portable menu toggles
+2026-11-07T04:04:01.1822607Z EXPANSION_CLIENTSIM_CHECK recorded distant aperture size
+2026-11-07T04:04:04.1649914Z EXPANSION_CLIENTSIM_CHECK local black-hole scale increases on approach
+2026-11-07T04:04:05.2460760Z EXPANSION_CLIENTSIM_CHECK seat immunity and local rumble gain
+2026-11-07T04:04:05.2474511Z EXPANSION_CLIENTSIM_CHECK unseated pull changes velocity and position; seat entry restores movement
+2026-11-07T04:04:05.7158431Z EXPANSION_CLIENTSIM_CHECK seat cancellation persists while seated
+2026-11-07T04:04:05.7174462Z EXPANSION_CLIENTSIM_CHECK started second pull for field-exit check
+2026-11-07T04:04:05.7190059Z EXPANSION_CLIENTSIM_CHECK leaving field restores all movement and local presentation
+2026-11-07T04:04:05.7207608Z EXPANSION_CLIENTSIM_CHECK explicit return invoked during active pull
+2026-11-07T04:04:06.8765264Z EXPANSION_CLIENTSIM_CHECK explicit return restores movement and arrival
+2026-11-07T04:04:07.3839250Z EXPANSION_CLIENTSIM_CHECK real ClientSim respawn requested while being pulled
+2026-11-07T04:04:08.6855625Z EXPANSION_CLIENTSIM_CHECK respawn restores movement/presentation, clears seat flag and closes menu
+2026-11-07T04:04:09.1987080Z EXPANSION_CLIENTSIM_CHECK automatic pull return started
+2026-11-07T04:04:13.0554224Z EXPANSION_CLIENTSIM_PASS Compiled Udon/ClientSim verified wet/dry/passage audio, independent local sliders, portable menu, occupied/hidden/portal sectors with persistent colliders, six seat bindings, approach growth, seated immunity, physical pull, cancellation, field exit, explicit return, real respawn and automatic return. No external video URL was loaded.

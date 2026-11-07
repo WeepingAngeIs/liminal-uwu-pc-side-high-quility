@@ -24,8 +24,12 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Fragments:
-        m_Texture: {fileID: 2800000, guid: c37770d10eef5194a851b45ecae4a374, type: 3}
+    - _GeodesicTransfer:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Nebula:
+        m_Texture: {fileID: 2800000, guid: c7017e8d5df74f9499937c7f1f5c3bb6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Plasma:
@@ -38,7 +42,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BroadcastSecond: 2
+    - _ApproachScale: 1
+    - _DiskExposure: 1.45
+    - _ReviewTime: -1
     m_Colors:
     - _Horizon: {r: 0.14999998, g: 0.21999997, b: 0.24999997, a: 1}
   m_BuildTextureStacks: []

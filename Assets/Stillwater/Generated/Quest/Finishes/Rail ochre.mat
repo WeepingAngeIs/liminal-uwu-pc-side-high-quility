@@ -36,6 +36,7 @@ Material:
     m_Floats:
     - _Finish: 1
     - _Gloss: 0.11
+    - _RailHaze: 1
     m_Colors:
     - _Color: {r: 0.83137256, g: 0.64705884, b: 0.33725488, a: 1}
   m_BuildTextureStacks: []

@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 912
     localAABB:
-      m_Center: {x: 0, y: 0.508000001, z: -0.0450000167}
-      m_Extent: {x: 0.788699985, y: 0.788000003, z: 0.819999993}
+      m_Center: {x: 0, y: 0.508, z: -0.045000017}
+      m_Extent: {x: 0.7887, y: 0.788, z: 0.82}
   - serializedVersion: 2
     firstByte: 2232
     indexCount: 36
@@ -27,8 +27,8 @@ Mesh:
     firstVertex: 24
     vertexCount: 24
     localAABB:
-      m_Center: {x: 0, y: 0.826799989, z: 0}
-      m_Extent: {x: 0.614799976, y: 0.149999976, z: 0.782499969}
+      m_Center: {x: 0, y: 0.8268, z: 0}
+      m_Extent: {x: 0.6148, y: 0.14999998, z: 0.78249997}
   - serializedVersion: 2
     firstByte: 2304
     indexCount: 144
@@ -37,8 +37,8 @@ Mesh:
     firstVertex: 48
     vertexCount: 1184
     localAABB:
-      m_Center: {x: 0, y: 0.651750028, z: 0.0149999857}
-      m_Extent: {x: 0.634799957, y: 0.651750028, z: 0.879999995}
+      m_Center: {x: 0, y: 0.65175, z: 0.014999986}
+      m_Extent: {x: 0.63479996, y: 0.65175, z: 0.88}
   - serializedVersion: 2
     firstByte: 2592
     indexCount: 144
@@ -47,8 +47,8 @@ Mesh:
     firstVertex: 120
     vertexCount: 816
     localAABB:
-      m_Center: {x: 0, y: 0.287459962, z: 0}
-      m_Extent: {x: 0.399405986, y: 0.0768839791, z: 0.774999976}
+      m_Center: {x: 0, y: 0.28745997, z: 0}
+      m_Extent: {x: 0.399406, y: 0.07688398, z: 0.775}
   - serializedVersion: 2
     firstByte: 2880
     indexCount: 72
@@ -57,8 +57,8 @@ Mesh:
     firstVertex: 936
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 0.00800000038, z: 0}
-      m_Extent: {x: 0.357293963, y: 0.00700000022, z: 0.757499993}
+      m_Center: {x: 0, y: 0.008, z: 0}
+      m_Extent: {x: 0.35729396, y: 0.007, z: 0.7575}
   - serializedVersion: 2
     firstByte: 3024
     indexCount: 72
@@ -67,8 +67,8 @@ Mesh:
     firstVertex: 960
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 0.0260000005, z: 0}
-      m_Extent: {x: 0.209168807, y: 0.00187999941, z: 0.774999976}
+      m_Center: {x: 0, y: 0.026, z: 0}
+      m_Extent: {x: 0.2091688, y: 0.0018799994, z: 0.775}
   - serializedVersion: 2
     firstByte: 3168
     indexCount: 72
@@ -77,8 +77,8 @@ Mesh:
     firstVertex: 984
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 0.544823945, z: 0}
-      m_Extent: {x: 0.298825979, y: 0.00657999516, z: 0.169199988}
+      m_Center: {x: 0, y: 0.54482394, z: 0}
+      m_Extent: {x: 0.29882598, y: 0.006579995, z: 0.16919999}
   - serializedVersion: 2
     firstByte: 3312
     indexCount: 72
@@ -87,8 +87,8 @@ Mesh:
     firstVertex: 1008
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 0.534671962, z: 0}
-      m_Extent: {x: 0.293185979, y: 0.00328999758, z: 0.162619993}
+      m_Center: {x: 0, y: 0.53467196, z: 0}
+      m_Extent: {x: 0.29318598, y: 0.0032899976, z: 0.16262}
   - serializedVersion: 2
     firstByte: 3456
     indexCount: 120
@@ -97,8 +97,8 @@ Mesh:
     firstVertex: 1032
     vertexCount: 176
     localAABB:
-      m_Center: {x: 0, y: 0.605735958, z: -0.000206448138}
-      m_Extent: {x: 0.286312163, y: 0.0710639954, z: 0.187955536}
+      m_Center: {x: 0, y: 0.60573596, z: -0.00020644814}
+      m_Extent: {x: 0.28631216, y: 0.071063995, z: 0.18795553}
   - serializedVersion: 2
     firstByte: 3696
     indexCount: 36
@@ -107,8 +107,8 @@ Mesh:
     firstVertex: 1232
     vertexCount: 24
     localAABB:
-      m_Center: {x: 0, y: 0.358703941, z: 0.644999981}
-      m_Extent: {x: 0.051323995, y: 0.0124999881, z: 0.0130000114}
+      m_Center: {x: 0, y: 0.35870394, z: 0.645}
+      m_Extent: {x: 0.051323995, y: 0.012499988, z: 0.013000011}
   m_Shapes:
     vertices: []
     shapes: []
@@ -241,8 +241,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 0.511750028, z: 0.0149999857}
-    m_Extent: {x: 0.788699985, y: 0.791750029, z: 0.879999995}
+    m_Center: {x: 0, y: 0.51175004, z: 0.014999986}
+    m_Extent: {x: 0.7887, y: 0.79175, z: 0.88}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 

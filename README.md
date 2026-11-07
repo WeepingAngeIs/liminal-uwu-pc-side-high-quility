@@ -4,7 +4,7 @@
 
 The signs under the pink **uwu** streetlights give you the next stop. Pick a passage or take a chance on the **Any platform** ticket machine. The expanded design connects fourteen districts with eighteen walking passages, plus two side wings that grow smaller until you have to turn back. The release world uses local signs and has no full-area map.
 
-This revision adds a second exploration circuit, portable video and audio controls, and a longer train approach. Scene generation and validation run on GitHub. The new scenes, multiplayer controls and Quest performance still need their hosted and in-client checks; the images below show the earlier authored build.
+This revision adds a second exploration circuit, portable video and audio controls, and a longer train approach. Both scenes were generated on GitHub and passed the hosted visual and ClientSim checks. The updated summit and outer-district images below are from that run. Headset performance and shared video playback still need device testing.
 
 ## Catch the Aperture Express
 
@@ -32,11 +32,17 @@ The exchange kiosk, art gallery and archive windows share a new 24-second observ
 
 The east exit leads to **Ad Alley**, a broad neon street with a video billboard on the pavement. **Last Concourse** opens into an empty departure hall. Beyond it, **Orbital Causeway** crosses space between enormous walls beside the **Asterion** station: a spherical hull with recessed service arrays, antenna decks and radiator fins. **Quiet Stacks** and **Service Returns** close the circuit through oversized storage and branching service corridors.
 
+| Ad Alley | Orbital Causeway |
+| --- | --- |
+| ![The sidewalk billboard and clear street](Preview/Ad%20Alley.png) | ![Asterion beside the space road](Preview/Orbital%20Causeway.png) |
+
 District visibility follows the current room and its doorway connections; camera frustum and baked occlusion provide further culling. This keeps distant streets out of view while retaining the visible routes ahead. Gameplay, collisions and portable controls stay active when their scenery is hidden.
 
 ## Local controls and billboard video
 
 On desktop, press **↑** to open the panel and **↓** to close it. In VR, use the **MENU** button above your left wrist. Ad Alley also has a sidewalk console. Keyboard input is unavailable while VRChat's own menus or text entry capture it.
+
+![Portable video and room-audio controls](Preview/Local%20controls.png)
 
 Paste an HTTPS video link and choose **Load / Share**. Play, Pause and Stop affect the shared screen; using them takes control, and the panel shows the current owner. **Resync** retries only your player. Video volume affects only you. The separate **Rain** and **Atmosphere** sliders control the world soundscape throughout each room, without needing to stand near an emitter.
 
@@ -60,7 +66,7 @@ The hosted checks inspect serialized scene geometry and controls: all fourteen d
 
 The licensed export workflow bakes occlusion on the runner, exports Windows and Android bundles, checks the Quest download size and exercises the gravity ride in ClientSim. To publish, use the same VRChat world blueprint ID for both uploads. [Remote build setup](Tools/CI/README.md) · [VRChat cross-platform publishing](https://creators.vrchat.com/platforms/android/cross-platform-setup/)
 
-The earlier [PC optics review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42266262637) captured 30 images and refreshed eleven reflection maps using hosted software rendering. Those results predate this expansion. New scene authoring, Udon compilation, visual checks and export results must be reviewed before treating this revision as release-ready. Headset frame rate, single-pass stereo, video orientation and late-joining playback need device tests.
+The [expansion review](https://github.com/WeepingAngeIs/liminal-uwu-pc-side-high-quility/actions/runs/42334991175) captured 32 images, refreshed sixteen PC reflection maps and compiled the world interactions. Both sky variants passed black-center and continuous-rim checks. ClientSim exercised room audio, all three sliders, the portable menu, visibility with persistent collisions, approach growth, seat immunity, pull movement, cancellation and return to arrival. [Visual report](Tools/CI/Reviews/Expansion.json) � [Runtime results](Tools/CI/Reviews/Expansion-runtime.txt). These checks use hosted software rendering and desktop simulation. Headset frame rate, single-pass stereo, video orientation and late-joining playback need device tests.
 
 ## References and materials
 

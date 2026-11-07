@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 24
     localAABB:
-      m_Center: {x: 0, y: -0.189999998, z: 0}
-      m_Extent: {x: 4.75, y: 0.189999998, z: 13.8400002}
+      m_Center: {x: 0, y: -0.19, z: 0}
+      m_Extent: {x: 4.75, y: 0.19, z: 13.84}
   - serializedVersion: 2
     firstByte: 72
     indexCount: 36
@@ -27,8 +27,8 @@ Mesh:
     firstVertex: 24
     vertexCount: 24
     localAABB:
-      m_Center: {x: 0, y: 3.42000008, z: 0}
-      m_Extent: {x: 4.8499999, y: 0.170000076, z: 14.1000004}
+      m_Center: {x: 0, y: 3.42, z: 0}
+      m_Extent: {x: 4.85, y: 0.17000008, z: 14.1}
   - serializedVersion: 2
     firstByte: 144
     indexCount: 72
@@ -38,7 +38,7 @@ Mesh:
     vertexCount: 288
     localAABB:
       m_Center: {x: 0, y: 1.625, z: 0}
-      m_Extent: {x: 4.88999987, y: 1.625, z: 14.0900002}
+      m_Extent: {x: 4.89, y: 1.625, z: 14.09}
   - serializedVersion: 2
     firstByte: 288
     indexCount: 72
@@ -47,8 +47,8 @@ Mesh:
     firstVertex: 72
     vertexCount: 288
     localAABB:
-      m_Center: {x: 0, y: 0.839999974, z: 0}
-      m_Extent: {x: 4.53499985, y: 0.839999974, z: 14}
+      m_Center: {x: 0, y: 0.84, z: 0}
+      m_Extent: {x: 4.535, y: 0.84, z: 14}
   - serializedVersion: 2
     firstByte: 432
     indexCount: 72
@@ -57,8 +57,8 @@ Mesh:
     firstVertex: 96
     vertexCount: 288
     localAABB:
-      m_Center: {x: 0, y: 1.69000006, z: 0}
-      m_Extent: {x: 4.40500021, y: 0.0399999619, z: 14}
+      m_Center: {x: 0, y: 1.69, z: 0}
+      m_Extent: {x: 4.405, y: 0.03999996, z: 14}
   - serializedVersion: 2
     firstByte: 576
     indexCount: 828
@@ -67,8 +67,8 @@ Mesh:
     firstVertex: 120
     vertexCount: 768
     localAABB:
-      m_Center: {x: 0, y: 1.625, z: 0.300000191}
-      m_Extent: {x: 4.48499966, y: 1.625, z: 13.4049997}
+      m_Center: {x: 0, y: 1.625, z: 0.3000002}
+      m_Extent: {x: 4.4849997, y: 1.625, z: 13.405}
   - serializedVersion: 2
     firstByte: 2232
     indexCount: 252
@@ -77,8 +77,8 @@ Mesh:
     firstVertex: 600
     vertexCount: 312
     localAABB:
-      m_Center: {x: 0, y: 2.96000004, z: 0.299999237}
-      m_Extent: {x: 1.59000003, y: 0.0399999619, z: 12.749999}
+      m_Center: {x: 0, y: 2.96, z: 0.29999924}
+      m_Extent: {x: 1.59, y: 0.03999996, z: 12.749999}
   m_Shapes:
     vertices: []
     shapes: []
@@ -211,8 +211,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 1.60500008, z: 0}
-    m_Extent: {x: 4.88999987, y: 1.98500007, z: 14.1000004}
+    m_Center: {x: 0, y: 1.605, z: 0}
+    m_Extent: {x: 4.89, y: 1.9850001, z: 14.1}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 

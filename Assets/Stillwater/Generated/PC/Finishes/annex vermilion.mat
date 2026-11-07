@@ -44,6 +44,7 @@ Material:
     m_Floats:
     - _Metres: 3.6
     - _Neutral: 1
+    - _RailHaze: 1
     - _Wet: 0.23
     m_Colors:
     - _ProbeOrigin: {r: -109, g: 1.6, b: -80, a: 0}

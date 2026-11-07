@@ -1,0 +1,2049 @@
+{
+    "revision": "1ae410262fed18f8362dae68ccb3dd43cf2f5de1",
+    "unity": "2022.3.22f1",
+    "device": "llvmpipe (LLVM 15.0.7, 256 bits)",
+    "graphicsApi": "OpenGLCore",
+    "utc": "2026-11-07T04:01:59.8767210Z",
+    "authoringSucceeded": true,
+    "reviewPassed": true,
+    "method": "Both scenes authored from this revision on hosted Mesa/OpenGL, including all PC reflection captures. These editor images exercise shaders and serialized wiring, not live VRChat networking, XR, URL decoding, or headset performance. Quest materials are reviewed in the desktop editor; this is not an Android build.",
+    "scenes": [
+        {
+            "edition": "PC",
+            "scene": "Assets/Stillwater/Scenes/liminal uwu - PC.unity",
+            "sha256": "27c69f92201cba221a0d440d8c9090a55d16e8164128a9ad4e59b028dcd4cd10",
+            "rendererCount": 148,
+            "enabledRendererCount": 143,
+            "colliderCount": 910,
+            "reflectionCount": 16,
+            "trainSeats": 6,
+            "nativeVideoPlayers": 1,
+            "trianglesAllLods": 442658,
+            "audioZones": 37,
+            "visibilityZones": 37,
+            "visibilityRenderers": 146,
+            "visibilityPortals": 38,
+            "atmosphereSpatialBlend": 0.0,
+            "rainSpatialBlend": 0.0,
+            "rainVolume": 0.3499999940395355,
+            "atmosphereVolume": 0.3499999940395355,
+            "authoredRainSourceVolume": 0.0,
+            "authoredAtmosphereSourceVolume": 0.0,
+            "hasVideoUrlInput": true,
+            "hasLocalMenu": true,
+            "hasSeparateVolumeControls": true,
+            "hasTrain": true,
+            "hasApertureApproach": true,
+            "kioskPosition": {
+                "x": 24.0,
+                "y": 0.0,
+                "z": -20.0
+            },
+            "audio": [
+                {
+                    "index": 0,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": true,
+                    "min": {
+                        "x": -31.15999984741211,
+                        "y": -3.0,
+                        "z": -31.15999984741211
+                    },
+                    "max": {
+                        "x": 31.15999984741211,
+                        "y": 16.0,
+                        "z": 31.15999984741211
+                    }
+                },
+                {
+                    "index": 1,
+                    "clip": "Assets/Stillwater/Media/Audio/rail.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -34.15999984741211,
+                        "y": -2.0,
+                        "z": 45.839996337890628
+                    },
+                    "max": {
+                        "x": 34.15999984741211,
+                        "y": 332.0,
+                        "z": 300.0
+                    }
+                },
+                {
+                    "index": 2,
+                    "clip": "Assets/Stillwater/Media/Audio/air.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 48.84000015258789,
+                        "y": -3.0,
+                        "z": -30.15999984741211
+                    },
+                    "max": {
+                        "x": 111.16000366210938,
+                        "y": 29.0,
+                        "z": 30.15999984741211
+                    }
+                },
+                {
+                    "index": 3,
+                    "clip": "Assets/Stillwater/Media/Audio/grove.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 50.84000015258789,
+                        "y": -3.0,
+                        "z": 50.84000015258789
+                    },
+                    "max": {
+                        "x": 109.16000366210938,
+                        "y": 32.0,
+                        "z": 109.16000366210938
+                    }
+                },
+                {
+                    "index": 4,
+                    "clip": "Assets/Stillwater/Media/Audio/motor.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 51.84000015258789,
+                        "y": -3.0,
+                        "z": -106.16000366210938
+                    },
+                    "max": {
+                        "x": 108.16000366210938,
+                        "y": 21.0,
+                        "z": -53.84000015258789
+                    }
+                },
+                {
+                    "index": 5,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -106.16000366210938,
+                        "y": -3.0,
+                        "z": -27.15999984741211
+                    },
+                    "max": {
+                        "x": -53.84000015258789,
+                        "y": 22.0,
+                        "z": 27.15999984741211
+                    }
+                },
+                {
+                    "index": 6,
+                    "clip": "Assets/Stillwater/Media/Audio/space.wav",
+                    "rainy": true,
+                    "min": {
+                        "x": -110.16000366210938,
+                        "y": -3.0,
+                        "z": 49.84000015258789
+                    },
+                    "max": {
+                        "x": -49.84000015258789,
+                        "y": 17.0,
+                        "z": 110.16000366210938
+                    }
+                },
+                {
+                    "index": 7,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -28.15999984741211,
+                        "y": -3.0,
+                        "z": -108.16000366210938
+                    },
+                    "max": {
+                        "x": 28.15999984741211,
+                        "y": 15.0,
+                        "z": -51.84000015258789
+                    }
+                },
+                {
+                    "index": 8,
+                    "clip": "Assets/Stillwater/Media/Audio/service.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -104.16000366210938,
+                        "y": -3.0,
+                        "z": -103.16000366210938
+                    },
+                    "max": {
+                        "x": -55.84000015258789,
+                        "y": 5.0,
+                        "z": -56.84000015258789
+                    }
+                },
+                {
+                    "index": 9,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": true,
+                    "min": {
+                        "x": 197.83999633789063,
+                        "y": -3.0,
+                        "z": -34.15999984741211
+                    },
+                    "max": {
+                        "x": 282.1600036621094,
+                        "y": 27.0,
+                        "z": 34.15999984741211
+                    }
+                },
+                {
+                    "index": 10,
+                    "clip": "Assets/Stillwater/Media/Audio/rail.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 355.8399963378906,
+                        "y": -3.0,
+                        "z": -38.15999984741211
+                    },
+                    "max": {
+                        "x": 444.1600036621094,
+                        "y": 23.0,
+                        "z": 38.15999984741211
+                    }
+                },
+                {
+                    "index": 11,
+                    "clip": "Assets/Stillwater/Media/Audio/space.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 319.8399963378906,
+                        "y": -3.0,
+                        "z": 125.83999633789063
+                    },
+                    "max": {
+                        "x": 480.1600036621094,
+                        "y": 121.0,
+                        "z": 274.1600036621094
+                    }
+                },
+                {
+                    "index": 12,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 195.83999633789063,
+                        "y": -3.0,
+                        "z": 165.83999633789063
+                    },
+                    "max": {
+                        "x": 284.1600036621094,
+                        "y": 35.0,
+                        "z": 234.16000366210938
+                    }
+                },
+                {
+                    "index": 13,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 207.83999633789063,
+                        "y": -3.0,
+                        "z": 69.83999633789063
+                    },
+                    "max": {
+                        "x": 272.1600036621094,
+                        "y": 13.0,
+                        "z": 130.16000366210938
+                    }
+                },
+                {
+                    "index": 14,
+                    "clip": "Assets/Stillwater/Media/Audio/baths.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -8.739997863769532,
+                        "y": -1.5,
+                        "z": -155.1199951171875
+                    },
+                    "max": {
+                        "x": 8.740001678466797,
+                        "y": 8.5,
+                        "z": -107.80999755859375
+                    }
+                },
+                {
+                    "index": 15,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -142.67799377441407,
+                        "y": -1.5,
+                        "z": -85.14000701904297
+                    },
+                    "max": {
+                        "x": -103.81000518798828,
+                        "y": 5.75,
+                        "z": -74.85999298095703
+                    }
+                },
+                {
+                    "index": 16,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -106.7149887084961,
+                        "y": -1.9200000762939454,
+                        "z": -487.8749694824219
+                    },
+                    "max": {
+                        "x": -53.285011291503909,
+                        "y": 22.5,
+                        "z": -432.1250305175781
+                    }
+                },
+                {
+                    "index": 17,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -91.2149887084961,
+                        "y": -1.9199981689453126,
+                        "z": -667.875
+                    },
+                    "max": {
+                        "x": -68.7850112915039,
+                        "y": 53.5,
+                        "z": -612.125
+                    }
+                },
+                {
+                    "index": 18,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -93.2750015258789,
+                        "y": -1.5,
+                        "z": -834.2799682617188
+                    },
+                    "max": {
+                        "x": -66.7249984741211,
+                        "y": 19.059999465942384,
+                        "z": -805.7200317382813
+                    }
+                },
+                {
+                    "index": 19,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -4.989999771118164,
+                        "y": -1.5,
+                        "z": 30.80000114440918
+                    },
+                    "max": {
+                        "x": 4.989999771118164,
+                        "y": 5.789999961853027,
+                        "z": 46.19999694824219
+                    }
+                },
+                {
+                    "index": 20,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 30.79999542236328,
+                        "y": -1.5,
+                        "z": -4.989998817443848
+                    },
+                    "max": {
+                        "x": 49.19999694824219,
+                        "y": 5.789999961853027,
+                        "z": 4.99000358581543
+                    }
+                },
+                {
+                    "index": 21,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 33.79999542236328,
+                        "y": -1.5,
+                        "z": 75.01000213623047
+                    },
+                    "max": {
+                        "x": 51.19999694824219,
+                        "y": 5.789999961853027,
+                        "z": 84.98999786376953
+                    }
+                },
+                {
+                    "index": 22,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 75.01000213623047,
+                        "y": -1.5,
+                        "z": 29.80000114440918
+                    },
+                    "max": {
+                        "x": 84.98999786376953,
+                        "y": 5.789999961853027,
+                        "z": 51.19999694824219
+                    }
+                },
+                {
+                    "index": 23,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 75.01000213623047,
+                        "y": -1.5,
+                        "z": -54.20000076293945
+                    },
+                    "max": {
+                        "x": 84.98999786376953,
+                        "y": 5.789999961853027,
+                        "z": -29.799999237060548
+                    }
+                },
+                {
+                    "index": 24,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -84.98999786376953,
+                        "y": -1.5,
+                        "z": 26.80000114440918
+                    },
+                    "max": {
+                        "x": -75.01000213623047,
+                        "y": 5.789999961853027,
+                        "z": 50.19999694824219
+                    }
+                },
+                {
+                    "index": 25,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -54.20000457763672,
+                        "y": -1.5,
+                        "z": -4.989999294281006
+                    },
+                    "max": {
+                        "x": -30.80000114440918,
+                        "y": 5.789999961853027,
+                        "z": 4.990004062652588
+                    }
+                },
+                {
+                    "index": 26,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -50.20000457763672,
+                        "y": -1.5,
+                        "z": 75.01000213623047
+                    },
+                    "max": {
+                        "x": -33.80000305175781,
+                        "y": 5.789999961853027,
+                        "z": 84.98999786376953
+                    }
+                },
+                {
+                    "index": 27,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -4.989999771118164,
+                        "y": -1.5,
+                        "z": -52.20000076293945
+                    },
+                    "max": {
+                        "x": 4.989999771118164,
+                        "y": 5.789999961853027,
+                        "z": -30.799999237060548
+                    }
+                },
+                {
+                    "index": 28,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 27.79999542236328,
+                        "y": -1.5,
+                        "z": -84.98999786376953
+                    },
+                    "max": {
+                        "x": 52.19999694824219,
+                        "y": 5.789999961853027,
+                        "z": -75.01000213623047
+                    }
+                },
+                {
+                    "index": 29,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -84.98999786376953,
+                        "y": -1.5,
+                        "z": -57.20000076293945
+                    },
+                    "max": {
+                        "x": -75.01000213623047,
+                        "y": 4.590000152587891,
+                        "z": -26.799999237060548
+                    }
+                },
+                {
+                    "index": 30,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -56.20000457763672,
+                        "y": -1.5,
+                        "z": -84.98999786376953
+                    },
+                    "max": {
+                        "x": -27.80000114440918,
+                        "y": 4.590000152587891,
+                        "z": -75.01000213623047
+                    }
+                },
+                {
+                    "index": 31,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 110.79999542236328,
+                        "y": -1.5,
+                        "z": -4.990004062652588
+                    },
+                    "max": {
+                        "x": 198.20001220703126,
+                        "y": 6.220000267028809,
+                        "z": 4.990006923675537
+                    }
+                },
+                {
+                    "index": 32,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 281.8000183105469,
+                        "y": -1.5,
+                        "z": -4.990002155303955
+                    },
+                    "max": {
+                        "x": 356.1999816894531,
+                        "y": 6.220000267028809,
+                        "z": 4.990006923675537
+                    }
+                },
+                {
+                    "index": 33,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 395.0099792480469,
+                        "y": -1.5,
+                        "z": 37.80000305175781
+                    },
+                    "max": {
+                        "x": 404.9900207519531,
+                        "y": 6.220000267028809,
+                        "z": 126.19999694824219
+                    }
+                },
+                {
+                    "index": 34,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 283.8000183105469,
+                        "y": -1.5,
+                        "z": 195.00999450683595
+                    },
+                    "max": {
+                        "x": 320.1999816894531,
+                        "y": 6.220000267028809,
+                        "z": 204.99000549316407
+                    }
+                },
+                {
+                    "index": 35,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 235.00999450683595,
+                        "y": -1.5,
+                        "z": 129.79998779296876
+                    },
+                    "max": {
+                        "x": 244.99000549316407,
+                        "y": 6.220000267028809,
+                        "z": 166.20001220703126
+                    }
+                },
+                {
+                    "index": 36,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 235.00999450683595,
+                        "y": -1.5,
+                        "z": 33.80000305175781
+                    },
+                    "max": {
+                        "x": 244.99000549316407,
+                        "y": 6.220000267028809,
+                        "z": 70.19999694824219
+                    }
+                }
+            ],
+            "reflections": [
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/hub reflection.asset",
+                    "sha256": "29bf85f777518eb0014fd9bd5a05e4a4352e03a0062553cdbdc8af19d072523f",
+                    "resolution": 256
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/rail reflection.asset",
+                    "sha256": "32dff05d71236aae7dc20de7be3dec07349ed7b1d99ea51182b07053a1a82a16",
+                    "resolution": 256
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/air reflection.asset",
+                    "sha256": "38d983ecf0758ff4f14ea29adb99be5f0a367a2f0a8d01b06d2b5b51d8a03186",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/grove reflection.asset",
+                    "sha256": "99957c404c094eec25f5026e79fd95f877a21ed474fb3f58cca710ea179db7d7",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/motor reflection.asset",
+                    "sha256": "5328529b48c44272da558610263a89a029e064b13ef68fc3de24d1993e326d2d",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/gravity reflection.asset",
+                    "sha256": "5a2e814d089ab506749cbef218ebe72d9f58df56bb30892a7bb4a564e764d368",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/observatory reflection.asset",
+                    "sha256": "574f910d7275d33c0b4597105ea943522d7a27a63d8bd4b675b288ad65b75069",
+                    "resolution": 256
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/gallery reflection.asset",
+                    "sha256": "52383d105690518b1c4e8dd000c69910f14a368cbfa075084631d325da51786a",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/service reflection.asset",
+                    "sha256": "fbda3d3265e2ef094570215af7220986de375fe548189fd7726fd4af55612428",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/billboard reflection.asset",
+                    "sha256": "3b958696954f4adf67cb7de4e12c16f58ac991a62065b2f3f0ec1dc453888c94",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/concourse reflection.asset",
+                    "sha256": "b36177caf941d31e4e432d2b49a6b104767e47e73e11ca98cb94c6d4856a262c",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/causeway reflection.asset",
+                    "sha256": "0ebe4b1851c5db1a329c1f6a41a8d1751bd2c5db761c8b3e86ee571e065401f6",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/stacks reflection.asset",
+                    "sha256": "5a5c233d2c86783cec78399c1a7e755cd92ea5114d757b4025eebbfad1f3dca7",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/returns reflection.asset",
+                    "sha256": "c0d6bb032000d0e2706fb4c5394233ea195afeca586d75fb159af935bddf7d2f",
+                    "resolution": 128
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/baths reflection.asset",
+                    "sha256": "5bfc84bd7ab1af67f30bdaa04c44dcaebdaf3f7dbdb5decfe959e92a7c438f81",
+                    "resolution": 256
+                },
+                {
+                    "asset": "Assets/Stillwater/Generated/PC/Finishes/annex reflection.asset",
+                    "sha256": "1ec86fd3369e3cd29a24db0488fb6402000b24a2d504ba92939095370ca6886b",
+                    "resolution": 256
+                }
+            ]
+        },
+        {
+            "edition": "Quest",
+            "scene": "Assets/Stillwater/Scenes/liminal uwu - Quest.unity",
+            "sha256": "ac7b2c1f9d851a7462a715b6661194adf1df1a707353e7bf1c90c1cb9dcd0fd5",
+            "rendererCount": 144,
+            "enabledRendererCount": 139,
+            "colliderCount": 910,
+            "reflectionCount": 0,
+            "trainSeats": 6,
+            "nativeVideoPlayers": 1,
+            "trianglesAllLods": 206942,
+            "audioZones": 37,
+            "visibilityZones": 37,
+            "visibilityRenderers": 142,
+            "visibilityPortals": 38,
+            "atmosphereSpatialBlend": 0.0,
+            "rainSpatialBlend": 0.0,
+            "rainVolume": 0.3499999940395355,
+            "atmosphereVolume": 0.3499999940395355,
+            "authoredRainSourceVolume": 0.0,
+            "authoredAtmosphereSourceVolume": 0.0,
+            "hasVideoUrlInput": true,
+            "hasLocalMenu": true,
+            "hasSeparateVolumeControls": true,
+            "hasTrain": true,
+            "hasApertureApproach": true,
+            "kioskPosition": {
+                "x": 24.0,
+                "y": 0.0,
+                "z": -20.0
+            },
+            "audio": [
+                {
+                    "index": 0,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": true,
+                    "min": {
+                        "x": -31.15999984741211,
+                        "y": -3.0,
+                        "z": -31.15999984741211
+                    },
+                    "max": {
+                        "x": 31.15999984741211,
+                        "y": 16.0,
+                        "z": 31.15999984741211
+                    }
+                },
+                {
+                    "index": 1,
+                    "clip": "Assets/Stillwater/Media/Audio/rail.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -34.15999984741211,
+                        "y": -2.0,
+                        "z": 45.839996337890628
+                    },
+                    "max": {
+                        "x": 34.15999984741211,
+                        "y": 332.0,
+                        "z": 300.0
+                    }
+                },
+                {
+                    "index": 2,
+                    "clip": "Assets/Stillwater/Media/Audio/air.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 48.84000015258789,
+                        "y": -3.0,
+                        "z": -30.15999984741211
+                    },
+                    "max": {
+                        "x": 111.16000366210938,
+                        "y": 29.0,
+                        "z": 30.15999984741211
+                    }
+                },
+                {
+                    "index": 3,
+                    "clip": "Assets/Stillwater/Media/Audio/grove.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 50.84000015258789,
+                        "y": -3.0,
+                        "z": 50.84000015258789
+                    },
+                    "max": {
+                        "x": 109.16000366210938,
+                        "y": 32.0,
+                        "z": 109.16000366210938
+                    }
+                },
+                {
+                    "index": 4,
+                    "clip": "Assets/Stillwater/Media/Audio/motor.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 51.84000015258789,
+                        "y": -3.0,
+                        "z": -106.16000366210938
+                    },
+                    "max": {
+                        "x": 108.16000366210938,
+                        "y": 21.0,
+                        "z": -53.84000015258789
+                    }
+                },
+                {
+                    "index": 5,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -106.16000366210938,
+                        "y": -3.0,
+                        "z": -27.15999984741211
+                    },
+                    "max": {
+                        "x": -53.84000015258789,
+                        "y": 22.0,
+                        "z": 27.15999984741211
+                    }
+                },
+                {
+                    "index": 6,
+                    "clip": "Assets/Stillwater/Media/Audio/space.wav",
+                    "rainy": true,
+                    "min": {
+                        "x": -110.16000366210938,
+                        "y": -3.0,
+                        "z": 49.84000015258789
+                    },
+                    "max": {
+                        "x": -49.84000015258789,
+                        "y": 17.0,
+                        "z": 110.16000366210938
+                    }
+                },
+                {
+                    "index": 7,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -28.15999984741211,
+                        "y": -3.0,
+                        "z": -108.16000366210938
+                    },
+                    "max": {
+                        "x": 28.15999984741211,
+                        "y": 15.0,
+                        "z": -51.84000015258789
+                    }
+                },
+                {
+                    "index": 8,
+                    "clip": "Assets/Stillwater/Media/Audio/service.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -104.16000366210938,
+                        "y": -3.0,
+                        "z": -103.16000366210938
+                    },
+                    "max": {
+                        "x": -55.84000015258789,
+                        "y": 5.0,
+                        "z": -56.84000015258789
+                    }
+                },
+                {
+                    "index": 9,
+                    "clip": "Assets/Stillwater/Media/Audio/gallery.wav",
+                    "rainy": true,
+                    "min": {
+                        "x": 197.83999633789063,
+                        "y": -3.0,
+                        "z": -34.15999984741211
+                    },
+                    "max": {
+                        "x": 282.1600036621094,
+                        "y": 27.0,
+                        "z": 34.15999984741211
+                    }
+                },
+                {
+                    "index": 10,
+                    "clip": "Assets/Stillwater/Media/Audio/rail.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 355.8399963378906,
+                        "y": -3.0,
+                        "z": -38.15999984741211
+                    },
+                    "max": {
+                        "x": 444.1600036621094,
+                        "y": 23.0,
+                        "z": 38.15999984741211
+                    }
+                },
+                {
+                    "index": 11,
+                    "clip": "Assets/Stillwater/Media/Audio/space.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 319.8399963378906,
+                        "y": -3.0,
+                        "z": 125.83999633789063
+                    },
+                    "max": {
+                        "x": 480.1600036621094,
+                        "y": 121.0,
+                        "z": 274.1600036621094
+                    }
+                },
+                {
+                    "index": 12,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 195.83999633789063,
+                        "y": -3.0,
+                        "z": 165.83999633789063
+                    },
+                    "max": {
+                        "x": 284.1600036621094,
+                        "y": 35.0,
+                        "z": 234.16000366210938
+                    }
+                },
+                {
+                    "index": 13,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 207.83999633789063,
+                        "y": -3.0,
+                        "z": 69.83999633789063
+                    },
+                    "max": {
+                        "x": 272.1600036621094,
+                        "y": 13.0,
+                        "z": 130.16000366210938
+                    }
+                },
+                {
+                    "index": 14,
+                    "clip": "Assets/Stillwater/Media/Audio/baths.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -8.739997863769532,
+                        "y": -1.5,
+                        "z": -155.1199951171875
+                    },
+                    "max": {
+                        "x": 8.740001678466797,
+                        "y": 8.5,
+                        "z": -107.80999755859375
+                    }
+                },
+                {
+                    "index": 15,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -142.67799377441407,
+                        "y": -1.5,
+                        "z": -85.14000701904297
+                    },
+                    "max": {
+                        "x": -103.81000518798828,
+                        "y": 5.75,
+                        "z": -74.85999298095703
+                    }
+                },
+                {
+                    "index": 16,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -106.7149887084961,
+                        "y": -1.9200000762939454,
+                        "z": -487.8749694824219
+                    },
+                    "max": {
+                        "x": -53.285011291503909,
+                        "y": 22.5,
+                        "z": -432.1250305175781
+                    }
+                },
+                {
+                    "index": 17,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -91.2149887084961,
+                        "y": -1.9199981689453126,
+                        "z": -667.875
+                    },
+                    "max": {
+                        "x": -68.7850112915039,
+                        "y": 53.5,
+                        "z": -612.125
+                    }
+                },
+                {
+                    "index": 18,
+                    "clip": "Assets/Stillwater/Media/Audio/gravity.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -93.2750015258789,
+                        "y": -1.5,
+                        "z": -834.2799682617188
+                    },
+                    "max": {
+                        "x": -66.7249984741211,
+                        "y": 19.059999465942384,
+                        "z": -805.7200317382813
+                    }
+                },
+                {
+                    "index": 19,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -4.989999771118164,
+                        "y": -1.5,
+                        "z": 30.80000114440918
+                    },
+                    "max": {
+                        "x": 4.989999771118164,
+                        "y": 5.789999961853027,
+                        "z": 46.19999694824219
+                    }
+                },
+                {
+                    "index": 20,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 30.79999542236328,
+                        "y": -1.5,
+                        "z": -4.989998817443848
+                    },
+                    "max": {
+                        "x": 49.19999694824219,
+                        "y": 5.789999961853027,
+                        "z": 4.99000358581543
+                    }
+                },
+                {
+                    "index": 21,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 33.79999542236328,
+                        "y": -1.5,
+                        "z": 75.01000213623047
+                    },
+                    "max": {
+                        "x": 51.19999694824219,
+                        "y": 5.789999961853027,
+                        "z": 84.98999786376953
+                    }
+                },
+                {
+                    "index": 22,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 75.01000213623047,
+                        "y": -1.5,
+                        "z": 29.80000114440918
+                    },
+                    "max": {
+                        "x": 84.98999786376953,
+                        "y": 5.789999961853027,
+                        "z": 51.19999694824219
+                    }
+                },
+                {
+                    "index": 23,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 75.01000213623047,
+                        "y": -1.5,
+                        "z": -54.20000076293945
+                    },
+                    "max": {
+                        "x": 84.98999786376953,
+                        "y": 5.789999961853027,
+                        "z": -29.799999237060548
+                    }
+                },
+                {
+                    "index": 24,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -84.98999786376953,
+                        "y": -1.5,
+                        "z": 26.80000114440918
+                    },
+                    "max": {
+                        "x": -75.01000213623047,
+                        "y": 5.789999961853027,
+                        "z": 50.19999694824219
+                    }
+                },
+                {
+                    "index": 25,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -54.20000457763672,
+                        "y": -1.5,
+                        "z": -4.989999294281006
+                    },
+                    "max": {
+                        "x": -30.80000114440918,
+                        "y": 5.789999961853027,
+                        "z": 4.990004062652588
+                    }
+                },
+                {
+                    "index": 26,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -50.20000457763672,
+                        "y": -1.5,
+                        "z": 75.01000213623047
+                    },
+                    "max": {
+                        "x": -33.80000305175781,
+                        "y": 5.789999961853027,
+                        "z": 84.98999786376953
+                    }
+                },
+                {
+                    "index": 27,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -4.989999771118164,
+                        "y": -1.5,
+                        "z": -52.20000076293945
+                    },
+                    "max": {
+                        "x": 4.989999771118164,
+                        "y": 5.789999961853027,
+                        "z": -30.799999237060548
+                    }
+                },
+                {
+                    "index": 28,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 27.79999542236328,
+                        "y": -1.5,
+                        "z": -84.98999786376953
+                    },
+                    "max": {
+                        "x": 52.19999694824219,
+                        "y": 5.789999961853027,
+                        "z": -75.01000213623047
+                    }
+                },
+                {
+                    "index": 29,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -84.98999786376953,
+                        "y": -1.5,
+                        "z": -57.20000076293945
+                    },
+                    "max": {
+                        "x": -75.01000213623047,
+                        "y": 4.590000152587891,
+                        "z": -26.799999237060548
+                    }
+                },
+                {
+                    "index": 30,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": -56.20000457763672,
+                        "y": -1.5,
+                        "z": -84.98999786376953
+                    },
+                    "max": {
+                        "x": -27.80000114440918,
+                        "y": 4.590000152587891,
+                        "z": -75.01000213623047
+                    }
+                },
+                {
+                    "index": 31,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 110.79999542236328,
+                        "y": -1.5,
+                        "z": -4.990004062652588
+                    },
+                    "max": {
+                        "x": 198.20001220703126,
+                        "y": 6.220000267028809,
+                        "z": 4.990006923675537
+                    }
+                },
+                {
+                    "index": 32,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 281.8000183105469,
+                        "y": -1.5,
+                        "z": -4.990002155303955
+                    },
+                    "max": {
+                        "x": 356.1999816894531,
+                        "y": 6.220000267028809,
+                        "z": 4.990006923675537
+                    }
+                },
+                {
+                    "index": 33,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 395.0099792480469,
+                        "y": -1.5,
+                        "z": 37.80000305175781
+                    },
+                    "max": {
+                        "x": 404.9900207519531,
+                        "y": 6.220000267028809,
+                        "z": 126.19999694824219
+                    }
+                },
+                {
+                    "index": 34,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 283.8000183105469,
+                        "y": -1.5,
+                        "z": 195.00999450683595
+                    },
+                    "max": {
+                        "x": 320.1999816894531,
+                        "y": 6.220000267028809,
+                        "z": 204.99000549316407
+                    }
+                },
+                {
+                    "index": 35,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 235.00999450683595,
+                        "y": -1.5,
+                        "z": 129.79998779296876
+                    },
+                    "max": {
+                        "x": 244.99000549316407,
+                        "y": 6.220000267028809,
+                        "z": 166.20001220703126
+                    }
+                },
+                {
+                    "index": 36,
+                    "clip": "Assets/Stillwater/Media/Audio/annex.wav",
+                    "rainy": false,
+                    "min": {
+                        "x": 235.00999450683595,
+                        "y": -1.5,
+                        "z": 33.80000305175781
+                    },
+                    "max": {
+                        "x": 244.99000549316407,
+                        "y": 6.220000267028809,
+                        "z": 70.19999694824219
+                    }
+                }
+            ],
+            "reflections": []
+        }
+    ],
+    "images": [
+        {
+            "file": "PC/rain-exchange.png",
+            "sha256": "c84f101b3a202a1aced5f354ce9de58c8e5c442ca8dc25ae0f10c857434cec0b",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.17159327864646913,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 0.0,
+                "y": 1.7200000286102296,
+                "z": -23.0
+            },
+            "forward": {
+                "x": 0.04623343423008919,
+                "y": 0.09893953055143357,
+                "z": 0.9940188527107239
+            }
+        },
+        {
+            "file": "PC/side-street-receiver.png",
+            "sha256": "3c9b6298716caccefb238686a521f934a75ceb9d10410dcc404846e23e2be034",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.14000974595546723,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 18.0,
+                "y": 1.7400000095367432,
+                "z": -17.0
+            },
+            "forward": {
+                "x": 0.8932123780250549,
+                "y": 0.05210403352975845,
+                "z": -0.4466060996055603
+            }
+        },
+        {
+            "file": "PC/ad-alley.png",
+            "sha256": "4edef3b7070cc0c3141093f7632fcef6faf3e144c20a174dfa1b7773dc20294b",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.13617928326129914,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 229.0,
+                "y": 1.75,
+                "z": -23.0
+            },
+            "forward": {
+                "x": 0.72735595703125,
+                "y": 0.17649078369140626,
+                "z": 0.6631774306297302
+            }
+        },
+        {
+            "file": "PC/last-concourse.png",
+            "sha256": "dab0fe9451bfedb1ce32cc0511bc7cbf317302100c6e7af00c8495d47e5918cd",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.16546395421028138,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 384.0,
+                "y": 1.75,
+                "z": -27.0
+            },
+            "forward": {
+                "x": 0.4657686650753021,
+                "y": 0.11196361482143402,
+                "z": 0.8777948021888733
+            }
+        },
+        {
+            "file": "PC/orbital-causeway.png",
+            "sha256": "b4553d2e419d9fb65ff67a72cc289f2460efffd62d32be4ef487903e45684a68",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.16546770930290223,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 397.0,
+                "y": 1.75,
+                "z": 142.0
+            },
+            "forward": {
+                "x": 0.4274522364139557,
+                "y": 0.4299374222755432,
+                "z": 0.795259952545166
+            }
+        },
+        {
+            "file": "PC/quiet-stacks.png",
+            "sha256": "76524f1ebe7492fcbac8d05245dc1410993a47c0612b16c24f1d229187a941c9",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.19851930439472199,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 224.0,
+                "y": 1.75,
+                "z": 176.0
+            },
+            "forward": {
+                "x": 0.575398862361908,
+                "y": 0.19038933515548707,
+                "z": 0.795404314994812
+            }
+        },
+        {
+            "file": "PC/service-returns.png",
+            "sha256": "a6fae216fc63e8c3542a1d9ae64b512bbf01a8664a99076d907ac386d4984a77",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.23358723521232606,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 226.0,
+                "y": 1.75,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.4792121648788452,
+                "y": 0.06771476566791535,
+                "z": 0.8750830888748169
+            }
+        },
+        {
+            "file": "PC/sky-far.png",
+            "sha256": "e4c57e471347bd42f1047d7084f93d65be7d47006078bc0eee8326bbe909f79a",
+            "width": 800,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.1405676007270813,
+            "fieldOfView": 77.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": -80.0,
+                "y": 1.7400000095367432,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.7431448101997376,
+                "z": 0.6691305637359619
+            }
+        },
+        {
+            "file": "PC/distant-nebula.png",
+            "sha256": "e430ca72a93993a5275284923b2035c311d8b753bcca55b47f085b9f5b9b851b",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.07125991582870484,
+            "fieldOfView": 110.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": -80.0,
+                "y": 1.7400000095367432,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": -0.7431448101997376,
+                "z": -0.6691305637359619
+            }
+        },
+        {
+            "file": "PC/sky-approach.png",
+            "sha256": "9ba1edacddeb7f62b066c856ecf452eae2aa6d051b70ed2afc49a25bf634910a",
+            "width": 800,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.4283299744129181,
+            "fieldOfView": 100.0,
+            "approachScale": 3.0999999046325685,
+            "filmSecond": -1.0,
+            "position": {
+                "x": -80.0,
+                "y": 1.7400000095367432,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.7431448101997376,
+                "z": 0.6691305637359619
+            }
+        },
+        {
+            "file": "PC/train-summit.png",
+            "sha256": "97ccae8742fbe2f750e2ec908b1a80430fbfc06f3b2abdb21197dad3d968fa1f",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.37981897592544558,
+            "fieldOfView": 74.0,
+            "approachScale": 3.0999999046325685,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 16.68000030517578,
+                "y": 243.99545288085938,
+                "z": 217.68385314941407
+            },
+            "forward": {
+                "x": 0.020995289087295533,
+                "y": 0.7443125247955322,
+                "z": 0.6675013899803162
+            }
+        },
+        {
+            "file": "PC/film-02.png",
+            "sha256": "b23f0d29cce2c03e760e664da5ac47e1426eea969bbd5cf8e8f4d19acaee33cc",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.13228720426559449,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 2.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "PC/film-11.png",
+            "sha256": "c98cb1e63cdb751cd6c4454de74dd7b257d05f0afa2bc74a402ebfc9c45c9e82",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.23158609867095948,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 11.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "PC/film-18.png",
+            "sha256": "a06dc3da9c0e4b806628263c5cc418ac48cfb0e9cc51f318667cc7d9ccaec88b",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.25808438658714297,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 18.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "PC/film-23.png",
+            "sha256": "5caaf573ffc294827df39b5de5bf9f433ac2d1f443c29ff696d19fd12d36c47b",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.0,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 23.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "PC/local-controls.png",
+            "sha256": "86412ea358784864f91cd741e321fa656381a8834b86fc7cd21a019e2a5e4c44",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.04461643472313881,
+            "fieldOfView": 65.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 0.0,
+                "y": -2000.0,
+                "z": -1.100000023841858
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "Quest/rain-exchange.png",
+            "sha256": "80389a1f66982c075514b92805ee8e888857dbbf747d54bd20834bff4754186a",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.13369017839431764,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 0.0,
+                "y": 1.7200000286102296,
+                "z": -23.0
+            },
+            "forward": {
+                "x": 0.04623343423008919,
+                "y": 0.09893953055143357,
+                "z": 0.9940188527107239
+            }
+        },
+        {
+            "file": "Quest/side-street-receiver.png",
+            "sha256": "e34cc0e9174d6e05ea76ca4d9882cced9185fc9d374867478e2fd268e9bcc551",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.10886309295892716,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 18.0,
+                "y": 1.7400000095367432,
+                "z": -17.0
+            },
+            "forward": {
+                "x": 0.8932123780250549,
+                "y": 0.05210403352975845,
+                "z": -0.4466060996055603
+            }
+        },
+        {
+            "file": "Quest/ad-alley.png",
+            "sha256": "10c4ee801d50b8e1f41fc11a44261e0b40c6e07a5ec7bfd1a7f9c6a5555208d6",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.07838202267885208,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 229.0,
+                "y": 1.75,
+                "z": -23.0
+            },
+            "forward": {
+                "x": 0.72735595703125,
+                "y": 0.17649078369140626,
+                "z": 0.6631774306297302
+            }
+        },
+        {
+            "file": "Quest/last-concourse.png",
+            "sha256": "c11bc572fd328730ef9562472dc03b8e80684e5b93d8652bd9d055e6748d04c1",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.12495830655097962,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 384.0,
+                "y": 1.75,
+                "z": -27.0
+            },
+            "forward": {
+                "x": 0.4657686650753021,
+                "y": 0.11196361482143402,
+                "z": 0.8777948021888733
+            }
+        },
+        {
+            "file": "Quest/orbital-causeway.png",
+            "sha256": "da22a117e6b9ec7b9b22e200bca6a337c536a9ac90c1030b7edc189efb23b1a5",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.09885063767433167,
+            "fieldOfView": 82.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 397.0,
+                "y": 1.75,
+                "z": 142.0
+            },
+            "forward": {
+                "x": 0.4274522364139557,
+                "y": 0.4299374222755432,
+                "z": 0.795259952545166
+            }
+        },
+        {
+            "file": "Quest/quiet-stacks.png",
+            "sha256": "6d1daf50cc69c778feafc4525250ba1c9743894710b430966ece106c80135a18",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.13917985558509828,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 224.0,
+                "y": 1.75,
+                "z": 176.0
+            },
+            "forward": {
+                "x": 0.575398862361908,
+                "y": 0.19038933515548707,
+                "z": 0.795404314994812
+            }
+        },
+        {
+            "file": "Quest/service-returns.png",
+            "sha256": "dad2f57d6b17f43f0b57088e68b6010381b16ab92137d65800a9f545d9b72359",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.21358056366443635,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 226.0,
+                "y": 1.75,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.4792121648788452,
+                "y": 0.06771476566791535,
+                "z": 0.8750830888748169
+            }
+        },
+        {
+            "file": "Quest/sky-far.png",
+            "sha256": "1ae4dce795ac51210de33df9dde378d20a1c20690922d4bd8002c46338f13883",
+            "width": 800,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.020119819790124894,
+            "fieldOfView": 77.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": -80.0,
+                "y": 1.7400000095367432,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.7431448101997376,
+                "z": 0.6691305637359619
+            }
+        },
+        {
+            "file": "Quest/distant-nebula.png",
+            "sha256": "af62dba6606290f9d3ae97bd33fdc15088f4d8b6e4430d633fecf107c3ca881f",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.06338819116353989,
+            "fieldOfView": 110.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": -80.0,
+                "y": 1.7400000095367432,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": -0.7431448101997376,
+                "z": -0.6691305637359619
+            }
+        },
+        {
+            "file": "Quest/sky-approach.png",
+            "sha256": "24e80cb965a20047b9b07dff1b0ffeb4c7e58663b5f0849cee699a100bc9c4fb",
+            "width": 800,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.16504335403442384,
+            "fieldOfView": 100.0,
+            "approachScale": 3.0999999046325685,
+            "filmSecond": -1.0,
+            "position": {
+                "x": -80.0,
+                "y": 1.7400000095367432,
+                "z": 80.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.7431448101997376,
+                "z": 0.6691305637359619
+            }
+        },
+        {
+            "file": "Quest/train-summit.png",
+            "sha256": "0ea740452f1b8b216a054a34d3a2f9c23c519c82c71dba69cca34d5ba45a57d1",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.32734763622283938,
+            "fieldOfView": 74.0,
+            "approachScale": 3.0999999046325685,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 16.68000030517578,
+                "y": 243.99545288085938,
+                "z": 217.68385314941407
+            },
+            "forward": {
+                "x": 0.020995289087295533,
+                "y": 0.7443125247955322,
+                "z": 0.6675013899803162
+            }
+        },
+        {
+            "file": "Quest/film-02.png",
+            "sha256": "a07a9dd8cca80da19f84f370eca69a8728ff2a9bd609baaeae727fc559cc3a56",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.02339331991970539,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 2.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "Quest/film-11.png",
+            "sha256": "f82d994f8cf87bdfae3feeca66f68b805f435f816b71d7ccb8a07e17fa722a61",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.027935869991779329,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 11.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "Quest/film-18.png",
+            "sha256": "4253bd520098aaa49fffe44cca824c29b2ca7fc8f8fa424558f640391aee60f6",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.04434024542570114,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 18.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "Quest/film-23.png",
+            "sha256": "5caaf573ffc294827df39b5de5bf9f433ac2d1f443c29ff696d19fd12d36c47b",
+            "width": 1280,
+            "height": 720,
+            "magentaPixels": 0,
+            "meanBrightness": 0.0,
+            "fieldOfView": 74.0,
+            "approachScale": 1.0,
+            "filmSecond": 23.0,
+            "position": {
+                "x": 0.0,
+                "y": -10000.0,
+                "z": -2.0
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        {
+            "file": "Quest/local-controls.png",
+            "sha256": "86412ea358784864f91cd741e321fa656381a8834b86fc7cd21a019e2a5e4c44",
+            "width": 1280,
+            "height": 800,
+            "magentaPixels": 0,
+            "meanBrightness": 0.04461643472313881,
+            "fieldOfView": 65.0,
+            "approachScale": 1.0,
+            "filmSecond": -1.0,
+            "position": {
+                "x": 0.0,
+                "y": -2000.0,
+                "z": -1.100000023841858
+            },
+            "forward": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        }
+    ],
+    "sky": [
+        {
+            "edition": "PC",
+            "view": "sky-far",
+            "scale": 1.0,
+            "coreSamples": 15768,
+            "maximumCoreChannel": 0,
+            "minimumRimSectorPeak": 242
+        },
+        {
+            "edition": "PC",
+            "view": "sky-approach",
+            "scale": 3.0999999046325685,
+            "coreSamples": 76008,
+            "maximumCoreChannel": 0,
+            "minimumRimSectorPeak": 253
+        },
+        {
+            "edition": "Quest",
+            "view": "sky-far",
+            "scale": 1.0,
+            "coreSamples": 15768,
+            "maximumCoreChannel": 0,
+            "minimumRimSectorPeak": 250
+        },
+        {
+            "edition": "Quest",
+            "view": "sky-approach",
+            "scale": 3.0999999046325685,
+            "coreSamples": 76008,
+            "maximumCoreChannel": 0,
+            "minimumRimSectorPeak": 255
+        }
+    ],
+    "programs": [
+        {
+            "asset": "Assets/Stillwater/Runtime/ApertureApproach.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/0a89b3030c84f28fd80fc34add7631bb.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/ApertureExpress.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/90eed44bfecc5634969792c2762fc66f.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/BillboardMenuToggle.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/9d07498b8c9b83b5b91bccc863892806.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/BillboardPlayer.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/c8805f8fdd2bd69418e3f88d99b3a4a5.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/CitySignalClock.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/a96b1d60efe948e4a397560275de4992.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/DistrictVisibility.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/60c20f57c2ab34540be76a1974bb83bd.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/ExpressSeat.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/268c7dad4dc154e08a00f4cf8116cef6.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/StillwaterGravityPort.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/c16f99cd6ffe4e45b417c528fe49ccf5.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        },
+        {
+            "asset": "Assets/Stillwater/Runtime/WorldAudioDirector.asset",
+            "compiledAsset": "Assets/SerializedUdonPrograms/ccf6097f3bdfefc8ea637eaf8b66c52a.asset",
+            "version": "V1SerializationUpdate",
+            "assemblyError": false,
+            "bytecodeAvailable": true
+        }
+    ],
+    "shaderMessages": [],
+    "errors": [],
+    "failures": []
+}

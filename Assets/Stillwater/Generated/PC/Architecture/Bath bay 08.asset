@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 912
     localAABB:
-      m_Center: {x: 0, y: 1.17400001, z: -0.0450000167}
-      m_Extent: {x: 2.14949989, y: 1.45400001, z: 1.42000002}
+      m_Center: {x: 0, y: 1.174, z: -0.045000017}
+      m_Extent: {x: 2.1495, y: 1.454, z: 1.4200001}
   - serializedVersion: 2
     firstByte: 2232
     indexCount: 36
@@ -27,8 +27,8 @@ Mesh:
     firstVertex: 24
     vertexCount: 24
     localAABB:
-      m_Center: {x: 0, y: 2.13000017, z: 0}
-      m_Extent: {x: 1.65639997, y: 0.150000036, z: 1.38250005}
+      m_Center: {x: 0, y: 2.13, z: 0}
+      m_Extent: {x: 1.6564, y: 0.15000004, z: 1.3825}
   - serializedVersion: 2
     firstByte: 2304
     indexCount: 108
@@ -37,8 +37,8 @@ Mesh:
     firstVertex: 48
     vertexCount: 216
     localAABB:
-      m_Center: {x: 0, y: 1.31774998, z: -0.0425000191}
-      m_Extent: {x: 1.67639995, y: 1.31774998, z: 1.42250001}
+      m_Center: {x: 0, y: 1.31775, z: -0.04250002}
+      m_Extent: {x: 1.6764, y: 1.31775, z: 1.4225}
   - serializedVersion: 2
     firstByte: 2520
     indexCount: 144
@@ -47,8 +47,8 @@ Mesh:
     firstVertex: 120
     vertexCount: 816
     localAABB:
-      m_Center: {x: 0, y: 0.846749991, z: 0}
-      m_Extent: {x: 1.44143295, y: 0.219149977, z: 1.375}
+      m_Center: {x: 0, y: 0.84675, z: 0}
+      m_Extent: {x: 1.441433, y: 0.21914998, z: 1.375}
   - serializedVersion: 2
     firstByte: 2808
     indexCount: 72
@@ -57,8 +57,8 @@ Mesh:
     firstVertex: 936
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 0.00800000038, z: 0}
-      m_Extent: {x: 1.2999419, y: 0.00700000022, z: 1.35749996}
+      m_Center: {x: 0, y: 0.008, z: 0}
+      m_Extent: {x: 1.2999419, y: 0.007, z: 1.3575}
   - serializedVersion: 2
     firstByte: 2952
     indexCount: 72
@@ -67,8 +67,8 @@ Mesh:
     firstVertex: 960
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 0.0260000005, z: 0}
-      m_Extent: {x: 0.759946406, y: 0.00549999997, z: 1.375}
+      m_Center: {x: 0, y: 0.026, z: 0}
+      m_Extent: {x: 0.7599464, y: 0.0055, z: 1.375}
   - serializedVersion: 2
     firstByte: 3096
     indexCount: 72
@@ -77,8 +77,8 @@ Mesh:
     firstVertex: 984
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 1.59390008, z: 0}
-      m_Extent: {x: 1.07683289, y: 0.0192500353, z: 0.495000005}
+      m_Center: {x: 0, y: 1.5939001, z: 0}
+      m_Extent: {x: 1.0768329, y: 0.019250035, z: 0.495}
   - serializedVersion: 2
     firstByte: 3240
     indexCount: 72
@@ -87,8 +87,8 @@ Mesh:
     firstVertex: 1008
     vertexCount: 160
     localAABB:
-      m_Center: {x: 0, y: 1.56420004, z: 0}
-      m_Extent: {x: 1.06033289, y: 0.00962495804, z: 0.475750029}
+      m_Center: {x: 0, y: 1.5642, z: 0}
+      m_Extent: {x: 1.0603329, y: 0.009624958, z: 0.47575003}
   - serializedVersion: 2
     firstByte: 3384
     indexCount: 120
@@ -97,8 +97,8 @@ Mesh:
     firstVertex: 1032
     vertexCount: 176
     localAABB:
-      m_Center: {x: 0, y: 1.77210003, z: -0.000603988767}
-      m_Extent: {x: 1.04022336, y: 0.207899988, z: 0.335721001}
+      m_Center: {x: 0, y: 1.7721, z: -0.00060398877}
+      m_Extent: {x: 1.0402234, y: 0.20789999, z: 0.33572102}
   m_Shapes:
     vertices: []
     shapes: []
@@ -231,8 +231,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 1.17774998, z: -0.0412499905}
-    m_Extent: {x: 2.14949989, y: 1.45774998, z: 1.42375004}
+    m_Center: {x: 0, y: 1.17775, z: -0.04124999}
+    m_Extent: {x: 2.1495, y: 1.45775, z: 1.42375}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
