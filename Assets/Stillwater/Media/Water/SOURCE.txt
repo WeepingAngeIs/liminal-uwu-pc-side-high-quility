@@ -1,0 +1,11 @@
+Water Gradient.png
+Creator: Cass Bunting (2024)
+Source: https://github.com/cbunt/unity-voronoi-water
+Original: Assets/Gradients/Water Gradient.png
+License: MIT-0; full notice retained in LICENSE.txt.
+
+Used as the water colour lookup by Shaders/FallingHours.shader in the Falling
+Hours waterfall room. The animated flow and geometry are original to this world.
+The source project's Shader Graph is not imported: this world uses Unity's
+built-in rendering pipeline and needs a separate inexpensive Quest shader.
+Only this palette is reused; the original 4D Voronoi shader is not included.

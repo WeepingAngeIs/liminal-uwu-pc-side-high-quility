@@ -333,16 +333,17 @@ public class StationMediaImporter : AssetPostprocessor
     {
         if (!assetPath.StartsWith(Surface.Media + "/", StringComparison.Ordinal)) return;
         var importer = (TextureImporter)assetImporter;
+        bool water = assetPath.Contains("/Water/");
         bool print = assetPath.Contains("/Prints/");
         bool film = assetPath.EndsWith("/Embankment signal.jpg", StringComparison.Ordinal);
         bool nebula = assetPath.EndsWith("/Sky/Nebula.png",StringComparison.Ordinal);
-        if(nebula){importer.textureType=TextureImporterType.Default;importer.textureShape=TextureImporterShape.Texture2D;}
+        if(nebula || water){importer.textureType=TextureImporterType.Default;importer.textureShape=TextureImporterShape.Texture2D;}
         bool field = assetPath.EndsWith("/Deep field.jpg",StringComparison.Ordinal);
         bool fragments = assetPath.EndsWith("/Orbital fragments.png",StringComparison.Ordinal);
         bool opticalData = assetPath.EndsWith("/Orbital streams.png",StringComparison.Ordinal) || assetPath.EndsWith("/Pavement relief.png",StringComparison.Ordinal);
         bool plate = assetPath.EndsWith("/Station plates.png", StringComparison.Ordinal);
         bool lowerPlates = assetPath.EndsWith("/Lower hall plates.png", StringComparison.Ordinal);
-        importer.wrapMode = print || film || fragments ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
+        importer.wrapMode = print || film || fragments || water ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
         importer.alphaIsTransparency = fragments;
         importer.sRGBTexture = !opticalData && !assetPath.EndsWith("WeatherField.png", StringComparison.Ordinal);
         importer.mipmapEnabled = true;

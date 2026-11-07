@@ -197,10 +197,11 @@ def openings(mesh, room, doorways, failures):
 def check(edition):
     scene = Scene(edition)
     failures = []
-    local = {room: scene.mesh((room, "Architecture"), room) for room in ALL_ROOMS}
-    ground = {room: ground_faces(scene.mesh((room, "Architecture"), room, world=True)) for room in ALL_ROOMS}
+    legacy_rooms = ALL_ROOMS - {"waterfall"}
+    local = {room: scene.mesh((room, "Architecture"), room) for room in legacy_rooms}
+    ground = {room: ground_faces(scene.mesh((room, "Architecture"), room, world=True)) for room in legacy_rooms}
     floors = {room: max(items, key=lambda f: (f.high[0]-f.low[0])*(f.high[2]-f.low[2])) for room, items in ground.items()}
-    positions = {room: scene.world((0, 0, 0), scene.transform((room,))) for room in ALL_ROOMS}
+    positions = {room: scene.world((0, 0, 0), scene.transform((room,))) for room in legacy_rooms}
     doors = defaultdict(set)
     passages = [path[-1] for path in scene.named if len(path) == 2 and path[-1].startswith("Passage ")]
     require(len(passages) == PASSAGES, "Expected eighteen rendered main passages")
@@ -220,7 +221,7 @@ def check(edition):
     require(1 in doors["air"], "The air terminal lost its east exit to the outer circuit")
     # The causeway's south entry is a free-standing high lintel, not a tiled wall opening.
     doors["causeway"].discard(2)
-    jamb_count = sum(openings(local[room], room, doors[room], failures) for room in sorted(ALL_ROOMS))
+    jamb_count = sum(openings(local[room], room, doors[room], failures) for room in sorted(legacy_rooms))
     require(jamb_count == 74, "Expected two separated jambs on each of thirty-seven shell doorways")
     require(len(ground["causeway"]) == 2, "The space road requires its main deck and west branch")
     joined(*ground["causeway"], "Causeway deck / west branch", failures)

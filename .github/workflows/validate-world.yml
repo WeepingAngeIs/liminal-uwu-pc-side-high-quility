@@ -28,6 +28,8 @@ jobs:
         run: |
           python3 -m pip install Pillow==11.3.0
           python3 Tools/CI/validate_release.py
+      - name: Verify adventure progression and walkable track
+        run: python3 Tools/CI/validate_adventure.py
       - name: Check official VRChat dependency restore
         run: python3 Tools/CI/restore_vpm.py
 

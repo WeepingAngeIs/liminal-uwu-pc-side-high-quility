@@ -50,7 +50,7 @@ public static class WorldAuthor
         BillboardTheatre.PreparePrograms();
         DistrictSystems.PreparePrograms();
         UdonSharp.Compiler.UdonSharpCompilerV1.CompileSync(new UdonSharp.Compiler.UdonSharpCompileOptions());
-        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock),typeof(WorldAudioDirector),typeof(DistrictVisibility),typeof(BillboardPlayer),typeof(BillboardMenuToggle),typeof(ApertureApproach)}){
+        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock),typeof(WorldAudioDirector),typeof(DistrictVisibility),typeof(BillboardPlayer),typeof(BillboardMenuToggle),typeof(ApertureApproach),typeof(AdventureJourney)}){
             var program=UdonSharp.UdonSharpProgramAsset.GetProgramAssetForClass(type);
             if(!program || program.CompiledVersion!=UdonSharp.UdonSharpProgramVersion.CurrentVersion)
                 throw new InvalidOperationException("The interaction could not be compiled: "+type.Name);
@@ -111,7 +111,8 @@ public static class WorldAuthor
         BakingVolume(annex,new Vector3(11,6,42));
         CeilingWalk.Install(rooms["gravity"],quest);
         CityTransmission.Install(root,quest);
-        Departure(rooms);
+        rooms.Add("waterfall",WaterfallRoom.Install(root,gen,quest));
+        AdventureRoute.Install(root,rooms,gen);
         GravityLinks.Install(root,quest);
         var audio=DistrictSystems.InstallAudio(root);
         BillboardTheatre.Install(rooms["billboard"],gen,quest,audio);
@@ -137,6 +138,7 @@ public static class WorldAuthor
         if(!quest){
             foreach(var r in Places) Surface.Capture(rooms[r.id],r.id,false);
             foreach(var area in outer) Surface.Capture(area,area.name,false);
+            Surface.Capture(rooms["waterfall"],"waterfall",false);
             Surface.Capture(baths,"baths",false);
             Surface.Capture(annex,"annex",false);
         }

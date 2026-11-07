@@ -11,7 +11,7 @@ internal static class DistrictSystems
 {
     internal static void PreparePrograms()
     {
-        foreach(string name in new[]{"WorldAudioDirector","DistrictVisibility","ApertureApproach"}) {
+        foreach(string name in new[]{"WorldAudioDirector","DistrictVisibility","ApertureApproach","AdventureJourney"}) {
             string path=WorldAuthor.Root+"/Runtime/"+name;
             if(AssetDatabase.LoadAssetAtPath<UdonSharpProgramAsset>(path+".asset"))continue;
             var script=AssetDatabase.LoadAssetAtPath<MonoScript>(path+".cs");
@@ -83,6 +83,7 @@ internal static class DistrictSystems
         if(id=="observatory" || id=="causeway")return "space";
         if(id=="concourse")return "rail";
         if(id=="stacks" || id=="returns" || id.StartsWith("Passage "))return "annex";
+        if(id=="waterfall")return "baths";
         if(id=="Diminishing Baths")return "baths";
         if(id=="Night Reception")return "annex";
         if(id=="Soffit gallery" || id=="Western facade gallery" || id=="Six axis field chamber")return "gravity";
@@ -92,6 +93,7 @@ internal static class DistrictSystems
     {
         var names=new HashSet<string>(WorldAuthor.Places.Select(p=>p.id));
         foreach(var spec in OuterDistricts.Specs)names.Add(spec.id);
+        names.Add("waterfall");
         foreach(string n in new[]{"Diminishing Baths","Night Reception","Soffit gallery","Western facade gallery","Six axis field chamber"})names.Add(n);
         var result=new List<Transform>();
         foreach(Transform t in root)if(names.Contains(t.name))result.Add(t);
@@ -100,6 +102,7 @@ internal static class DistrictSystems
     }
     internal static Bounds BoundsFor(Transform t)
     {
+        if(t.name=="waterfall")return WaterfallRoom.Bounds;
         var place=Array.Find(WorldAuthor.Places,p=>p.id==t.name);
         if(place!=null) {
             if(t.name=="rail")return new Bounds(new Vector3(0,165,172.92f),new Vector3(68.32f,334,254.16f));
@@ -124,18 +127,7 @@ internal static class DistrictSystems
             renderers.Add(renderer);indices.Add(i);
         }
         var a=new List<int>();var b=new List<int>();var centers=new List<Vector3>();var radii=new List<float>();
-        for(int i=0;i<sectors.Count;i++) {
-            string name=sectors[i].name;
-            if(!name.StartsWith("Passage "))continue;
-            string[] ends=name.Substring(8).Split(new[]{" to "},StringSplitOptions.None);
-            if(ends.Length!=2)throw new InvalidOperationException("Bad connector name "+name);
-            foreach(string end in ends) {
-                int j=sectors.FindIndex(t=>t.name==end);
-                if(j<0)throw new InvalidOperationException("Missing connector district "+end);
-                Vector3 point=bounds[j].ClosestPoint(sectors[i].position);point.y=2.5f;
-                a.Add(i);b.Add(j);centers.Add(point);radii.Add(6);
-            }
-        }
+        // Interchanges are sealed; teleport doors reveal only the destination room on arrival.
         AddBranch(sectors,a,b,centers,radii,"gallery","Diminishing Baths",new Vector3(0,2.5f,-108));
         AddBranch(sectors,a,b,centers,radii,"service","Night Reception",new Vector3(-104,2,-80));
         system.renderers=renderers.ToArray();system.rendererSector=indices.ToArray();

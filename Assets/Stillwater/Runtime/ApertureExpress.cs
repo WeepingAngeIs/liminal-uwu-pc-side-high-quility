@@ -17,8 +17,10 @@ public class ApertureExpress : UdonSharpBehaviour
     public GameObject[] displayPanels;
     private int displayed = -1;
 
-    [UdonSynced] private double calledReturnAt;
-    [UdonSynced] private bool hasCall;
+    // The owner records one shared epoch. Joining, ownership transfer and pressing
+    // the button again never replace it, so an active service cannot be recalled.
+    [UdonSynced] private double startedAt;
+    [UdonSynced] private bool hasStarted;
     [HideInInspector] public bool localSeated;
     private const string State = "Base Layer.Aperture round trip";
 
@@ -32,15 +34,20 @@ public class ApertureExpress : UdonSharpBehaviour
         SendCustomEventDelayedSeconds(nameof(RunClock), .3f);
     }
     public override void OnDeserialization() { SampleClock(); }
+    public override void OnOwnershipTransferred(VRCPlayerApi player)
+    {
+        if (Networking.IsOwner(gameObject)) RequestSerialization();
+        SampleClock();
+    }
+    public override void OnPlayerJoined(VRCPlayerApi player)
+    {
+        if (Networking.IsOwner(gameObject)) RequestSerialization();
+    }
 
     private float Phase(double now)
     {
-        double phase = now % Cycle;
-        if (phase < 0) phase += Cycle;
-        double start = now - phase;
-        if (hasCall && calledReturnAt >= start && calledReturnAt < start + LeaveSummit && now >= calledReturnAt)
-            return Mathf.Min(Cycle - .015f, LeaveSummit + (float)(now - calledReturnAt));
-        return (float)phase;
+        if (!hasStarted || now < startedAt) return 0;
+        return (float)((now - startedAt) % Cycle);
     }
 
     public bool DoorsAreOpen()
@@ -57,20 +64,14 @@ public class ApertureExpress : UdonSharpBehaviour
 
     public override void Interact()
     {
-        SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(CallToPlatform));
+        SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(StartService));
     }
 
-    public void CallToPlatform()
+    public void StartService()
     {
-        if (!Networking.IsOwner(gameObject)) return;
-        double now = Networking.GetServerTimeInSeconds();
-        double raw = now % Cycle;
-        if (raw < 0) raw += Cycle;
-        double start = now - raw;
-        if (raw < Depart || raw >= LeaveSummit || (hasCall && calledReturnAt >= start && calledReturnAt < start + Cycle)) return;
-        // A request while climbing preserves the entire climb. Only the layover is cut.
-        calledReturnAt = start + Mathf.Min(LeaveSummit, Mathf.Max(Summit + 2f, (float)raw + 1f));
-        hasCall = true;
+        if (!Networking.IsOwner(gameObject) || hasStarted) return;
+        startedAt = Networking.GetServerTimeInSeconds();
+        hasStarted = true;
         RequestSerialization();
         SampleClock();
     }
@@ -85,6 +86,7 @@ public class ApertureExpress : UdonSharpBehaviour
         if (!Utilities.IsValid(service)) return;
         double now = Networking.GetServerTimeInSeconds();
         float phase = Phase(now);
+        service.speed = hasStarted ? 1f : 0f;
         float current = Mathf.Repeat(service.GetCurrentAnimatorStateInfo(0).normalizedTime,1f) * Cycle;
         float error = Mathf.Abs(current-phase);
         if (!service.GetCurrentAnimatorStateInfo(0).IsName(State) || Mathf.Min(error,Cycle-error)>.09f)
@@ -92,9 +94,10 @@ public class ApertureExpress : UdonSharpBehaviour
         if (displayPanels != null && displayPanels.Length == 6)
         {
             int status;
-            if (phase < Depart - 6f || phase >= Dock + 2.5f) status = 0;
+            if (!hasStarted) status = 2;
+            else if (phase < Depart - 6f || phase >= Dock + 2.5f) status = 0;
             else if (phase < Depart) status = 1;
-            else if (phase < Summit) status = hasCall && calledReturnAt >= now ? 2 : 3;
+            else if (phase < Summit) status = 3;
             else if (phase < LeaveSummit) status = 4;
             else status = 5;
             if (status != displayed) {

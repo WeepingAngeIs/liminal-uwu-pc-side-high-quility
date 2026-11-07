@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - liminal-expansion
+      - liminal-adventure
     paths:
       - 'Assets/**/*.cs'
       - 'Assets/**/*.shader'

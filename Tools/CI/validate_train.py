@@ -78,11 +78,20 @@ def scene(edition):
     require(trpath(file_id(value(clock, "platformExit"))).endswith("/Platform 01/Dock safe exit"), "Missing safe dock exit")
     panels = refs(clock, "displayPanels")
     require(len(panels) == 6 and all(names[oid].startswith("Platform departure indicator ") for oid in panels),
-            "Departure board must show boarding, door closing, return request, ascent, summit and descent")
+            "Departure board must show boarding, door closing, waiting for start, ascent, summit and descent")
+    require([value(docs[oid][1], "m_IsActive") for oid in panels] == ["0", "0", "1", "0", "0", "0"],
+            "The authored train must initially say to press Start")
+    backing = proxies[file_id(value(clock, "_udonSharpBackingUdonBehaviour"))]
+    require(value(backing, "interactText") == "Start train - 36 seconds to board", "The train button must start the service")
     atlas = asset_guid(ROOT / "Transit/Platform lettering.png")
-    for row in range(10):
+    for row in (6, 8, 9):
         printed = ROOT / "Transit" / f"Lettering {row}.mat"
         require(asset_guid(printed) in yaml and atlas in read(printed), "Missing opaque express sign face " + str(row))
+    walk = ROOT / "Generated" / edition / "Walkable track bed.asset"
+    track_colliders = [body for kind, body in docs.values() if kind == 64 and guid(value(body, "m_Mesh")) == asset_guid(walk)]
+    require(len(track_colliders) == 1, "Expected one continuous static track collider")
+    require(value(track_colliders[0], "m_Enabled") == "1" and value(track_colliders[0], "m_IsTrigger") == "0"
+            and value(track_colliders[0], "m_Convex") == "0", "The track needs a physical concave mesh collider")
     teams = [b for b in proxies.values() if guid(value(b, "m_Script")) == seat_guid]
     require(len(teams) == 6, "Expected six interactive VRCStations")
     encoded = []
@@ -142,4 +151,6 @@ def motion(edition):
 if __name__ == "__main__":
     require(scene("PC") == scene("Quest"), "Seat and dock paths differ across platforms")
     require(motion("PC") == motion("Quest"), "Physical rolling stock follows different trajectories across platforms")
+    require((ROOT / "Generated/PC/Walkable track bed.asset").read_bytes() == (ROOT / "Generated/Quest/Walkable track bed.asset").read_bytes(),
+            "Track walking geometry must be identical on PC and Quest")
     print("Aperture Express: 3 level-boarding coaches, 6 protected VRCStations, extended pole-aligned route, safe overlook, local pull/audio/sky bindings, and matching timetable on both platforms.")

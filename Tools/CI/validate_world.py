@@ -11,7 +11,7 @@ import wave
 ROOT = Path("Assets/Stillwater")
 ROOMS = {"hub", "rail", "air", "grove", "motor", "gravity", "observatory", "gallery", "service"}
 OUTER_ROOMS = {"billboard", "concourse", "causeway", "stacks", "returns"}
-ALL_ROOMS = ROOMS | OUTER_ROOMS
+ALL_ROOMS = ROOMS | OUTER_ROOMS | {"waterfall"}
 PASSAGES = 18
 GUID = r"[0-9a-f]{32}"
 DOCUMENT = re.compile(r"^--- !u!(\d+) &(-?\d+)[^\n]*\n", re.M)
@@ -118,7 +118,8 @@ def check_scene(edition):
         for a, b in routes:
             if a in connected or b in connected:
                 connected.update((a, b))
-    require(connected == ALL_ROOMS and len(routes) == PASSAGES, "Fourteen districts must share eighteen connections")
+    require(connected == ALL_ROOMS - {"waterfall"} and len(routes) == PASSAGES,
+            "The preserved fourteen-district architecture must retain eighteen sealed passages")
     require(len(by_kind[65]) >= 70, "Missing architectural colliders")
     target = ROOT / "Generated" / edition
     other = "Quest" if edition == "PC" else "PC"
@@ -167,7 +168,8 @@ def check_scene(edition):
     require(len(descriptors) == 1 and re.search(r"  spawns:\n  - \{fileID: [1-9]", descriptors[0]), "Missing arrival")
     udon = [body for _, body in by_kind[114] if "  programSource:" in body]
     expected_programs = {
-        "Transit/LastTrainBoard.asset": 6,
+        "Transit/LastTrainBoard.asset": 5,
+        "Runtime/AdventureJourney.asset": 1,
         "Runtime/StillwaterGravityPort.asset": 8,
         "Runtime/ApertureExpress.asset": 1,
         "Runtime/ExpressSeat.asset": 6,
@@ -218,7 +220,7 @@ def check_scene(edition):
         require(counts and all(int(n) % 3 == 0 for n in counts), f"Invalid triangle data in {mesh_path}")
         model_triangles += sum(int(n)//3 for n in counts) * copies
     require(model_triangles > 0, "No measurable scene geometry")
-    return {"districts": len(ALL_ROOMS), "passages": len(routes), "independent_loops": len(routes)-len(ALL_ROOMS)+1,
+    return {"districts": len(ALL_ROOMS), "preserved_sealed_passages": len(routes),
             "box_colliders": len(by_kind[65]), "udon_behaviours": len(udon), "coaches": coach_count,
             "unique_landmark_vertices": vertices, "reflection_probes": probes, "rain_courtyards": len(rain),
             "authored_mesh_triangles_before_culling": model_triangles}

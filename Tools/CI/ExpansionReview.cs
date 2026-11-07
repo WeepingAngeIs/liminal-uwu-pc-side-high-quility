@@ -41,7 +41,7 @@ public static class ExpansionReview
         public string edition, scene, sha256;
         public int rendererCount, enabledRendererCount, colliderCount, reflectionCount, trainSeats, nativeVideoPlayers;
         public long trianglesAllLods;
-        public int audioZones, visibilityZones, visibilityRenderers, visibilityPortals;
+        public int audioZones, visibilityZones, visibilityRenderers, visibilityPortals, adventureDoors;
         public float atmosphereSpatialBlend, rainSpatialBlend, rainVolume, atmosphereVolume;
         public float authoredRainSourceVolume, authoredAtmosphereSourceVolume;
         public bool hasVideoUrlInput, hasLocalMenu, hasSeparateVolumeControls, hasTrain, hasApertureApproach;
@@ -94,7 +94,7 @@ public static class ExpansionReview
             Require(Application.isBatchMode, "Run the authoring review on the hosted batch runner.");
             Require(SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore, "Authoring requires the hosted Mesa OpenGL graphics context.");
             Require(report.revision != "unspecified", "The workflow did not record its checked-out revision.");
-            WorldAuthor.Author(); // Includes all 16 PC custom reflection cubemap captures.
+            WorldAuthor.Author(); // Includes all 17 PC custom reflection cubemap captures.
             CheckPrograms();
             AssetDatabase.SaveAssets();
             report.authoringSucceeded = report.failures.Count == 0 && report.errors.Count == 0;
@@ -181,6 +181,8 @@ public static class ExpansionReview
             View(camera, edition, "orbital-causeway", new Vector3(397, 1.75f, 142), new Vector3(440, 45, 222), 82);
             View(camera, edition, "quiet-stacks", new Vector3(224, 1.75f, 176), new Vector3(258, 13, 223));
             View(camera, edition, "service-returns", new Vector3(226, 1.75f, 80), new Vector3(249, 5, 122));
+            View(camera, edition, "waterfall-chasm", new Vector3(640, 2, 155), new Vector3(640, 55, 230), 88);
+            View(camera, edition, "uwu-adventure-doors", new Vector3(0, 1.75f, 15), new Vector3(0, 3, 27), 82);
             Sky(camera, edition, "sky-far", 1, 77);
             camera.fieldOfView = 110;
             camera.transform.rotation = Quaternion.LookRotation(-Pole);
@@ -216,8 +218,30 @@ public static class ExpansionReview
             hasApertureApproach = root.GetComponentInChildren<ApertureApproach>(true) };
         foreach (var mesh in root.GetComponentsInChildren<MeshFilter>(true).Select(f => f.sharedMesh).Concat(root.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(r => r.sharedMesh)))
             if (mesh) for (int i = 0; i < mesh.subMeshCount; i++) if (mesh.GetTopology(i) == MeshTopology.Triangles) result.trianglesAllLods += mesh.GetIndexCount(i) / 3;
-        foreach (string area in new[] { "billboard", "concourse", "causeway", "stacks", "returns" })
+        foreach (string area in new[] { "billboard", "concourse", "causeway", "stacks", "returns", "waterfall" })
             Require(root.transform.Find(area), edition + " missing new district " + area);
+        var journey = root.GetComponentInChildren<AdventureJourney>(true);
+        Require(journey && journey.entrances.Length == 15 && journey.destinations.Length == 15 && journey.halfExtents.Length == 15,
+            edition + " requires all fifteen walk-through adventure doors.");
+        Require(journey.entrances.All(t => t) && journey.destinations.All(t => t), edition + " has an unbound adventure door.");
+        result.adventureDoors = journey.entrances.Length;
+        Physics.SyncTransforms();
+        for (int i = 0; i < journey.entrances.Length; i++) {
+            CheckStandingSpace(journey.entrances[i].TransformPoint(new Vector3(0, .2f, -1)), edition + " door " + i);
+            CheckStandingSpace(journey.destinations[i].position, edition + " landing " + i);
+        }
+        var track = root.transform.Find("rail/Walkable track bed");
+        Require(track && track.GetComponent<MeshCollider>(), edition + " requires physical walkable tracks.");
+        foreach (float s in new[] { 12f, 90f, 180f, 280f, 340f, 400f }) {
+            float helix = 6 * Mathf.PI * 17, u = Mathf.Clamp(s, 0, helix);
+            float y = .07f + .31f * (u - 12 * (1 - Mathf.Exp(-u / 12)));
+            if (s > helix) { float v = s - helix, blend = Mathf.Min(v, 18); y += .31f * blend + (1.1106125f - .31f) * blend * blend / 36 + 1.1106125f * Mathf.Max(0, v - 18); }
+            Vector3 point = s <= helix ? new Vector3(17 * Mathf.Cos(s / 17), y, 17 * Mathf.Sin(s / 17)) : new Vector3(17, y, s - helix);
+            RaycastHit hit;
+            Require(Physics.Raycast(root.transform.Find("rail").TransformPoint(point) + Vector3.up, Vector3.down,
+                out hit, 2, (1 << 0) | (1 << 11), QueryTriggerInteraction.Ignore) && hit.collider.transform == track,
+                edition + " track has no walkable surface at distance " + s);
+        }
         var kiosk = root.transform.Find("hub/Embankment signal kiosk");
         Require(kiosk && Mathf.Abs(kiosk.localPosition.x) >= 17, edition + " receiver is not off the central road.");
         result.kioskPosition = kiosk.position;
@@ -254,8 +278,17 @@ public static class ExpansionReview
             result.reflections.Add(new ReflectionRecord { asset = asset, resolution = probe.customBakedTexture.width, sha256 = File.Exists(asset) ? Digest(File.ReadAllBytes(asset)) : "missing" });
         }
         result.reflectionCount = result.reflections.Count;
-        if (edition == "PC") Require(result.reflectionCount == 16 && result.reflections.All(p => p.sha256 != "missing"), "Expected 16 authored PC reflection cubemaps.");
+        if (edition == "PC") Require(result.reflectionCount == 17 && result.reflections.All(p => p.sha256 != "missing"), "Expected 17 authored PC reflection cubemaps.");
         return result;
+    }
+
+    static void CheckStandingSpace(Vector3 feet, string label)
+    {
+        const int mask = (1 << 0) | (1 << 11);
+        Require(Physics.Raycast(feet + Vector3.up, Vector3.down, 2, mask, QueryTriggerInteraction.Ignore), label + " has no walkable floor.");
+        var obstructions = Physics.OverlapCapsule(feet + Vector3.up * .35f, feet + Vector3.up * 1.45f,
+            .25f, mask, QueryTriggerInteraction.Ignore);
+        Require(obstructions.Length == 0, label + " is obstructed by: " + string.Join(", ", obstructions.Select(c => c.transform.parent.name + "/" + c.name)));
     }
 
     static Material Clone(Material source, Dictionary<Material, Material> copies)

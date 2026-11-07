@@ -18,12 +18,12 @@ public static class ExpansionRuntimeSmoke
 {
     const string Active = "Stillwater.ExpansionRuntimeSmoke.Active";
     const string Prefs = "com.vrchat.clientsim.settings";
-    const double Limit = 90;
+    const double Limit = 130;
     static double phaseStart;
     static float phaseSimulationStart;
     static int phaseFrame;
     static int phase;
-    static UdonBehaviour audio, visibility, billboard, approach, service;
+    static UdonBehaviour audio, visibility, billboard, approach, service, journey;
     static Transform root, hub, returns, passage, billboardRoom, origin, sink, arrival;
     static AudioSource atmosphere, rain, rumble;
     static Material sky;
@@ -35,6 +35,10 @@ public static class ExpansionRuntimeSmoke
     static Vector3 heldPoint, pullPoint;
     static float farScale, initialSinkDistance;
     static Movement expected;
+    static Transform[] doors, landings, coaches;
+    static Vector3[] parkedPositions;
+    static Animator trainAnimator;
+    static double startedAt;
 
     struct Movement
     {
@@ -191,6 +195,12 @@ public static class ExpansionRuntimeSmoke
         root = audio.transform.parent;
         hub = Room("hub"); returns = Room("returns"); passage = Room("Passage returns to billboard"); billboardRoom = Room("billboard");
         service = Value<UdonBehaviour>(approach, "service");
+        journey = Port("Adventure progression");
+        doors = Value<Transform[]>(journey, "entrances"); landings = Value<Transform[]>(journey, "destinations");
+        Check(doors.Length == 15 && landings.Length == 15, "Missing adventure volume/landing bindings");
+        coaches = Value<Transform[]>(service, "coaches"); trainAnimator = Value<Animator>(service, "service");
+        parkedPositions = coaches.Select(c => c.position).ToArray();
+        Check(!Value<bool>(service, "hasStarted") && Close(trainAnimator.speed, 0), "Train must start parked until the shared button is pressed");
         Check(Value<UdonBehaviour>(billboard, "worldAudio") == audio && Value<UdonBehaviour>(approach, "audioDirector") == audio,
             "Portable controls/aperture do not share the live audio director");
         atmosphere = Value<AudioSource>(audio, "atmosphere"); rain = Value<AudioSource>(audio, "rain");
@@ -235,13 +245,21 @@ public static class ExpansionRuntimeSmoke
         Check(Close(sky.GetFloat("_ApproachScale"), 1) && !rumble.isPlaying && Close(rumble.volume, 0), context + ": presentation was not reset");
     }
 
+    static void CheckTrainPhase(float expectedPhase)
+    {
+        float actual = Mathf.Repeat(trainAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1) * 320;
+        float error = Mathf.Abs(actual - expectedPhase);
+        Check(Mathf.Min(error, 320 - error) < 8, "Train did not follow the shared start epoch: expected " + expectedPhase + ", got " + actual);
+        Check(Value<bool>(service, "hasStarted") && Close(trainAnimator.speed, 1), "Started train stopped instead of continuing to loop");
+    }
+
     static void Tick()
     {
         if (!SessionState.GetBool(Active, false)) return;
         double now = EditorApplication.timeSinceStartup;
         try {
             double started = double.Parse(SessionState.GetString(Active + ".Started", "0"), CultureInfo.InvariantCulture);
-            Check(now - started < Limit, "90 s timeout");
+            Check(now - started < Limit, "130 s timeout");
             if (!EditorApplication.isPlaying || !ClientSimMain.HasInstance() || !Utilities.IsValid(Networking.LocalPlayer)) return;
             if (phaseStart == 0) { phaseStart = now; phaseSimulationStart = Time.time; phaseFrame = Time.frameCount; }
             var player = Networking.LocalPlayer;
@@ -280,9 +298,9 @@ public static class ExpansionRuntimeSmoke
                 case 5:
                     if (!Ready(now)) return;
                     CheckAudio(FloorPoint(passage), false); CheckRendered(FloorPoint(passage), true);
-                    CheckRendered(FloorPoint(billboardRoom), true); CheckPhysical();
+                    CheckRendered(FloorPoint(billboardRoom), false); CheckPhysical();
                     Teleport(player, FloorPoint(billboardRoom), Quaternion.identity);
-                    Next(now, "passage remains walkable and reveals the room through its forward opening"); break;
+                    Next(now, "sealed maintenance passage retains collision without revealing its former destination"); break;
                 case 6:
                     if (!Ready(now)) return;
                     CheckAudio(FloorPoint(billboardRoom), true); CheckRendered(FloorPoint(billboardRoom), true);
@@ -357,8 +375,51 @@ public static class ExpansionRuntimeSmoke
                         Check(Time.time - phaseSimulationStart < 10, "Pull did not return the player automatically within its bounded duration"); return;
                     }
                     CheckReturned(player, "automatic return"); CheckPhysical();
-                    Finish(true, "Compiled Udon/ClientSim verified wet/dry/passage audio, independent local sliders, portable menu, occupied/hidden/portal sectors with persistent colliders, six seat bindings, approach growth, seated immunity, physical pull, cancellation, field exit, explicit return, real respawn and automatic return. No external video URL was loaded.");
-                    break;
+                    Check(!Value<bool>(service, "hasStarted") && Close(trainAnimator.speed, 0), "Train departed before the first button press");
+                    for (int i = 0; i < coaches.Length; i++) Check(Vector3.Distance(coaches[i].position, parkedPositions[i]) < .01f, "Unstarted coach moved while the player explored");
+                    Teleport(player, doors[0].TransformPoint(Vector3.up * .2f), doors[0].rotation);
+                    Next(now, "train remains parked throughout exploration; entered first adventure door"); break;
+                case 20:
+                    if (!Ready(now, .3)) return;
+                    Check(Value<int>(journey, "lastDoor") == 0 && Vector3.Distance(player.GetPosition(), landings[0].position) < 2,
+                        "Walking into the first door did not warp to its intended room");
+                    // Force the cooldown window independently of hosted frame duration,
+                    // then invoke the real compiled volume scan while inside another door.
+                    journey.SetProgramVariable("readyAt", Time.time + 10f);
+                    Teleport(player, doors[1].TransformPoint(Vector3.up * .2f), doors[1].rotation);
+                    Next(now, "first walk-through portal arrived at its actual landing"); break;
+                case 21:
+                    if (!Ready(now, .2)) return;
+                    Check(Value<int>(journey, "lastDoor") == 0, "Portal cooldown did not suppress immediate re-entry");
+                    journey.SetProgramVariable("readyAt", Time.time - .01f);
+                    Next(now, "portal cooldown suppresses immediate second-door traversal"); break;
+                case 22:
+                    if (!Ready(now, .4)) return;
+                    Check(Value<int>(journey, "lastDoor") == 1 && Vector3.Distance(player.GetPosition(), landings[1].position) < 2,
+                        "The alternate starting route did not resume after cooldown");
+                    service.SendCustomEvent("StartService");
+                    Check(Value<bool>(service, "hasStarted"), "Owner start button did not start the shared train");
+                    startedAt = Value<double>(service, "startedAt");
+                    Check(Math.Abs(Networking.GetServerTimeInSeconds() - startedAt) < 2, "First start did not establish a fresh boarding epoch");
+                    Next(now, "alternate branch portal arrived; shared train started with fresh boarding period"); break;
+                case 23:
+                    if (!Ready(now, .5)) return;
+                    service.SendCustomEvent("StartService");
+                    Check(Value<double>(service, "startedAt") == startedAt, "Pressing start again reset the train cycle");
+                    for (int i = 0; i < coaches.Length; i++) Check(Vector3.Distance(coaches[i].position, parkedPositions[i]) < .01f, "Train skipped its boarding dwell");
+                    service.SetProgramVariable("startedAt", Networking.GetServerTimeInSeconds() - 400);
+                    service.SendCustomEvent("RunClock");
+                    Next(now, "start is irreversible/idempotent and preserves boarding dwell; advanced shared clock"); break;
+                case 24:
+                    if (!Ready(now, .4)) return;
+                    CheckTrainPhase(80);
+                    service.SetProgramVariable("startedAt", Networking.GetServerTimeInSeconds() - 650);
+                    service.SendCustomEvent("RunClock");
+                    Next(now, "shared epoch resolves the moving train after one completed round trip"); break;
+                case 25:
+                    if (!Ready(now, .4)) return;
+                    CheckTrainPhase(10);
+                    Finish(true, "Compiled Udon/ClientSim verified room audio, independent sliders, portable menu, isolated districts with persistent colliders, six seats, aperture growth/pull/immunity/return, two walk-through routes and cooldown, initial parked train, one-time start, boarding dwell and repeating epoch after multiple round trips. No external video URL or multi-client session was exercised."); break;
             }
         }
         catch (Exception e) { Finish(false, e.ToString()); }

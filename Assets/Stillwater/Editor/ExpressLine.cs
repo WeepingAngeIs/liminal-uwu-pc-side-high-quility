@@ -61,6 +61,39 @@ internal static class ExpressLine
     internal static Vector3 ApproachStart => Track(Helix+50);
     internal static Vector3 FrontSummit => Track(Run-7);
     internal static Vector3 ApertureDirection => new Vector3(0,.743144825f,.669130606f);
+    static void WalkableTrack(Transform room,string folder)
+    {
+        // One static, closed ribbon collider follows the actual track; it is never
+        // simplified on Quest. The final 48-degree climb uses short level treads
+        // instead of a ramp above the normal player's slope limit.
+        var bed=new LandmarkGeometry();
+        float a=-28;
+        while(a<End-.0001f) {
+            bool stair=a>=Helix+8;
+            float b=Mathf.Min(End,a+(stair?.14f:.75f));
+            Vector3 p=Track(a),q=Track(b);
+            Vector3 rightA=Quaternion.Euler(0,Angles(a).y,0)*Vector3.right*1.28f;
+            Vector3 rightB=Quaternion.Euler(0,Angles(b).y,0)*Vector3.right*1.28f;
+            Vector3 lowA=p-Vector3.up*.22f,lowB=q-Vector3.up*.22f;
+            p.y=(stair?q.y:p.y)-.04f;q.y-=.04f;
+            Vector3 al=p-rightA,ar=p+rightA,bl=q-rightB,br=q+rightB;
+            bed.Quad("metal",al,bl,br,ar);
+            bed.Quad("metal",lowA+rightA,lowB+rightB,lowB-rightB,lowA-rightA);
+            bed.Quad("metal",lowA-rightA,lowB-rightB,bl,al);
+            bed.Quad("metal",lowB+rightB,lowA+rightA,ar,br);
+            if(stair) {
+                Vector3 lower=p;lower.y=Track(a).y-.04f;
+                bed.Quad("brass",lower+rightA,lower-rightA,al,ar);
+            }
+            if(a==-28)bed.Quad("metal",lowA+rightA,lowA-rightA,al,ar);
+            if(b>=End)bed.Quad("metal",lowB-rightB,lowB+rightB,br,bl);
+            a=b;
+        }
+        var go=bed.Save(room,folder,"Walkable track bed");
+        var collider=go.AddComponent<MeshCollider>();
+        collider.sharedMesh=go.GetComponent<MeshFilter>().sharedMesh;collider.convex=false;
+        GameObjectUtility.SetStaticEditorFlags(go,StaticEditorFlags.BatchingStatic|StaticEditorFlags.OccludeeStatic);
+    }
     static void Tunnel(LandmarkGeometry g,bool quest)
     {
         int rails=quest?220:350;
@@ -106,6 +139,7 @@ internal static class ExpressLine
         if(!program || program.CompiledVersion!=UdonSharpProgramVersion.CurrentVersion)
             UdonSharp.Compiler.UdonSharpCompilerV1.CompileSync(new UdonSharp.Compiler.UdonSharpCompileOptions());
         Tunnel(g,quest);
+        WalkableTrack(room,folder);
         Transform bay=WorldAuthor.Child(room,"Platform 01");
         Platform(g,bay);
         Transform exit=Point(bay,"Dock safe exit",V(12.95f,.54f,-14.95f));
@@ -113,14 +147,16 @@ internal static class ExpressLine
         console.gameObject.AddComponent<BoxCollider>().size=V(1.0f,.87f,.54f);
         var dispatch=console.gameObject.AddUdonSharpComponent<ApertureExpress>();
         var vm=UdonSharpEditorUtility.GetBackingUdonBehaviour(dispatch);
-        vm.interactText="Call train down";vm.proximity=3;
+        vm.interactText="Start train - 36 seconds to board";vm.proximity=3;
         var panels=new GameObject[6];
+        string[] status={"BOARDING - DEPARTING SOON","DOORS CLOSING","PRESS START TO DEPART","ASCENDING TO APERTURE","APERTURE OVERLOOK","RETURNING TO PLATFORM"};
         for(int i=0;i<panels.Length;i++) {
-            panels[i]=Sign(bay,"Platform departure indicator "+i,i,V(13.3f,3.07f,-20.18f),.27f);
-            panels[i].SetActive(i==0);
+            panels[i]=TextSign(bay,"Platform departure indicator "+i,status[i],V(13.3f,3.07f,-20.18f),3.8f,.27f);
+            panels[i].SetActive(i==2);
         }
         Sign(bay,"Station header",6,V(13.3f,3.48f,-20.18f),.34f);
-        Sign(bay,"Dispatch lettering",7,V(11.65f,1.82f,-19.5f),.17f);
+        TextSign(bay,"Dispatch lettering","START TRAIN",V(11.65f,1.82f,-19.5f),.9f,.17f);
+        TextSign(bay,"Boarding notice","36 SECONDS TO BOARD / THEN LOOPS",V(13.3f,2.40f,-20.18f),3.8f,.14f);
         Sign(bay,"Seat instruction",8,V(13.3f,2.80f,-20.19f),.17f);
         var consist=WorldAuthor.Child(room,"Reciprocating local");
         var mesh=new LandmarkGeometry();Carriage(mesh,quest);
@@ -161,6 +197,13 @@ internal static class ExpressLine
         }
     }
 
+    static GameObject TextSign(Transform parent,string name,string text,Vector3 position,float width,float height)
+    {
+        var sign=Point(parent,name,position);
+        WorldLettering.Install(sign,text,.1f,new Color(.77f,.94f,.98f));
+        WorldLettering.Fit(sign,width,height);return sign.gameObject;
+    }
+
     static void Platform(LandmarkGeometry g,Transform bay)
     {
         var center=V(13.08f,Deck/2,-15f);
@@ -179,6 +222,7 @@ internal static class ExpressLine
         g.Box("metal",V(11.65f,1.63f,-19.2f),V(1.02f,.87f,.55f));
         g.Box("amber",V(11.65f,1.50f,-19.489f),V(.36f,.13f,.04f));
         g.Box("black",V(13.3f,3.13f,-20.09f),V(4.07f,1.06f,.15f));
+        g.Box("black",V(13.3f,2.40f,-20.09f),V(4.07f,.30f,.15f));
         g.Box("brass",V(13.3f,3.67f,-20.09f),V(4.1f,.055f,.16f));
         for(int i=-1;i<=1;i+=2)g.Box("metal",V(13.3f+i*1.93f,1.56f,-20.02f),V(.107f,2.28f,.13f));
     }

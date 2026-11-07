@@ -287,17 +287,16 @@ def visibility(scene):
     a, b = integers(control, "portalA"), integers(control, "portalB")
     centers = vectors(control, "portalCenter")
     radii = floats(control, "portalRadius")
-    require(len(a) == len(b) == len(centers) == len(radii) == 2 * PASSAGES + 2, "Visibility portals omit a connection")
+    require(len(a) == len(b) == len(centers) == len(radii) == 2,
+            "Only the two open shrinking annexes should reveal adjacent rooms")
     edges = set()
     for x, y, radius in zip(a, b, radii):
         require(x != y and x in names and y in names and radius > 0, "Invalid room visibility portal")
         edge = tuple(sorted((names[x], names[y])))
         require(edge not in edges, "Duplicate room visibility portal")
         edges.add(edge)
-    for name in names.values():
-        match = re.fullmatch(r"Passage (\w+) to (\w+)", name)
-        if match:
-            require(all(tuple(sorted((name, end))) in edges for end in match.groups()), "Passage has a disconnected visibility endpoint")
+    require(all(not endpoint.startswith("Passage ") for edge in edges for endpoint in edge),
+            "Sealed legacy passages must not reveal another district")
     require(tuple(sorted(("gallery", "Diminishing Baths"))) in edges and
             tuple(sorted(("service", "Night Reception"))) in edges, "Shrinking annex portal is missing")
     return {"bounds": list(zip(low, high)), "links": sorted(edges), "portals": list(zip(centers, radii))}
