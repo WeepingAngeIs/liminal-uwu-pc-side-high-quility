@@ -1,15 +1,24 @@
 Shader "Liminal uwu/Soft terminal ball"
 {
-    Properties { _Color("Porcelain rubber", Color)=(.65,.87,1,1) }
+    Properties {
+        _Color("Porcelain rubber", Color)=(.65,.87,1,1)
+        _FixtureColor("Fixture irradiance",3D)="black"{}
+        _FixtureDirection("Fixture direction",3D)="white"{}
+        _FixtureMin("Fixture origin",Vector)=(0,0,0,0)
+        _FixtureSize("Fixture size",Vector)=(1,1,1,0)
+    }
     SubShader {
         Tags { "RenderType"="Opaque" "Queue"="Geometry" }
         Pass {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 3.0
             #pragma multi_compile_instancing
             #pragma shader_feature_local BALL_LITE
+            #pragma shader_feature_local _ SW_FIXTURE_VOLUME
             #include "UnityCG.cginc"
+            #include "FixtureLighting.cginc"
             struct input { float4 vertex:POSITION; float3 normal:NORMAL; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct varying { float4 pos:SV_POSITION; float2 uv:TEXCOORD0; float3 world:TEXCOORD1; half3 normal:TEXCOORD2; UNITY_VERTEX_OUTPUT_STEREO };
             varying vert(input v) {
@@ -26,6 +35,10 @@ Shader "Liminal uwu/Soft terminal ball"
                 half gloss=pow(saturate(dot(n,normalize(eye+half3(-.35,.8,-.48)))),34);
                 half rim=pow(1-saturate(dot(n,eye)),3);
                 half3 color=_Color.rgb*(.22+.55*light)+gloss*.65+rim*.13;
+                #ifdef SW_FIXTURE_VOLUME
+                    half3 fixture=FixtureLight(i.world,n);
+                    color=_Color.rgb*fixture+(gloss*.36+rim*.05)*fixture;
+                #endif
                 #ifndef BALL_LITE
                     half4 reflected=UNITY_SAMPLE_TEXCUBE(unity_SpecCube0,reflect(-eye,n));
                     color+=DecodeHDR(reflected,unity_SpecCube0_HDR)*.13;
