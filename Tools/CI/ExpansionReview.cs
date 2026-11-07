@@ -182,7 +182,10 @@ public static class ExpansionReview
             View(camera, edition, "quiet-stacks", new Vector3(224, 1.75f, 176), new Vector3(258, 13, 223));
             View(camera, edition, "service-returns", new Vector3(226, 1.75f, 80), new Vector3(249, 5, 122));
             Sky(camera, edition, "sky-far", 1, 77);
-            Sky(camera, edition, "sky-approach", 3.5f, 100);
+            camera.fieldOfView = 110;
+            camera.transform.rotation = Quaternion.LookRotation(-Pole);
+            UnityEngine.Object.DestroyImmediate(Capture(camera, edition + "/distant-nebula", 1280, 800));
+            Sky(camera, edition, "sky-approach", 3.1f, 100);
             RenderSettings.skybox.SetFloat("_ApproachScale", 1);
             Train(camera, edition, quest);
             Film(camera, edition, quest, copies);
@@ -308,7 +311,7 @@ public static class ExpansionReview
         Require(front, "Front coach missing in " + edition);
         try {
             clip.SampleAnimation(train.service.gameObject, ApertureExpress.Summit + 2);
-            RenderSettings.skybox.SetFloat("_ApproachScale", 7.3f);
+            RenderSettings.skybox.SetFloat("_ApproachScale", 3.1f);
             Vector3 position = front.TransformPoint(new Vector3(-.32f, 1.74f, 1.46f));
             View(camera, edition, "train-summit", position, position + front.TransformDirection(new Vector3(.021f, .002f, 1)), 74);
         }

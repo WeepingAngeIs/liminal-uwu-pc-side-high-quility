@@ -331,7 +331,7 @@ public static class OuterDistricts
         m.Box("amber",-side*2.4f,6.56f,0,1.18f,.12f,.48f);
         m.Box("black",-side*1.26f,4.7f,0,2.9f,1.06f,.16f);
         m.Box("pink",-side*1.26f,4.15f,-.10f,2.86f,.065f,.065f);
-        Label(parent,"uwu",position+new Vector3(-side*1.26f,4.73f,-.095f),Quaternion.identity,.52f,new Color(1,.15f,.54f));
+        Label(parent,"uwu",position+new Vector3(-side*1.26f,4.73f,-.095f),Quaternion.identity,.13f,new Color(1,.15f,.54f));
         m.ResetFrame();
     }
 
@@ -355,12 +355,8 @@ public static class OuterDistricts
     static void Label(Transform parent,string text,Vector3 position,Quaternion rotation,float size,Color color)
     {
         var t=WorldAuthor.Child(parent,"Plate / "+text);t.localPosition=position;t.localRotation=rotation;
-        var font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        var label=t.gameObject.AddComponent<TextMesh>();
-        label.text=text;label.font=font;label.fontSize=72;label.characterSize=size;
-        label.anchor=TextAnchor.MiddleCenter;label.alignment=TextAlignment.Center;label.color=color;
-        var renderer=t.GetComponent<MeshRenderer>();renderer.sharedMaterial=font.material;
-        renderer.shadowCastingMode=ShadowCastingMode.Off;renderer.receiveShadows=false;
+        WorldLettering.Install(t,text,size,color);
+        if(text=="uwu")WorldLettering.Fit(t,2.5f,.8f);
     }
 
     const string SharedAssets=WorldAuthor.Root+"/ThirdParty/KenneyStation/";
@@ -599,7 +595,7 @@ internal sealed class SelectedStationAssetImporter : AssetPostprocessor
     {
         if(assetPath!=Prefix+"colormap.png")return;
         var texture=(TextureImporter)assetImporter;
-        texture.textureType=TextureImporterType.Default;texture.sRGBTexture=true;
+        texture.textureType=TextureImporterType.Default;texture.textureShape=TextureImporterShape.Texture2D;texture.sRGBTexture=true;
         texture.alphaSource=TextureImporterAlphaSource.None;texture.mipmapEnabled=false;
         texture.wrapMode=TextureWrapMode.Clamp;texture.filterMode=FilterMode.Bilinear;
         texture.maxTextureSize=512;texture.textureCompression=TextureImporterCompression.Uncompressed;

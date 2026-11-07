@@ -124,7 +124,8 @@ jobs:
           p=Path('Builds/ExpansionReview/report.json')
           r=json.loads(p.read_text()) if p.is_file() else {}
           if not (r.get('authoringSucceeded') and r.get('reviewPassed')):
-              raise SystemExit('Authoring failed: '+str(r.get('failures','missing report')))
+              details=r.get('failures',[])+r.get('errors',[])
+              raise SystemExit('Authoring failed: '+str(list(dict.fromkeys(details)) or 'missing or incomplete report'))
           PY
       - name: Exercise local controls and the aperture in ClientSim
         timeout-minutes: 12

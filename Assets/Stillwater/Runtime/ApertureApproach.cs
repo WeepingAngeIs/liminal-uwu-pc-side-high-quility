@@ -65,7 +65,8 @@ public class ApertureApproach : UdonSharpBehaviour
 
     private void SetPresentation(float strength,bool immediate)
     {
-        float target=1+6.3f*strength;
+        // Keep the luminous rim within the forward carriage view at the overlook.
+        float target=1+2.1f*strength;
         currentScale=immediate ? target : Mathf.MoveTowards(currentScale,target,3.5f*Mathf.Min(Time.deltaTime,.08f));
         if(Utilities.IsValid(localSky)) localSky.SetFloat("_ApproachScale",currentScale);
         if(!Utilities.IsValid(rumble)) return;

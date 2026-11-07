@@ -20,6 +20,8 @@ public static class ExpansionRuntimeSmoke
     const string Prefs = "com.vrchat.clientsim.settings";
     const double Limit = 90;
     static double phaseStart;
+    static float phaseSimulationStart;
+    static int phaseFrame;
     static int phase;
     static UdonBehaviour audio, visibility, billboard, approach, service;
     static Transform root, hub, returns, passage, billboardRoom, origin, sink, arrival;
@@ -112,9 +114,14 @@ public static class ExpansionRuntimeSmoke
     static void Next(double now, string completed)
     {
         Debug.Log("EXPANSION_CLIENTSIM_CHECK " + completed);
-        phase++; phaseStart = now;
+        phase++; phaseStart = now; phaseSimulationStart = Time.time; phaseFrame = Time.frameCount;
     }
-    static bool Ready(double now, double wait = 1) { return now - phaseStart >= wait; }
+    // Udon delays, cooldowns and movement use simulation time. Slow hosted frames
+    // must not make an editor wall-clock wait finish before those updates run.
+    static bool Ready(double now, double wait = 1)
+    {
+        return Time.time - phaseSimulationStart >= wait && Time.frameCount - phaseFrame >= 3;
+    }
 
     static int SectorAt(UdonBehaviour vm, Vector3 position)
     {
@@ -172,6 +179,13 @@ public static class ExpansionRuntimeSmoke
 
     static void Bind()
     {
+        // The separate hosted visual suite captures the authored pixels. This VM
+        // suite retains live cameras/tracking but skips their expensive scene and
+        // sky draws; renderer-enabled and physical-collider checks remain intact.
+        foreach (var camera in UnityEngine.Object.FindObjectsOfType<Camera>(true)) {
+            camera.cullingMask = 0;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+        }
         audio = Port("Local room soundscapes"); visibility = Port("District visibility");
         billboard = Port("Billboard local controls"); approach = Port("Aperture approach");
         root = audio.transform.parent;
@@ -229,7 +243,7 @@ public static class ExpansionRuntimeSmoke
             double started = double.Parse(SessionState.GetString(Active + ".Started", "0"), CultureInfo.InvariantCulture);
             Check(now - started < Limit, "90 s timeout");
             if (!EditorApplication.isPlaying || !ClientSimMain.HasInstance() || !Utilities.IsValid(Networking.LocalPlayer)) return;
-            if (phaseStart == 0) phaseStart = now;
+            if (phaseStart == 0) { phaseStart = now; phaseSimulationStart = Time.time; phaseFrame = Time.frameCount; }
             var player = Networking.LocalPlayer;
             if (hold) Teleport(player, heldPoint, Quaternion.identity);
             switch (phase) {
@@ -340,7 +354,7 @@ public static class ExpansionRuntimeSmoke
                     CheckPull(player); Next(now, "automatic pull return started"); break;
                 case 19:
                     if (Vector3.Distance(player.GetPosition(), arrival.position) >= 3) {
-                        Check(now - phaseStart < 10, "Pull did not return the player automatically within its bounded duration"); return;
+                        Check(Time.time - phaseSimulationStart < 10, "Pull did not return the player automatically within its bounded duration"); return;
                     }
                     CheckReturned(player, "automatic return"); CheckPhysical();
                     Finish(true, "Compiled Udon/ClientSim verified wet/dry/passage audio, independent local sliders, portable menu, occupied/hidden/portal sectors with persistent colliders, six seat bindings, approach growth, seated immunity, physical pull, cancellation, field exit, explicit return, real respawn and automatic return. No external video URL was loaded.");

@@ -170,9 +170,10 @@ internal static class BillboardTheatre
     static void WorldText(Transform parent,string name,string text,Vector3 position,float size,Color color)
     {
         var t=WorldAuthor.Child(parent,name);t.localPosition=position;
-        var label=t.gameObject.AddComponent<TextMesh>();label.font=font;label.text=text;label.fontSize=72;
-        label.characterSize=size;label.anchor=TextAnchor.MiddleCenter;label.alignment=TextAlignment.Center;label.color=color;
-        t.GetComponent<MeshRenderer>().sharedMaterial=font.material;
+        WorldLettering.Install(t,text,size,color);
+        if(name=="Wrist label")WorldLettering.Fit(t,.13f,.045f);
+        else if(name=="Console lettering" || name=="Console instructions")WorldLettering.Fit(t,1.5f,.16f);
+        else if(name=="Station name")WorldLettering.Fit(t,17.5f,.75f);
     }
 
     static RectTransform Rect(Transform parent,string name,Vector2 position,Vector2 size)
