@@ -47,8 +47,10 @@ public static class WorldAuthor
         if(!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
         if(!UpdateLayers.AreLayersSetup()) UpdateLayers.SetupEditorLayers();
         if(!UpdateLayers.IsCollisionLayerMatrixSetup()) UpdateLayers.SetupCollisionLayerMatrix();
+        BillboardTheatre.PreparePrograms();
+        DistrictSystems.PreparePrograms();
         UdonSharp.Compiler.UdonSharpCompilerV1.CompileSync(new UdonSharp.Compiler.UdonSharpCompileOptions());
-        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock)}){
+        foreach(var type in new[]{typeof(ApertureExpress),typeof(ExpressSeat),typeof(CitySignalClock),typeof(WorldAudioDirector),typeof(DistrictVisibility),typeof(BillboardPlayer),typeof(BillboardMenuToggle),typeof(ApertureApproach)}){
             var program=UdonSharp.UdonSharpProgramAsset.GetProgramAssetForClass(type);
             if(!program || program.CompiledVersion!=UdonSharp.UdonSharpProgramVersion.CurrentVersion)
                 throw new InvalidOperationException("The interaction could not be compiled: "+type.Name);
@@ -95,6 +97,14 @@ public static class WorldAuthor
         foreach(var k in new[]{0,1}){
             var n=Neighbour(r,k); if(n!=null) Passage(root,r,n,k);
         }
+        var outer=OuterDistricts.Install(root,gen,quest);
+        foreach(var area in outer)rooms.Add(area.name,area);
+        DistrictSystems.Connector(root,"air","billboard",new Vector3(111,0,0),OuterDistricts.DoorPoint("billboard",3),gen,quest);
+        string[] outerFrom={"billboard","concourse","causeway","stacks","returns"};
+        string[] outerTo={"concourse","causeway","stacks","returns","billboard"};
+        int[] fromSide={1,0,3,2,2},toSide={3,2,1,0,0};
+        for(int i=0;i<outerFrom.Length;i++)
+            DistrictSystems.Connector(root,outerFrom[i],outerTo[i],OuterDistricts.DoorPoint(outerFrom[i],fromSide[i]),OuterDistricts.DoorPoint(outerTo[i],toSide[i]),gen,quest);
         var baths=DiminishingRooms.Install(root,gen,true,quest);
         var annex=DiminishingRooms.Install(root,gen,false,quest);
         BakingVolume(baths,new Vector3(19,9,54));
@@ -103,7 +113,9 @@ public static class WorldAuthor
         CityTransmission.Install(root,quest);
         Departure(rooms);
         GravityLinks.Install(root,quest);
-        foreach(var area in rooms.Values) BakingVolume(area,new Vector3(78,34,78));
+        var audio=DistrictSystems.InstallAudio(root);
+        BillboardTheatre.Install(rooms["billboard"],gen,quest,audio);
+        foreach(var area in rooms.Values) BakingVolume(area,DistrictSystems.BoundsFor(area).size);
         foreach(Transform zone in root)
             if(zone.name=="Soffit gallery" || zone.name=="Western facade gallery" || zone.name=="Six axis field chamber")
                 BakingVolume(zone,new Vector3(62,54,65));
@@ -115,13 +127,16 @@ public static class WorldAuthor
         if(!string.IsNullOrWhiteSpace(blueprint))pipeline.blueprintId=blueprint;
         var spawn=Child(focus,"Arrival");spawn.position=new Vector3(0,.12f,-15);
         desc.spawns=new[]{spawn};desc.spawnRadius=1f;desc.RespawnHeightY=-35;
+        ApertureApproachBuilder.Install(root,gen,quest,audio,spawn);
+        DistrictSystems.InstallVisibility(root);
         // An edit-time lens is tagged EditorOnly and will be stripped from uploads.
         var lens=Child(root,"Editor arrival view");lens.gameObject.tag="EditorOnly";
         lens.position=spawn.position+new Vector3(0,1.55f,0);lens.rotation=Quaternion.Euler(-12,0,0);
-        var cam=lens.gameObject.AddComponent<Camera>(); cam.fieldOfView=72;cam.farClipPlane=260;
+        var cam=lens.gameObject.AddComponent<Camera>(); cam.fieldOfView=72;cam.farClipPlane=600;
         // Capture room probes while authoring the richer PC scene, never at runtime.
         if(!quest){
             foreach(var r in Places) Surface.Capture(rooms[r.id],r.id,false);
+            foreach(var area in outer) Surface.Capture(area,area.name,false);
             Surface.Capture(baths,"baths",false);
             Surface.Capture(annex,"annex",false);
         }
@@ -183,8 +198,9 @@ public static class WorldAuthor
             if(r.id=="hub") h=new[]{10,16,12,19}[k];
             if(r.id=="grove")h=10;
             float doorH=r.id=="service"?3.05f:5.6f;
+            bool outerWing=r.id=="air" && k==1;
             bool newWing=(r.id=="gallery" && k==2)||(r.id=="service" && k==3);
-            float gap=n!=null||newWing?9:0;
+            float gap=n!=null||newWing||outerWing?9:0;
             foreach(int side in new[]{-1,1}){
                 float width=(w-gap)*.5f;float mid=side*(gap/2+width/2);
                 m.Box(r.id=="rail"||r.id=="hub"?"brickwork":"limestone",mid,h*.5f,.2f,width,h,.46f,true);
@@ -200,7 +216,8 @@ public static class WorldAuthor
                     float x=baths?0:7.2f,y=baths?doorH+.73f:2.4f,sw=baths?6:4.5f;
                     m.Box("metal",x,y,-.35f,sw+.12f,sw/4+.12f,.15f);
                     m.Print(wingPlates,x,y,-.45f,sw,sw/4,new Rect(.001f,baths?.501f:.001f,.998f,.498f));
-                }else if(r.id=="service") Plate(m,n.number,7.2f,2.41f,-.43f,4.5f);
+                }else if(outerWing) Plate(m,9,0,doorH+.72f,-.43f,6);
+                else if(r.id=="service") Plate(m,n.number,7.2f,2.41f,-.43f,4.5f);
                 else Plate(m,n.number,0,doorH+.72f,-.43f,6);
                 foreach(int j in new[]{-1,1}){
                     // Project the jamb into the opening so its face clears the wall end caps.

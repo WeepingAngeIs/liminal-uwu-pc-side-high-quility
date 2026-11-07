@@ -6,7 +6,7 @@ from functools import cache, cached_property
 import re
 import struct
 
-from validate_world import ROOT, ROOMS, asset_guid, documents, file_id, guid, read, require, value
+from validate_world import ROOT, ROOMS, OUTER_ROOMS, ALL_ROOMS, PASSAGES, asset_guid, documents, file_id, guid, read, require, value
 
 
 EPSILON = 0.0001  # Ignore sub-millimetre roundoff from Unity's cardinal rotations.
@@ -136,9 +136,13 @@ class Scene:
 
 
 def floor(mesh):
-    candidates = [f for f in mesh if f.up and abs(f.low[1]) < EPSILON]
+    candidates = ground_faces(mesh)
     require(candidates, "Missing rendered ground floor")
     return max(candidates, key=lambda f: (f.high[0]-f.low[0])*(f.high[2]-f.low[2]))
+
+
+def ground_faces(mesh):
+    return [f for f in mesh if f.up and abs(f.low[1]) < EPSILON]
 
 
 def intersection(a, b):
@@ -154,15 +158,17 @@ def joined(a, b, label, failures):
 
 
 def openings(mesh, room, doorways, failures):
-    base = floor(mesh)
+    bases_on_ground = ground_faces(mesh)
+    require(bases_on_ground, "Missing floor for doorway checks in " + room)
     # These local bases follow the four actual room facades, in clockwise order.
     bases = (((1, 0, 0), (0, 0, 1)), ((0, 0, -1), (1, 0, 0)),
              ((-1, 0, 0), (0, 0, -1)), ((0, 0, 1), (-1, 0, 0)))
-    height = 3.05 if room == "service" else 5.6
+    height = 6 if room in OUTER_ROOMS else 3.05 if room == "service" else 5.6
+    jamb_depth, wall_depth = (.82, .5) if room in OUTER_ROOMS else (.78, .46)
     count = 0
     for direction in doorways:
         right, outward = bases[direction]
-        depth = max(sum(p[i]*outward[i] for i in range(3)) for p in base.points)-0.16
+        depth = max(sum(p[i]*outward[i] for i in range(3)) for base in bases_on_ground for p in base.points)-0.16
         projected = [Face(tuple((sum(p[i]*right[i] for i in range(3)), p[1],
                                sum(p[i]*outward[i] for i in range(3))-depth)
                               for p in face.points)) for face in mesh]
@@ -175,9 +181,9 @@ def openings(mesh, room, doorways, failures):
                         or abs(lo[1]) > EPSILON or abs(lo[2]+hi[2]) > 1
                         or side*f.normal[0] >= 0):
                     continue
-                if abs(hi[1]-height) < EPSILON and abs((hi[2]-lo[2])-.78) < EPSILON:
+                if abs(hi[1]-height) < EPSILON and abs((hi[2]-lo[2])-jamb_depth) < EPSILON:
                     jambs.append(radial)
-                if hi[1] >= height and abs((hi[2]-lo[2])-.46) < EPSILON and abs(radial-4.5) < EPSILON:
+                if hi[1] >= height and abs((hi[2]-lo[2])-wall_depth) < EPSILON and abs(radial-4.5) < EPSILON:
                     walls.append(radial)
             label = f"{room} doorway {direction}, side {side}"
             require(len(jambs) == len(walls) == 1, f"Could not identify the rendered jamb and wall at {label}")
@@ -191,25 +197,33 @@ def openings(mesh, room, doorways, failures):
 def check(edition):
     scene = Scene(edition)
     failures = []
-    local = {room: scene.mesh((room, "Architecture"), room) for room in ROOMS}
-    floors = {room: floor(scene.mesh((room, "Architecture"), room, world=True)) for room in ROOMS}
-    positions = {room: scene.world((0, 0, 0), scene.transform((room,))) for room in ROOMS}
+    local = {room: scene.mesh((room, "Architecture"), room) for room in ALL_ROOMS}
+    ground = {room: ground_faces(scene.mesh((room, "Architecture"), room, world=True)) for room in ALL_ROOMS}
+    floors = {room: max(items, key=lambda f: (f.high[0]-f.low[0])*(f.high[2]-f.low[2])) for room, items in ground.items()}
+    positions = {room: scene.world((0, 0, 0), scene.transform((room,))) for room in ALL_ROOMS}
     doors = defaultdict(set)
     passages = [path[-1] for path in scene.named if len(path) == 2 and path[-1].startswith("Passage ")]
-    require(len(passages) == 12, "Expected twelve rendered main passages")
+    require(len(passages) == PASSAGES, "Expected eighteen rendered main passages")
     for passage in passages:
         a, b = re.fullmatch(r"Passage (\w+) to (\w+)", passage).groups()
         sheet = floor(scene.mesh((passage, "Architecture"), passage, world=True))
         for room, other in ((a, b), (b, a)):
-            joined(floors[room], sheet, f"{passage} / {room}", failures)
+            # The space road has a west branch and a main deck; check the actual joined sheet.
+            landing = max(ground[room], key=lambda f: min(intersection(f, sheet)))
+            joined(landing, sheet, f"{passage} / {room}", failures)
             dx = positions[other][0]-positions[room][0]
             dz = positions[other][2]-positions[room][2]
             direction = (1 if dx > 0 else 3) if abs(dx) > abs(dz) else (0 if dz > 0 else 2)
             doors[room].add(direction)
     doors["gallery"].add(2)
     doors["service"].add(3)
-    jamb_count = sum(openings(local[room], room, doors[room], failures) for room in sorted(ROOMS))
-    require(jamb_count == 52, "Expected two jambs on each of twenty-six shell doorways")
+    require(1 in doors["air"], "The air terminal lost its east exit to the outer circuit")
+    # The causeway's south entry is a free-standing high lintel, not a tiled wall opening.
+    doors["causeway"].discard(2)
+    jamb_count = sum(openings(local[room], room, doors[room], failures) for room in sorted(ALL_ROOMS))
+    require(jamb_count == 74, "Expected two separated jambs on each of thirty-seven shell doorways")
+    require(len(ground["causeway"]) == 2, "The space road requires its main deck and west branch")
+    joined(*ground["causeway"], "Causeway deck / west branch", failures)
 
     bay_count = 0
     for wing, prefix, parent in (("Diminishing Baths", "Bath bay ", "gallery"),
@@ -229,7 +243,7 @@ def check(edition):
     for deck in balcony:
         if deck is not cross_deck:
             joined(deck, cross_deck, "Gallery balcony junction", failures)
-    print(f"{edition}: checked 24 passage endpoints, {jamb_count} jambs, {bay_count} shrinking bays and 2 balcony joins")
+    print(f"{edition}: checked {2*len(passages)} passage endpoints, {jamb_count} jambs, {bay_count} shrinking bays, 2 balcony joins and the causeway branch")
     for failure in failures:
         print("  "+failure)
     return failures

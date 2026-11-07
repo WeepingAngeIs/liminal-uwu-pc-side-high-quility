@@ -1,0 +1,214 @@
+name: Author and review liminal expansion
+on:
+  push:
+    branches:
+      - liminal-expansion
+    paths:
+      - 'Assets/**/*.cs'
+      - 'Assets/**/*.shader'
+      - 'Assets/**/*.cginc'
+      - 'Assets/Stillwater/Media/Sky/**'
+      - 'Tools/CI/ExpansionReview.cs'
+      - 'Tools/CI/ExpansionRuntimeSmoke.cs'
+      - '.github/workflows/author-expansion.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: liminal-unity-license
+  cancel-in-progress: false
+
+jobs:
+  author:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          persist-credentials: false
+      - name: Check Unity activation settings
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        run: |
+          if [[ -z "$UNITY_EMAIL" || -z "$UNITY_PASSWORD" || ( -z "$UNITY_LICENSE" && -z "$UNITY_SERIAL" ) ]]; then
+            echo "::error::The hosted author needs the same Unity activation secrets as the world export workflow."
+            exit 1
+          fi
+      - name: Restore official checksummed VRChat packages
+        run: python3 Tools/CI/restore_vpm.py
+      - name: Stage the authoring review
+        run: |
+          mkdir -p Assets/Editor Builds/ExpansionReview
+          cp Tools/CI/ExpansionReview.cs Assets/Editor/ExpansionReview.cs
+          cp Tools/CI/ExpansionRuntimeSmoke.cs Assets/Editor/ExpansionRuntimeSmoke.cs
+          git rev-parse HEAD > Builds/author-revision.txt
+      - name: Make room for the hosted Unity image
+        run: |
+          sudo rm -rf -- /usr/local/lib/android/sdk /usr/share/dotnet /usr/local/.ghcup
+          df -h /
+      - name: Pull the Unity editor base image
+        timeout-minutes: 20
+        run: docker pull unityci/editor:ubuntu-2022.3.22f1-windows-mono-3
+      - name: Install Mesa in the Unity editor image
+        timeout-minutes: 8
+        run: |
+          mkdir -p "$RUNNER_TEMP/liminal-expansion-mesa"
+          cat > "$RUNNER_TEMP/liminal-expansion-mesa/Dockerfile" <<'DOCKER'
+          FROM unityci/editor:ubuntu-2022.3.22f1-windows-mono-3
+          USER root
+          ARG DEBIAN_FRONTEND=noninteractive
+          RUN apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends libgl1-mesa-dri libglx-mesa0 mesa-utils xvfb xauth && rm -rf /var/lib/apt/lists/*
+          ENV LIBGL_ALWAYS_SOFTWARE=true GALLIUM_DRIVER=llvmpipe
+          COPY unity-editor /usr/bin/unity-editor
+          RUN chmod 755 /usr/bin/unity-editor
+          DOCKER
+          cat > "$RUNNER_TEMP/liminal-expansion-mesa/unity-editor" <<'WRAPPER'
+          #!/usr/bin/env bash
+          if [[ -d /usr/bin/unity-editor.d ]]; then
+            for setup in /usr/bin/unity-editor.d/*.sh; do
+              [[ ! -r "$setup" ]] || source "$setup"
+            done
+          fi
+          exec xvfb-run -a -e /dev/stderr -s "-screen 0 1280x800x24 +extension GLX +render -noreset" "$UNITY_PATH/Editor/Unity" -batchmode -force-glcore "$@"
+          WRAPPER
+          docker build --progress plain --tag liminal-unity-mesa:expansion "$RUNNER_TEMP/liminal-expansion-mesa"
+      - name: Verify the Mesa graphics context
+        timeout-minutes: 2
+        run: |
+          cat > "$RUNNER_TEMP/liminal-expansion-mesa/mesa-preflight" <<'PREFLIGHT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          if [[ "${1:-}" == glx ]]; then
+            echo "Xvfb is ready on $DISPLAY; checking the OpenGL renderer."
+            exec timeout --kill-after=5s 30s glxinfo -B
+          fi
+          # Xvfb startup signals must go to a process beneath PID 1.
+          timeout --kill-after=5s 60s xvfb-run -a -e /dev/stderr \
+            -s "-screen 0 1280x800x24 +extension GLX +render -noreset" \
+            /bin/bash --noprofile --norc "$0" glx
+          PREFLIGHT
+          trap 'docker rm -f liminal-expansion-preflight >/dev/null 2>&1 || true' EXIT
+          timeout --kill-after=10s 90s docker run --init --rm --name liminal-expansion-preflight \
+            --entrypoint /bin/bash \
+            --volume "$RUNNER_TEMP/liminal-expansion-mesa/mesa-preflight:/mesa-preflight:ro" \
+            liminal-unity-mesa:expansion --noprofile --norc /mesa-preflight \
+            2>&1 | tee Builds/ExpansionReview/mesa-device.txt
+          grep -qi llvmpipe Builds/ExpansionReview/mesa-device.txt
+      - name: Author both editions and render their review
+        timeout-minutes: 50
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          customImage: liminal-unity-mesa:expansion
+          buildMethod: ExpansionReview.AuthorAndCapture
+          enableGpu: true
+          customParameters: -force-glcore
+          allowDirtyBuild: true
+          versioning: None
+      - name: Exercise local controls and the aperture in ClientSim
+        timeout-minutes: 12
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          customImage: liminal-unity-mesa:expansion
+          buildMethod: ExpansionRuntimeSmoke.Begin
+          enableGpu: true
+          customParameters: -force-glcore
+          manualExit: true
+          allowDirtyBuild: true
+          versioning: None
+      - name: Allow the runner to assemble review artifacts
+        if: always()
+        run: |
+          if [[ -d "$GITHUB_WORKSPACE/Builds" ]]; then
+            sudo chown -- "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/Builds"
+          fi
+          review_output="$GITHUB_WORKSPACE/Builds/ExpansionReview"
+          if [[ -d "$review_output" ]]; then
+            sudo chown -R -- "$(id -u):$(id -g)" "$review_output"
+          fi
+      - name: Package verified authored assets and write the review summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, zipfile
+          from pathlib import Path
+          output = Path('Builds/ExpansionReview')
+          output.mkdir(parents=True, exist_ok=True)
+          revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          report_path = output / 'report.json'
+          report = json.loads(report_path.read_text()) if report_path.is_file() else {}
+          verified = (report.get('authoringSucceeded') is True and report.get('reviewPassed') is True
+                      and report.get('revision') == revision and len(report.get('scenes', [])) == 2)
+          status = {'revision': revision, 'runId': os.environ['GITHUB_RUN_ID'],
+                    'authoringSucceeded': report.get('authoringSucceeded', False), 'reviewPassed': verified,
+                    'diagnostic': 'See report.json and the Unity job log.' if report else 'Unity did not reach the review entry point; see the job log.'}
+          (output / 'workflow-status.json').write_text(json.dumps(status, indent=2) + '\n')
+          if verified:
+              paths = []
+              # Scene Udon references also require the serialized bytecode outside Stillwater.
+              for root in ('Assets/Stillwater', 'Assets/SerializedUdonPrograms'):
+                  paths += sorted(p for p in Path(root).rglob('*') if p.is_file())
+                  meta = Path(root + '.meta')
+                  if meta.is_file(): paths.append(meta)
+              manifest = dict(status, formatVersion=1, files=[])
+              archive = Path('Builds/AuthoredExpansion')
+              archive.mkdir(parents=True, exist_ok=True)
+              with zipfile.ZipFile(archive / 'authored-stillwater.zip', 'w', zipfile.ZIP_DEFLATED, compresslevel=5) as bundle:
+                  for path in sorted(set(paths)):
+                      data = path.read_bytes()
+                      manifest['files'].append({'path': path.as_posix(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+                      bundle.writestr(path.as_posix(), data)
+                  manifest['fileCount'] = len(manifest['files'])
+                  text = json.dumps(manifest, indent=2) + '\n'
+                  bundle.writestr('authoring-manifest.json', text)
+              (archive / 'authoring-manifest.json').write_text(text)
+              (output / 'authoring-manifest.json').write_text(text)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('## Expansion authoring and visual review\n\n')
+              summary.write('Revision: `' + revision + '`\n\n')
+              summary.write('Verified authored asset archive available.\n\n' if verified else '**No authored asset archive was released: the authoring/review did not pass.**\n\n')
+              if report:
+                  summary.write(report['method'] + '\n\n')
+                  summary.write('| Edition | Renderers | Triangles (all LODs) | Reflections | Audio zones | Visibility zones | Seats | Native videos |\n|---|---:|---:|---:|---:|---:|---:|---:|\n')
+                  for scene in report['scenes']:
+                      keys = ('edition', 'rendererCount', 'trianglesAllLods', 'reflectionCount', 'audioZones', 'visibilityZones', 'trainSeats', 'nativeVideoPlayers')
+                      summary.write('| ' + ' | '.join(str(scene[k]) for k in keys) + ' |\n')
+                  summary.write('\nCaptured ' + str(len(report['images'])) + ' PNGs. Download the review artifact to inspect all views and error logs.\n\n')
+                  for failure in report.get('failures', []): summary.write('- ' + failure.replace('\n', ' ') + '\n')
+              else: summary.write(status['diagnostic'] + '\n')
+          PY
+      - name: Upload authored assets for review and adoption
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liminal-authored-expansion-${{ github.run_number }}
+          path: Builds/AuthoredExpansion/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload images, reports and authoring logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liminal-expansion-review-${{ github.run_number }}
+          path: |
+            Builds/ExpansionReview/
+            Builds/author-revision.txt
+          if-no-files-found: error
+          retention-days: 14

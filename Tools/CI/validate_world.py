@@ -10,6 +10,9 @@ import wave
 
 ROOT = Path("Assets/Stillwater")
 ROOMS = {"hub", "rail", "air", "grove", "motor", "gravity", "observatory", "gallery", "service"}
+OUTER_ROOMS = {"billboard", "concourse", "causeway", "stacks", "returns"}
+ALL_ROOMS = ROOMS | OUTER_ROOMS
+PASSAGES = 18
 GUID = r"[0-9a-f]{32}"
 DOCUMENT = re.compile(r"^--- !u!(\d+) &(-?\d+)[^\n]*\n", re.M)
 
@@ -102,20 +105,20 @@ def check_scene(edition):
                   for oid, body in by_kind[4]}
     room_names = {names[go] for go, parent in transforms.values()
                   if parent in transforms and names[transforms[parent][0]] == "liminal uwu"}
-    require(ROOMS <= room_names, "Missing districts in " + edition)
+    require(ALL_ROOMS <= room_names, "Missing districts in " + edition)
     routes = set()
     for name in room_names:
         edge = re.fullmatch(r"Passage (\w+) to (\w+)", name)
         if edge:
             a, b = edge.groups()
-            require(a in ROOMS and b in ROOMS and a != b, "Broken passage endpoint " + name)
+            require(a in ALL_ROOMS and b in ALL_ROOMS and a != b, "Broken passage endpoint " + name)
             routes.add(tuple(sorted((a, b))))
     connected = {"hub"}
-    for _ in ROOMS:
+    for _ in ALL_ROOMS:
         for a, b in routes:
             if a in connected or b in connected:
                 connected.update((a, b))
-    require(connected == ROOMS and len(routes) == 12, "Nine rooms must share twelve connections")
+    require(connected == ALL_ROOMS and len(routes) == PASSAGES, "Fourteen districts must share eighteen connections")
     require(len(by_kind[65]) >= 70, "Missing architectural colliders")
     target = ROOT / "Generated" / edition
     other = "Quest" if edition == "PC" else "PC"
@@ -148,11 +151,9 @@ def check_scene(edition):
                 and asset_guid(target / "Finishes/hub reflection.asset") in floor_yaml
                 and asset_guid(target / "Finishes/hub pavement irradiance.asset") in floor_yaml,
                 "Hub floor requires its own captured architecture reflection and pavement lighting")
-    for room in ROOMS:
-        clip = ROOT / "Media/Audio" / (room + ".wav")
-        sources = [body for oid, body in by_kind[82] if names[file_id(value(body, "m_GameObject"))] == room + " / room tone"]
-        require(any(asset_guid(clip) in body for body in sources), f"{room} emits the wrong audio")
-        require(any(value(b, "Loop") == "1" or value(b, "m_Loop") == "1" for b in sources), room + " should loop")
+    require(not any(" / room tone" in name for oid, name in names.items()
+                    if any(file_id(value(b, "m_GameObject")) == oid for _, b in by_kind[82])),
+            "Legacy point ambience must not compete with the room-wide local audio buses")
     rain = [body for _, body in by_kind[198] if names[file_id(value(body, "m_GameObject"))] == "Courtyard rain"]
     require(len(rain) == 2, "Two exposed rain courtyards are required")
     controllers = [body for oid, body in by_kind[95] if asset_guid(target / "SpiralService.controller") in body]
@@ -166,11 +167,16 @@ def check_scene(edition):
     require(len(descriptors) == 1 and re.search(r"  spawns:\n  - \{fileID: [1-9]", descriptors[0]), "Missing arrival")
     udon = [body for _, body in by_kind[114] if "  programSource:" in body]
     expected_programs = {
-        "Transit/LastTrainBoard.asset": 5,
+        "Transit/LastTrainBoard.asset": 6,
         "Runtime/StillwaterGravityPort.asset": 8,
         "Runtime/ApertureExpress.asset": 1,
         "Runtime/ExpressSeat.asset": 6,
         "Runtime/CitySignalClock.asset": 1,
+        "Runtime/WorldAudioDirector.asset": 1,
+        "Runtime/DistrictVisibility.asset": 1,
+        "Runtime/BillboardPlayer.asset": 1,
+        "Runtime/BillboardMenuToggle.asset": 2,
+        "Runtime/ApertureApproach.asset": 1,
     }
     program_counts = collections.Counter(guid(value(body, "programSource")) for body in udon)
     for path, count in expected_programs.items():
@@ -212,7 +218,7 @@ def check_scene(edition):
         require(counts and all(int(n) % 3 == 0 for n in counts), f"Invalid triangle data in {mesh_path}")
         model_triangles += sum(int(n)//3 for n in counts) * copies
     require(model_triangles > 0, "No measurable scene geometry")
-    return {"districts": len(ROOMS), "passages": len(routes), "independent_loops": len(routes)-len(ROOMS)+1,
+    return {"districts": len(ALL_ROOMS), "passages": len(routes), "independent_loops": len(routes)-len(ALL_ROOMS)+1,
             "box_colliders": len(by_kind[65]), "udon_behaviours": len(udon), "coaches": coach_count,
             "unique_landmark_vertices": vertices, "reflection_probes": probes, "rain_courtyards": len(rain),
             "authored_mesh_triangles_before_culling": model_triangles}

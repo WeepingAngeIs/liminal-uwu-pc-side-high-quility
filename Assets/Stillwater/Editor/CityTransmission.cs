@@ -15,13 +15,23 @@ public static class CityTransmission
             receive=new Material(Shader.Find("Liminal uwu/Embankment transmission"));
             AssetDatabase.CreateAsset(receive,path);
         }
-        var footage=AssetDatabase.LoadAssetAtPath<Texture>(Surface.Media+"/Optics/Embankment signal.jpg");
-        if(!footage)throw new IOException("Missing the embankment film.");
-        receive.SetTexture("_Film",footage);
+        receive.shader=Shader.Find("Liminal uwu/Embankment transmission");
+        var plasma=AssetDatabase.LoadAssetAtPath<Texture>(Surface.Media+"/Optics/Orbital streams.png");
+        var stars=AssetDatabase.LoadAssetAtPath<Texture>(Surface.Media+"/Optics/Deep field.jpg");
+        var transfer=AssetDatabase.LoadAssetAtPath<Texture>(Surface.Media+"/Optics/Geodesic transfer.asset");
+        if(!plasma || !stars || (!quest && !transfer))throw new IOException("Missing the observatory transmission media.");
+        RemoveOldFilmReference(receive);
+        receive.SetTexture("_Plasma",plasma);
+        receive.SetTexture("_Stars",stars);
+        var nebula=AssetDatabase.LoadAssetAtPath<Texture>(Surface.Media+"/Sky/Nebula.png");
+        if(nebula)receive.SetTexture("_Nebula",nebula);
+        receive.SetTexture("_GeodesicTransfer",quest?null:transfer);
+        receive.SetFloat("_DiskExposure",1.25f);
         receive.SetFloat("_BroadcastSecond",2f);
         if(quest)receive.EnableKeyword("SW_MOBILE");else receive.DisableKeyword("SW_MOBILE");
         EditorUtility.SetDirty(receive);
-        Terminal(root.Find("hub"),new Vector3(5.0f,0,-8.0f),-9f,receive,folder);
+        // The central promenade and its straight-through tunnel sightlines stay clear.
+        Terminal(root.Find("hub"),new Vector3(24.0f,0,-20.0f),105f,receive,folder);
         Projection(root.Find("gallery"),receive,folder);
         // The archive's exterior surveillance windows keep their orientation when
         // the traveller enters a rotated copy of the room.
@@ -35,9 +45,20 @@ public static class CityTransmission
         var control=WorldAuthor.Child(root,"Embankment broadcast clock").gameObject;
         var script=control.AddUdonSharpComponent<CitySignalClock>();
         script.receiver=receive;
-        script.aperture=RenderSettings.skybox;
         UdonSharpEditorUtility.CopyProxyToUdon(script);
         EditorUtility.SetDirty(UdonSharpEditorUtility.GetBackingUdonBehaviour(script));
+    }
+    static void RemoveOldFilmReference(Material receiver)
+    {
+        // Drop the unused atlas dependency so the collapsing-city footage is not
+        // packed into either edition merely because this material once used it.
+        var material=new SerializedObject(receiver);
+        var textures=material.FindProperty("m_SavedProperties.m_TexEnvs");
+        if(textures==null)return;
+        for(int index=textures.arraySize-1;index>=0;index--)
+            if(textures.GetArrayElementAtIndex(index).FindPropertyRelative("first").stringValue=="_Film")
+                textures.DeleteArrayElementAtIndex(index);
+        material.ApplyModifiedPropertiesWithoutUndo();
     }
     static void Terminal(Transform parent,Vector3 position,float angle,Material receiver,string path)
     {

@@ -1,0 +1,15 @@
+{
+  "creator": "Kenney",
+  "pack": "Space Station Kit 1.0",
+  "source": "https://opengameart.org/content/space-station-kit",
+  "license": "CC0-1.0",
+  "archiveSha256": "215e79bd5415cff93665183390f0343ed9acf87780306331013b78520170c6d8",
+  "models": [
+    "computer-wide",
+    "chair-armrest-headrest",
+    "container-wide",
+    "pipe-bend",
+    "wall-switch"
+  ],
+  "integration": "Five selected static models; recolored with the world finish and combined by district during authoring."
+}

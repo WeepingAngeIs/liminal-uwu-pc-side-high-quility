@@ -6,9 +6,9 @@ using VRC.SDKBase;
 public class CitySignalClock : UdonSharpBehaviour
 {
     public Material receiver;
-    public Material aperture;
 
     void Start() { TuneReceiver(); }
+    void Update() { TuneReceiver(); }
 
     public void TuneReceiver()
     {
@@ -16,9 +16,7 @@ public class CitySignalClock : UdonSharpBehaviour
         double seconds = Networking.GetServerTimeInSeconds();
         float phase=(float)((seconds % 24.0 + 24.0) % 24.0);
         receiver.SetFloat("_BroadcastSecond",phase);
-        if(Utilities.IsValid(aperture)) aperture.SetFloat("_BroadcastSecond",phase);
-        // The original broadcast advances a film frame every half second. Update
-        // the single shared receiver at eight hertz for a smooth dissolve on PC.
-        SendCustomEventDelayedSeconds(nameof(TuneReceiver),.125f);
+        // One shared material serves every receiver. This clock is a local read
+        // of server time, not a network event, and keeps the film smooth in VR.
     }
 }

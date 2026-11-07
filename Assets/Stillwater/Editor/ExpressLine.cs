@@ -11,11 +11,11 @@ using static LandmarkGeometry;
 internal static class ExpressLine
 {
     const float Radius = 17;
-    const float Helix = 4 * Mathf.PI * Radius;
-    const float Grade = .277f;
-    const float TerminalGrade = 1.11f;
-    const float Run = Helix + 32;
-    const float End = Helix + 29;
+    const float Helix = 6 * Mathf.PI * Radius;
+    const float Grade = .31f;
+    const float TerminalGrade = 1.1106125f; // tan(48 degrees), matching Eclipse.shader's pole.
+    const float Run = Helix + 145;
+    const float End = Helix + 143;
     const float Deck = .46f;
     const string TypeFolder = "Assets/Stillwater/Transit";
     static readonly int[] TypeWidths = {485,312,383,234,667,502,487,233,767,408};
@@ -58,9 +58,12 @@ internal static class ExpressLine
     {
         return Offset(s,4.28f*Mathf.Cos(a),2.02f+4.0f*Mathf.Sin(a));
     }
+    internal static Vector3 ApproachStart => Track(Helix+50);
+    internal static Vector3 FrontSummit => Track(Run-7);
+    internal static Vector3 ApertureDirection => new Vector3(0,.743144825f,.669130606f);
     static void Tunnel(LandmarkGeometry g,bool quest)
     {
-        int rails=quest?145:228;
+        int rails=quest?220:350;
         for(int i=0;i<rails;i++){
             float a=Mathf.Lerp(-28,End,(float)i/rails),b=Mathf.Lerp(-28,End,(float)(i+1)/rails);
             foreach(float x in new[]{-.85f,.85f})g.Beam("metal",Offset(a,x,0),Offset(b,x,0),.105f,.15f);
@@ -68,7 +71,7 @@ internal static class ExpressLine
             g.Beam("rust",Offset(a,-1.34f,-.095f),Offset(a,1.34f,-.095f),.19f,.17f);
             if(i%3==0)g.Beam("ice",Offset(a,-1.24f,-.13f),Offset(b,-1.24f,-.13f),.065f,.085f);
         }
-        int count=quest?43:61, edges=quest?9:15;
+        int count=quest?65:98, edges=quest?9:15;
         for(int i=0;i<=count;i++){
             float s=Mathf.Lerp(38,End,(float)i/count);
             float next=Mathf.Lerp(38,End,(float)(i+1)/count);
@@ -88,8 +91,8 @@ internal static class ExpressLine
                 }
             }
         }
-        for(int i=0;i<16;i++){
-            float s=42+i*10.9f;Vector3 rail=Offset(s,0,-.48f),outer=Offset(s,3.85f,-.55f);
+        for(int i=0;i<22;i++){
+            float s=Mathf.Lerp(42,Helix-10,i/21f);Vector3 rail=Offset(s,0,-.48f),outer=Offset(s,3.85f,-.55f);
             g.Beam("concrete",V(outer.x,.02f,outer.z),outer,.42f,.56f);
             g.Beam("rust",outer,rail,.28f,.32f);
             g.Beam("metal",outer-Vector3.up*2.5f,rail,.17f,.18f);
@@ -358,7 +361,7 @@ internal static class ExpressLine
             string name=coaches[car].name;
             var curves=new AnimationCurve[5];
             for(int i=0;i<curves.Length;i++)curves[i]=new AnimationCurve();
-            for(int j=0;j<=440;j++){
+            for(int j=0;j<=Mathf.RoundToInt(ApertureExpress.Cycle*2);j++){
                 float t=j*.5f,s=-23+car*8+Travel(t);
                 Vector3 pos=Track(s),angles=Angles(s);
                 float[] v={pos.x,pos.y,pos.z,angles.x,angles.y};
@@ -372,8 +375,8 @@ internal static class ExpressLine
             Key(clip,name,"localEulerAnglesRaw.z",AnimationCurve.Constant(0,ApertureExpress.Cycle,0));
             for(int dir=-1;dir<=1;dir+=2){
                 var door=new AnimationCurve();
-                foreach(float t in new[]{0f,31f,35f,214f,216.5f,ApertureExpress.Cycle}){
-                    bool shut=t>=35 && t<=214;
+                foreach(float t in new[]{0f,ApertureExpress.Depart-5,ApertureExpress.Depart-1,ApertureExpress.Dock,ApertureExpress.Dock+2.5f,ApertureExpress.Cycle}){
+                    bool shut=t>=ApertureExpress.Depart-1 && t<=ApertureExpress.Dock;
                     door.AddKey(new Keyframe(t,dir*(shut?.49f:1.49f),0,0));
                 }
                 string path=name+(dir==-1?"/Door aft":"/Door forward");

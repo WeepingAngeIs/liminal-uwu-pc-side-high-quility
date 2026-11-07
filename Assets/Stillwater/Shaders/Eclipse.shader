@@ -4,8 +4,8 @@ Shader "Stillwater/Eclipse sky"
     {
         _Plasma ("Accretion stream structure", 2D) = "gray" {}
         _Stars ("Distant sky", 2D) = "black" {}
-        _Fragments ("Drifting buildings", 2D) = "black" {}
-        _BroadcastSecond ("Observation time", Float) = 2
+        _Nebula ("Distant nebula", 2D) = "black" {}
+        _ApproachScale ("Local aperture approach", Range(1,8)) = 1
         _GeodesicTransfer ("PC gravitational lens transfer", 2D) = "black" {}
         _DiskExposure ("PC gas exposure", Range(.3,3)) = 1.45
         _ReviewTime ("Fixed review time (-1 uses live time)", Float) = -1
@@ -23,8 +23,8 @@ Shader "Stillwater/Eclipse sky"
             #pragma multi_compile_instancing
             #pragma shader_feature_local _ SW_MOBILE
             #include "UnityCG.cginc"
-            sampler2D _Plasma, _Stars, _Fragments, _GeodesicTransfer;
-            float _BroadcastSecond, _DiskExposure, _ReviewTime;
+            sampler2D _Plasma, _Stars, _Nebula, _GeodesicTransfer;
+            float _ApproachScale, _DiskExposure, _ReviewTime;
             static const float PI2 = 6.28318530718;
             static const float3 pole = float3(0,.743144825,.669130606);
             static const float3 north = float3(0,.669130606,-.743144825);
@@ -44,47 +44,22 @@ Shader "Stillwater/Eclipse sky"
             float3 starChart(float3 d)
             {
                 float2 uv=float2(atan2(d.z,d.x)/PI2+.5,asin(clamp(d.y,-1.,1.))/3.14159+.5);
-                return tex2Dlod(_Stars,float4(uv,0,0)).rgb;
+                return tex2Dlod(_Nebula,float4(uv+float2(.17,0),0,0)).rgb*.68;
             }
 
             #if !defined(SW_MOBILE)
                 #include "EclipsePC.cginc"
             #endif
 
-            float3 orbitingArchitecture(float3 background,float2 sightline,float gap)
-            {
-                if(_BroadcastSecond<4. || _BroadcastSecond>19. || gap<.065) return background;
-                #if defined(SW_MOBILE)
-                    #define BUILDING_COUNT 3
-                #else
-                    #define BUILDING_COUNT 6
-                #endif
-                [unroll] for(int j=0;j<BUILDING_COUNT;j++)
-                {
-                    float t=saturate((_BroadcastSecond-4.-j*.78)/(10.+j*.15));
-                    float radius=.183+lerp(.25,.014,t);
-                    float az=-1.62+.36*j+(.80+.16*j)*t+1.31*t*t;
-                    float2 center=radius*float2(cos(az),sin(az));
-                    float2 delta=(sightline-center)/lerp(.039,.009,t);
-                    if(dot(delta,delta)<1. && t>0. && t<1.)
-                    {
-                        float roll=(j-2.)*.09+(1.+j*.31)*t;
-                        float cs=cos(roll),sn=sin(roll);
-                        float2 uv=.5+.5*float2(cs*delta.x+sn*delta.y,cs*delta.y-sn*delta.x);
-                        half4 facade=tex2Dlod(_Fragments,float4((j+uv.x)/6.,uv.y,0,1.+t));
-                        float opacity=facade.a*smoothstep(0.,.16,t)*(1.-smoothstep(.78,1.,t));
-                        background=lerp(background,facade.rgb*.84,opacity);
-                    }
-                }
-                return background;
-            }
-
             half4 frag(Output i):SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
                 float3 direction=normalize(i.dir);
                 float along=dot(pole,direction);
-                float radius=acos(clamp(along,-1.,1.));
+                // A local approach controller enlarges the sky projection without
+                // moving geometry or adding objects across the protected shadow.
+                // At scale 1 this is the reviewed distant aperture exactly.
+                float radius=acos(clamp(along,-1.,1.))/clamp(_ApproachScale,1.,8.);
                 const float edge=.183;
                 if(radius<edge) return half4(0,0,0,1);
 
@@ -95,7 +70,7 @@ Shader "Stillwater/Eclipse sky"
                 float gap=(radius-edge)/edge;
                 #if !defined(SW_MOBILE)
                     float3 upgraded=BlackHolePC(direction,radius,unit,azimuth,time);
-                    return half4(orbitingArchitecture(upgraded,unit*radius,gap),1);
+                    return half4(upgraded,1);
                 #endif
                 // Bend apparent source directions toward the far sky on either side of the shadow.
                 float deflection=.058/max(radius,.001)*exp(-max(0.,radius-edge)*1.4);
@@ -103,7 +78,7 @@ Shader "Stillwater/Eclipse sky"
                 float3 tangent=float3(unit.x,0,0)+unit.y*north;
                 float3 source=pole*cos(sourceAngle)+tangent*sin(sourceAngle);
                 float horizon=exp2(-abs(direction.y-.015)*10.);
-                float3 bg=starChart(source)+float3(.021,.032,.044)*horizon;
+                float3 bg=(starChart(source)+float3(.021,.032,.044)*horizon)*smoothstep(.80,1.14,radius);
                 if(gap>1.65)
                     return half4(bg,1);
 
@@ -168,7 +143,7 @@ Shader "Stillwater/Eclipse sky"
                 #ifndef UNITY_COLORSPACE_GAMMA
                     light=GammaToLinearSpace(max(light,0.));
                 #endif
-                return half4(orbitingArchitecture(bg+light*fade,unit*radius,gap),1);
+                return half4(bg+light*fade,1);
             }
             ENDCG
         }

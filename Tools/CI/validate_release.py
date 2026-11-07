@@ -3,14 +3,49 @@ from collections import defaultdict
 import json
 import math
 import re
+import struct
 
-from PIL import Image, ImageChops, ImageStat
-
-from validate_world import ROOT, asset_guid, documents, file_id, guid, read, require, value
+from validate_world import ROOT, ALL_ROOMS, PASSAGES, asset_guid, documents, file_id, guid, read, require, value
 
 
 def vector(text):
     return tuple(float(re.search(r"\b" + axis + r": ([-+.\deE]+)", text)[1]) for axis in "xyz")
+
+
+def block(body, key):
+    match = re.search(r"^  " + re.escape(key) + r":([^\n]*)(?:\n(.*?))?(?=^  [A-Za-z_]|\Z)", body, re.M | re.S)
+    require(match is not None, "Missing serialized field " + key)
+    return (match[1] + "\n" + (match[2] or "")).strip()
+
+
+def rows(body, key):
+    return re.findall(r"^\s*- (.+)$", block(body, key), re.M)
+
+
+def integers(body, key, boolean=False):
+    data = block(body, key)
+    if data.startswith("-"):
+        return [int(v) for v in rows(body, key)]
+    if data == "[]":
+        return []
+    raw = bytes.fromhex(data)
+    if boolean:
+        return list(raw)
+    require(len(raw) % 4 == 0, key + " has malformed integer storage")
+    return [item[0] for item in struct.iter_unpack("<i", raw)]
+
+
+def vectors(body, key):
+    return [vector(row) for row in rows(body, key)]
+
+
+def floats(body, key):
+    items = rows(body, key)
+    if items:
+        return [float(item) for item in items]
+    raw = bytes.fromhex(block(body, key))
+    require(len(raw) % 4 == 0, key + " has malformed float storage")
+    return [item[0] for item in struct.iter_unpack("<f", raw)]
 
 
 class Scene:
@@ -26,11 +61,12 @@ class Scene:
         self.names = {oid: value(body, "m_Name") for oid, body in self.by_id[1].items()}
         self.paths = {}
         self.by_path = defaultdict(list)
-        for tid, body in self.by_id[4].items():
+        self.transforms = {**self.by_id[4], **self.by_id[224]}
+        for tid, body in self.transforms.items():
             owner = file_id(value(body, "m_GameObject"))
             segments = []
             while tid != "0":
-                transform = self.by_id[4][tid]
+                transform = self.transforms[tid]
                 segments.append(self.names[file_id(value(transform, "m_GameObject"))])
                 tid = file_id(value(transform, "m_Father"))
             path = tuple(reversed(segments))
@@ -48,7 +84,30 @@ class Scene:
         return items[0]
 
     def position(self, path):
-        return vector(value(self.component(path, 4), "m_LocalPosition"))
+        owner = self.at(path)
+        body = (self.components[(owner, 4)] + self.components[(owner, 224)])[0]
+        return vector(value(body, "m_LocalPosition"))
+
+    def script(self, name):
+        script_id = asset_guid(ROOT / "Runtime" / (name + ".cs"))
+        matches = [body for body in self.by_id[114].values() if guid(value(body, "m_Script")) == script_id]
+        require(len(matches) == 1, "Expected one serialized " + name)
+        return matches[0]
+
+    def resolve(self, reference, kind=None):
+        oid = file_id(reference)
+        if kind is not None:
+            require(oid in self.by_id[kind], "Missing serialized component " + reference)
+            return self.by_id[kind][oid]
+        for entries in self.by_id.values():
+            if oid in entries:
+                return entries[oid]
+        raise ValueError("Missing scene reference " + reference)
+
+    def reference_path(self, reference):
+        body = self.resolve(reference)
+        owner = file_id(value(body, "m_GameObject"))
+        return self.paths.get(owner, self.paths.get(file_id(reference)))
 
     def mesh(self, path, filename):
         mesh_path = self.assets / filename
@@ -171,31 +230,139 @@ def network_ids(scene):
 
 
 def gains(scene):
-    levels = {}
-    areas = ("hub", "rail", "air", "grove", "motor", "gravity", "observatory", "gallery", "service", "baths", "annex")
-    expected = {room + " / room tone": room for room in areas}
-    expected["Local field induction tone"] = "induction"
-    for body in scene.by_id[82].values():
-        owner = file_id(value(body, "m_GameObject"))
-        room = expected.get(scene.names[owner])
-        if not room:
-            continue
-        gain = float(value(body, "m_Volume"))
-        limit = {"hub": .18, "observatory": .28, "induction": .32}.get(room, .39)
-        require(0 < gain <= limit and value(body, "m_Enabled") == "1", f"Missing or excessive area sound in {room}")
-        if room != "induction":
-            require(asset_guid(ROOT / "Media/Audio" / (room + ".wav")) == guid(value(body, "m_audioClip")) and
-                    (value(body, "Loop") or value(body, "m_Loop")) == "1", "Incorrect looping ambience for " + room)
-        levels[scene.paths[owner]] = gain
-    require({expected[k[-1]] for k in levels} == set(expected.values()), "An area lost its ambience")
-    return levels
+    control = scene.script("WorldAudioDirector")
+    low, high = vectors(control, "zoneMin"), vectors(control, "zoneMax")
+    clips, rain = rows(control, "atmosphereClips"), integers(control, "rainy", boolean=True)
+    require(len(low) == len(high) == len(clips) == len(rain) == len(ALL_ROOMS) + PASSAGES + 5,
+            "Audio needs bounds, ambience and rain flags for every district, passage and annex")
+    available = {asset_guid(path) for path in (ROOT / "Media/Audio").glob("*.wav")}
+    require(all(guid(clip) in available for clip in clips), "An audio sector has a missing clip")
+    require(all(all(a < b for a, b in zip(lo, hi)) for lo, hi in zip(low, high)), "An audio sector has empty bounds")
+    for room in ALL_ROOMS:
+        point = scene.position((room,))
+        require(any(all(a <= p <= b for p, a, b in zip(point, lo, hi)) for lo, hi in zip(low, high)),
+                "Room-wide audio does not cover " + room)
+    sources, levels = [], {}
+    for bus in ("rain", "atmosphere"):
+        source = scene.resolve(value(control, bus), 82)
+        sources.append(file_id(value(control, bus)))
+        gain = float(value(source, "m_Volume"))
+        slider = float(value(control, bus + "Volume"))
+        require(0 <= gain <= .1 and 0 < slider <= .5, "World audio should start quiet: " + bus)
+        require(value(source, "m_Enabled") == "1" and value(source, "m_PlayOnAwake") == "0"
+                and (value(source, "Loop") or value(source, "m_Loop")) == "1", "Audio bus must loop under local control")
+        require(value(source, "Spatialize") == "0" and value(source, "DopplerLevel") == "0",
+                "Room sound must remain uniform while walking")
+        spatial = block(source, "panLevelCustomCurve")
+        blend = [float(v) for v in re.findall(r"^\s+value: (.+)$", spatial, re.M)]
+        require(blend and all(v == 0 for v in blend), "Room audio is still distance-localized")
+        owner = file_id(value(source, "m_GameObject"))
+        require(scene.paths[owner][1] == "Local room soundscapes", "Audio bus escaped the local director")
+        levels[bus] = (slider, gain)
+    require(len(set(sources)) == 2, "Rain and atmosphere require independently controlled sources")
+    require(guid(value(scene.resolve(value(control, "rain"), 82), "m_audioClip")) == asset_guid(ROOT / "Media/Audio/rain.wav"),
+            "Rain slider has the wrong sound")
+    bus_sources = [oid for oid, b in scene.by_id[82].items()
+                   if scene.paths[file_id(value(b, "m_GameObject"))][1] == "Local room soundscapes"]
+    require(set(bus_sources) == set(sources), "Unexpected room audio source competes with the two buses")
+    return {"levels": levels, "bounds": list(zip(low, high)), "clips": [guid(c) for c in clips], "rain": rain}
+
+
+def visibility(scene):
+    control = scene.script("DistrictVisibility")
+    low, high = vectors(control, "zoneMin"), vectors(control, "zoneMax")
+    require(len(low) == len(high) == len(ALL_ROOMS) + PASSAGES + 5, "Missing room visibility bounds")
+    renderers, sectors = rows(control, "renderers"), integers(control, "rendererSector")
+    require(len(renderers) == len(sectors) and renderers, "Renderer visibility groups are not wired")
+    groups = defaultdict(set)
+    for ref, index in zip(renderers, sectors):
+        require(0 <= index < len(low), "Renderer refers to an invalid room")
+        path = scene.reference_path(ref)
+        require(path and len(path) > 2 and "Portable local menu" not in path and "Local wrist video button" not in path,
+                "Portable controls must remain outside district culling")
+        groups[index].add(path[1])
+    require(len(groups) == len(low) and all(len(names) == 1 for names in groups.values()), "Visibility sector mixes districts or is empty")
+    names = {i: next(iter(items)) for i, items in groups.items()}
+    require(ALL_ROOMS <= set(names.values()), "An entire district is omitted from visibility control")
+    a, b = integers(control, "portalA"), integers(control, "portalB")
+    centers = vectors(control, "portalCenter")
+    radii = floats(control, "portalRadius")
+    require(len(a) == len(b) == len(centers) == len(radii) == 2 * PASSAGES + 2, "Visibility portals omit a connection")
+    edges = set()
+    for x, y, radius in zip(a, b, radii):
+        require(x != y and x in names and y in names and radius > 0, "Invalid room visibility portal")
+        edge = tuple(sorted((names[x], names[y])))
+        require(edge not in edges, "Duplicate room visibility portal")
+        edges.add(edge)
+    for name in names.values():
+        match = re.fullmatch(r"Passage (\w+) to (\w+)", name)
+        if match:
+            require(all(tuple(sorted((name, end))) in edges for end in match.groups()), "Passage has a disconnected visibility endpoint")
+    require(tuple(sorted(("gallery", "Diminishing Baths"))) in edges and
+            tuple(sorted(("service", "Night Reception"))) in edges, "Shrinking annex portal is missing")
+    return {"bounds": list(zip(low, high)), "links": sorted(edges), "portals": list(zip(centers, radii))}
+
+
+def billboard(scene):
+    control = scene.script("BillboardPlayer")
+    owner = file_id(value(control, "m_GameObject"))
+    native = scene.resolve(value(control, "video"), 114)
+    require(file_id(value(native, "m_GameObject")) == owner, "Video callbacks must reach the player behaviour")
+    require(value(native, "autoPlay") == "0" and value(native, "loop") == "0"
+            and value(native, "renderMode") == "0", "Billboard must use the controlled RenderTexture player")
+    texture = scene.assets / "Billboard target.renderTexture"
+    require(guid(value(native, "targetTexture")) == asset_guid(texture), "Native player has no billboard output")
+    target = read(texture)
+    expected = (512, 288) if scene.assets.name == "Quest" else (1024, 576)
+    require((int(value(target, "m_Width")), int(value(target, "m_Height"))) == expected, "Wrong billboard platform resolution")
+    material = scene.assets / "Finishes/Billboard video.mat"
+    require(guid(value(control, "screenMaterial")) == asset_guid(material), "Playback status targets the wrong screen")
+    require(asset_guid(texture) in read(material) and asset_guid(ROOT / "Shaders/BillboardVideo.shader") in read(material),
+            "Billboard shader is missing its video texture")
+    speaker = scene.resolve(value(control, "speaker"), 82)
+    require(0 < float(value(speaker, "m_Volume")) <= .2 and value(speaker, "m_PlayOnAwake") == "0",
+            "Billboard audio should be quiet and playback-controlled")
+    require([file_id(ref) for ref in rows(native, "targetAudioSources")] == [file_id(value(control, "speaker"))],
+            "Native video audio is disconnected")
+    audio = scene.script("WorldAudioDirector")
+    require(scene.resolve(value(control, "worldAudio"), 114) == audio, "Portable world audio controls are unwired")
+    menu = scene.reference_path(value(control, "menu"))
+    wrist = scene.reference_path(value(control, "wristButton"))
+    require(menu == ("liminal uwu", "Portable local menu") and wrist == ("liminal uwu", "Local wrist video button"),
+            "Portable controls must remain accessible outside the billboard district")
+    require(value(scene.resolve(value(control, "menu"), 1), "m_IsActive") == "0", "Portable menu should start closed")
+    for slider_name, callback in (("videoVolume", "UpdateLocalVolume"), ("rainVolume", "RainVolumeChanged"),
+                                  ("atmosphereVolume", "AtmosphereVolumeChanged")):
+        slider = scene.resolve(value(control, slider_name), 114)
+        require(scene.reference_path(value(control, slider_name))[:2] == menu, "Local volume slider is outside its panel")
+        require("m_StringArgument: " + callback in slider and "m_MethodName: SendCustomEvent" in slider,
+                "Volume slider has no persistent event: " + slider_name)
+    for callback in ("LoadForEveryone", "PlayForEveryone", "PauseForEveryone", "StopForEveryone", "RetryLocal", "CloseMenu"):
+        matches = [body for body in scene.by_id[114].values() if "m_StringArgument: " + callback in body
+                   and scene.paths.get(file_id(value(body, "m_GameObject")), ())[:2] == menu]
+        require(len(matches) == 1 and "m_MethodName: SendCustomEvent" in matches[0], "Missing usable video menu action " + callback)
+    require(scene.reference_path(value(control, "urlInput"))[:2] == menu, "URL entry is outside the local menu")
+    for path in (("hub", "Embankment signal kiosk"), ("billboard", "Side street billboard"),
+                 ("billboard", "Sidewalk video controls")):
+        require(abs(scene.position(path)[0]) > 10, "A video fixture obstructs the road at " + str(path))
+    require(sum("stationEnterPlayerLocation:" in b for b in scene.by_id[114].values()) == 6,
+            "Video district changes must preserve the six train seats")
+    return {"menu": menu, "wrist": wrist, "local_audio_sliders": 3}
 
 
 def film_binding(scene):
     receiver = scene.assets / "Finishes/Embankment receiver.mat"
     material = read(receiver)
-    require(guid(value(material, "m_Shader")) == asset_guid(ROOT / "Shaders/Transmission.shader") and
-            asset_guid(ROOT / "Media/Optics/Embankment signal.jpg") in material, "Receiver film or shader missing")
+    require(guid(value(material, "m_Shader")) == asset_guid(ROOT / "Shaders/Transmission.shader"), "Receiver shader is missing")
+    bindings = {name: guid(body) for name, body in re.findall(r"^    - (_\w+):\n(.*?)(?=^    - |^    m_|\Z)", material, re.M | re.S)}
+    for property_name, filename in (("_Plasma", "Optics/Orbital streams.png"), ("_Stars", "Optics/Deep field.jpg"),
+                                    ("_Nebula", "Sky/Nebula.png")):
+        require(bindings.get(property_name) == asset_guid(ROOT / "Media" / filename), "Film is missing its " + property_name + " texture")
+    transfer = bindings.get("_GeodesicTransfer", "")
+    require(transfer == (asset_guid(ROOT / "Media/Optics/Geodesic transfer.asset") if scene.assets.name == "PC" else ""),
+            "Film uses the wrong gravitational-lens quality tier")
+    require("_Film" not in bindings and asset_guid(ROOT / "Media/Optics/Embankment signal.jpg") not in material,
+            "Obsolete collapsing-city footage remains attached to the release film")
     valid_keywords = re.search(r"^  m_ValidKeywords:(.*?)(?=^  \w+:)", material, re.S | re.M)
     require(valid_keywords and ("SW_MOBILE" in valid_keywords[1]) == (scene.assets.name == "Quest"),
             "Receiver uses the wrong platform shader variant")
@@ -210,37 +377,31 @@ def film_binding(scene):
     require(any(guid(value(b, "receiver")) == receiver_guid for b in clock), "Broadcast clock has no target material")
 
 
-def film_frames():
-    with Image.open(ROOT / "Media/Optics/Embankment signal.jpg") as film:
-        require(film.size == (4096, 1152), "Missing or truncated 32-frame embankment broadcast")
-        frames = []
-        for idx in (0, 16, 31):
-            x, y = idx % 8 * 512, idx // 8 * 288
-            frames.append(film.crop((x, y, x + 512, y + 288)).convert("RGB").resize((96, 54)))
-        for a, b in zip(frames, frames[1:]):
-            deltas = ImageStat.Stat(ImageChops.difference(a, b)).mean
-            require(max(deltas) > .3, "Intact, collapsing and empty frames must differ")
-    shader = re.sub(r"\s+", "", read(ROOT / "Shaders/Transmission.shader"))
-    clock = re.sub(r"\s+", "", read(ROOT / "Runtime/CitySignalClock.cs"))
-    require("if(sec>=22.)returnhalf4(0,0,0,1);" in shader and "saturate((sec-4.)/14.5)*31." in shader and
-            "sampleFrame(floor(frame),uv,mip)" in shader, "Film must advance through its atlas and reach absolute black")
-    require("Networking.GetServerTimeInSeconds()" in clock and '%24.0' in clock and
-            'receiver.SetFloat("_BroadcastSecond"' in clock and "SendCustomEventDelayedSeconds(" in clock,
-            "Blackout must restart on the shared 24-second clock")
+def film_contract():
+    """Source guardrails; hosted image review is still required for the rendered film."""
+    shader = read(ROOT / "Shaders/Transmission.shader")
+    clock = read(ROOT / "Runtime/CitySignalClock.cs")
+    require(re.search(r"if\s*\(\s*sec\s*>=\s*22(?:\.0*)?\s*\)\s*return\s+half4\(\s*0,\s*0,\s*0,\s*1\)", shader),
+            "The final two seconds must reach absolute black")
+    require(re.search(r"%\s*24(?:\.0*)?", clock) and "Networking.GetServerTimeInSeconds()" in clock,
+            "Film must restart on a shared 24-second clock")
+    require("_Film" not in shader and "sampleFrame" not in shader, "Receiver still samples the collapsing-city atlas")
 
 
 if __name__ == "__main__":
-    film_frames()
+    film_contract()
     results = {}
     for edition in ("PC", "Quest"):
         scene = Scene(edition)
         check_maps(scene)
         film_binding(scene)
-        results[edition] = (towers(scene), shrinking_rooms(scene), network_ids(scene), gains(scene))
+        results[edition] = (towers(scene), shrinking_rooms(scene), network_ids(scene), gains(scene), visibility(scene), billboard(scene))
     pc, quest = results["PC"], results["Quest"]
     require(all(a > b for a, b in zip(pc[0], quest[0])), "Quest needs simplified tower meshes")
-    for index, feature in ((1, "Shrinking collision profiles"), (2, "Network IDs and hierarchy paths"), (3, "Room gains")):
+    for index, feature in ((1, "Shrinking collision profiles"), (2, "Network IDs and hierarchy paths"), (3, "Room audio routing"),
+                           (4, "Visibility bounds and portals"), (5, "Portable menu bindings")):
         require(pc[index] == quest[index], feature + " differ between PC and Quest")
     print(json.dumps({"tower_vertices": {k: v[0] for k, v in results.items()}, "shrinking_bays": sum(map(len, pc[1].values())),
-                      "matched_network_ids": len(pc[2]), "matched_area_emitters": len(pc[3]),
-                      "broadcast_frames": 32, "blackout_seconds": 2}, indent=2))
+                      "matched_network_ids": len(pc[2]), "audio_sectors": len(pc[3]["bounds"]), "world_audio_buses": 2,
+                      "visibility_portals": len(pc[4]["links"]), "local_volume_sliders": pc[5]["local_audio_sliders"],
+                      "broadcast_seconds": 24, "blackout_seconds": 2}, indent=2))

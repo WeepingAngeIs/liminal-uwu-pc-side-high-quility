@@ -111,13 +111,15 @@ public static class Surface
         sky.shader=Shader.Find("Stillwater/Eclipse sky");
         sky.SetTexture("_Plasma",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Orbital streams.png"));
         sky.SetTexture("_Stars",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Deep field.jpg"));
-        sky.SetTexture("_Fragments",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Orbital fragments.png"));
+        sky.SetTexture("_Nebula",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Sky/Nebula.png"));
+        RemoveProperty(sky,"m_TexEnvs","_Fragments");
+        RemoveProperty(sky,"m_Floats","_BroadcastSecond");
         if(!mobile){
             sky.SetTexture("_GeodesicTransfer",AssetDatabase.LoadAssetAtPath<Texture>(Media+"/Optics/Geodesic transfer.asset"));
             sky.SetFloat("_DiskExposure",1.45f);
         }
         sky.SetFloat("_ReviewTime",-1f);
-        sky.SetFloat("_BroadcastSecond",2f);
+        sky.SetFloat("_ApproachScale",1f);
         if(mobile)sky.EnableKeyword("SW_MOBILE");else sky.DisableKeyword("SW_MOBILE");
         EditorUtility.SetDirty(sky);
         RenderSettings.skybox = sky;
@@ -136,32 +138,17 @@ public static class Surface
 
     public static void Ambience(Transform room, string id, bool quest)
     {
-        var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(Media + "/Audio/" + id + ".wav");
-        if (!clip) throw new InvalidOperationException("Missing soundscape for " + id);
-        var go = new GameObject(id + " / room tone");
-        go.transform.SetParent(room, false);
-        go.transform.localPosition = new Vector3(0, 3.2f, 0);
-        var source = go.AddComponent<AudioSource>();
-        var space = go.AddComponent<VRCSpatialAudioSource>();
-        source.clip = clip;
-        source.loop = true;
-        source.playOnAwake = true;
-        source.volume = id=="hub" ? .16f : id=="observatory" ? .27f : .38f;
-        source.priority = 190;
-        source.spatialBlend = 1;
-        source.dopplerLevel = 0;
-        source.spread = 100;
-        source.minDistance = 17;
-        source.maxDistance = 57;
-        source.rolloffMode = AudioRolloffMode.Linear;
-        source.spatialize = true;
-        space.EnableSpatialization = true;
-        space.UseAudioSourceVolumeCurve = true;
-        space.Gain = 0;
-        space.Near = 17;
-        space.Far = 57;
-        space.VolumetricRadius = 12;
         if (id == "hub" || id == "observatory") Rain(room, quest);
+    }
+
+    private static void RemoveProperty(Material material,string collection,string key)
+    {
+        var serialized=new SerializedObject(material);
+        var array=serialized.FindProperty("m_SavedProperties."+collection);
+        if(array==null)return;
+        for(int i=array.arraySize-1;i>=0;i--)
+            if(array.GetArrayElementAtIndex(i).FindPropertyRelative("first").stringValue==key)array.DeleteArrayElementAtIndex(i);
+        serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static void Rain(Transform room, bool quest)
@@ -214,7 +201,7 @@ public static class Surface
         camera.allowMSAA = false;
         camera.clearFlags = CameraClearFlags.Skybox;
         camera.nearClipPlane = .14f;
-        camera.farClipPlane = 125;
+        camera.farClipPlane = id=="causeway" ? 270 : id=="rail" ? 380 : 125;
         var vantage = new Vector3(0, 3.4f, 0);
         if(id=="baths") vantage = new Vector3(0,2f,-18f);
         if(id=="annex") vantage = new Vector3(0,1.6f,-14f);
@@ -227,6 +214,12 @@ public static class Surface
         var read = new Texture2D(size, size, TextureFormat.RGB24, false);
         var cube = new Cubemap(size, TextureFormat.RGBA32, true) { name = id + " reflection" };
         var before = RenderTexture.active;
+        // Capture only this district, so its glossy floor cannot reveal hidden neighbours.
+        var hidden=new Dictionary<Renderer,bool>();
+        foreach(var renderer in UnityEngine.Object.FindObjectsOfType<Renderer>()) {
+            if(renderer.transform.IsChildOf(room))continue;
+            hidden[renderer]=renderer.enabled;renderer.enabled=false;
+        }
         try
         {
             target.Create();
@@ -250,14 +243,16 @@ public static class Surface
             probe.mode = ReflectionProbeMode.Custom;
             probe.customBakedTexture = old;
             probe.boxProjection = true;
-            probe.size = new Vector3(75, 52, 75);
-            probe.center = new Vector3(0, 21.4f, 0)-vantage;
+            var roomBounds=DistrictSystems.BoundsFor(room);
+            probe.size = roomBounds.size;
+            probe.center = room.InverseTransformPoint(roomBounds.center)-vantage;
             probe.blendDistance = 3;
             probe.importance = 2;
             ApplyRoomReflection(room, id, old, camera.transform.position);
         }
         finally
         {
+            foreach(var pair in hidden)if(pair.Key)pair.Key.enabled=pair.Value;
             RenderTexture.active = before;
             target.Release();
             UnityEngine.Object.DestroyImmediate(target);
@@ -284,7 +279,7 @@ public static class Surface
         }
         Vector3 bottom = room.position + new Vector3(-halfRoom.x, -.45f, -halfRoom.z);
         Vector3 top = room.position + halfRoom;
-        if(id=="baths" || id=="annex")
+        if(id=="baths" || id=="annex" || Array.Exists(OuterDistricts.Specs,spec=>spec.id==id))
         {
             var extent=new Bounds(room.position,Vector3.one);
             foreach(var r in room.GetComponentsInChildren<MeshRenderer>())extent.Encapsulate(r.bounds);
@@ -333,13 +328,14 @@ public static class Surface
 
 public class StationMediaImporter : AssetPostprocessor
 {
-    public const string Version = "stillwater-media-5";
+    public const string Version = "stillwater-media-6";
     private void OnPreprocessTexture()
     {
         if (!assetPath.StartsWith(Surface.Media + "/", StringComparison.Ordinal)) return;
         var importer = (TextureImporter)assetImporter;
         bool print = assetPath.Contains("/Prints/");
         bool film = assetPath.EndsWith("/Embankment signal.jpg", StringComparison.Ordinal);
+        bool nebula = assetPath.EndsWith("/Sky/Nebula.png",StringComparison.Ordinal);
         bool field = assetPath.EndsWith("/Deep field.jpg",StringComparison.Ordinal);
         bool fragments = assetPath.EndsWith("/Orbital fragments.png",StringComparison.Ordinal);
         bool opticalData = assetPath.EndsWith("/Orbital streams.png",StringComparison.Ordinal) || assetPath.EndsWith("/Pavement relief.png",StringComparison.Ordinal);
@@ -352,11 +348,11 @@ public class StationMediaImporter : AssetPostprocessor
         importer.filterMode = FilterMode.Trilinear;
         importer.anisoLevel = print ? 4 : 8;
         importer.npotScale = TextureImporterNPOTScale.None;
-        importer.maxTextureSize = film ? 4096 : plate || field ? 2048 : lowerPlates || print || opticalData || fragments ? 1024 : 512;
+        importer.maxTextureSize = nebula ? 4096 : film ? 4096 : plate || field ? 2048 : lowerPlates || print || opticalData || fragments ? 1024 : 512;
         var android = importer.GetPlatformTextureSettings("Android");
         android.name = "Android";
         android.overridden = true;
-        android.maxTextureSize = film || plate ? 2048 : lowerPlates || field ? 1024 : print || opticalData || fragments ? 512 : 256;
+        android.maxTextureSize = nebula ? 1024 : film || plate ? 2048 : lowerPlates || field ? 1024 : print || opticalData || fragments ? 512 : 256;
         android.format = TextureImporterFormat.ASTC_6x6;
         importer.SetPlatformTextureSettings(android);
         importer.userData = Version;

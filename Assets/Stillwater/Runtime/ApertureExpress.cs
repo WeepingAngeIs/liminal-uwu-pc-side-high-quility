@@ -6,11 +6,11 @@ using VRC.Udon.Common.Interfaces;
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class ApertureExpress : UdonSharpBehaviour
 {
-    public const float Cycle = 220f;
+    public const float Cycle = 320f;
     public const float Depart = 36f;
-    public const float Summit = 116f;
-    public const float LeaveSummit = 146f;
-    public const float Dock = 214f;
+    public const float Summit = 166f;
+    public const float LeaveSummit = 196f;
+    public const float Dock = 314f;
     public Animator service;
     public Transform[] coaches;
     public Transform platformExit;
@@ -47,6 +47,12 @@ public class ApertureExpress : UdonSharpBehaviour
     {
         float phase = Phase(Networking.GetServerTimeInSeconds());
         return phase < Depart - 6f || phase >= Dock + 2.5f;
+    }
+
+    public bool AtApertureLayover()
+    {
+        float phase = Phase(Networking.GetServerTimeInSeconds());
+        return phase >= Summit && phase < LeaveSummit;
     }
 
     public override void Interact()

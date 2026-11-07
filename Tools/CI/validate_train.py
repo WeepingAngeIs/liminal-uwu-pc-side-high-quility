@@ -42,10 +42,34 @@ def scene(edition):
 
     controller_guid = asset_guid(ROOT / "Runtime/ApertureExpress.cs")
     seat_guid = asset_guid(ROOT / "Runtime/ExpressSeat.cs")
+    approach_guid = asset_guid(ROOT / "Runtime/ApertureApproach.cs")
     proxies = {k: b for k, (kind, b) in docs.items() if kind == 114}
     clocks = [(oid, body) for oid, body in proxies.items() if guid(value(body, "m_Script")) == controller_guid]
     require(len(clocks) == 1, "Expected one shared dispatch clock")
     clock_id, clock = clocks[0]
+    fields = [(oid, body) for oid, body in proxies.items() if guid(value(body, "m_Script")) == approach_guid]
+    require(len(fields) == 1, "Expected one local aperture approach controller")
+    approach_id, approach = fields[0]
+    require(file_id(value(approach, "service")) == clock_id, "Pull field must recognize the six train seats")
+    require(trpath(file_id(value(approach, "arrival"))).endswith("/World descriptor/Arrival"), "The pull must return to the authored world spawn")
+    deck = file_id(value(approach, "safeDeck"))
+    require(trpath(deck).endswith("/Aperture overlook"), "Missing safe upper landing")
+    require(float(re.search(r"y: ([-+eE.\d]+)", value(docs[deck][1], "m_LocalPosition"))[1]) > 230,
+            "The overlook did not move with the extended train")
+    origin = file_id(value(approach, "approachStart"))
+    rotation = tuple(float(v) for v in re.findall(r"[xyzw]: ([-+eE.\d]+)", value(docs[origin][1], "m_LocalRotation")))
+    x, y, z, w = rotation
+    forward = (2*(x*z+y*w), 2*(y*z-x*w), 1-2*(x*x+y*y))
+    require(sum(a*b for a, b in zip(forward, (0, .743144825, .669130606))) > .99999,
+            "Pull direction must align with the black-hole sky pole")
+    rumble_id = file_id(value(approach, "rumble"))
+    require(docs[rumble_id][0] == 82, "Approach rumble must use an audio source")
+    rumble = docs[rumble_id][1]
+    require(value(rumble, "Spatialize") == "0" and value(rumble, "m_PlayOnAwake") == "0" and value(rumble, "Loop") == "1",
+            "Approach rumble must be a quiet local loop controlled by proximity")
+    require(asset_guid(ROOT / "Media/Audio/aperture.wav") == guid(value(rumble, "m_audioClip")), "Wrong aperture rumble")
+    require(guid(value(approach, "localSky")) == asset_guid(finishes / "Night sky.mat"), "Approach must use this platform's local sky")
+    require(file_id(value(approach, "audioDirector")) in proxies, "Approach must respect the player's atmosphere volume")
     service = file_id(value(clock, "service"))
     require(docs[service][0] == 95 and value(docs[service][1], "m_CullingMode") == "0",
             "Train animation must update even when the passenger looks away")
@@ -64,6 +88,9 @@ def scene(edition):
     encoded = []
     for behaviour in teams:
         require(file_id(value(behaviour, "service")) == clock_id, "A seat uses the wrong clock")
+        require(file_id(value(behaviour, "approach")) == approach_id, "A seat is not protected from the pull field")
+        require(trpath(file_id(value(behaviour, "apertureExit"))).endswith("/Aperture overlook/Aperture safe exit"),
+                "Missing optional safe summit exit")
         station = proxies[file_id(value(behaviour, "seat"))]
         require(path(station) == path(behaviour), "Seat and use target must share a moving transform")
         require(value(station, "seated") == "1" and value(station, "PlayerMobility") == "2", "Station cannot carry its passenger")
@@ -79,7 +106,8 @@ def scene(edition):
     for p in crew:
         for suffix in ["Door forward", "Door aft", "Car floor"]:
             require(any(trpath(tr) == p + "/" + suffix for tr in transforms), f"Missing {suffix} on {p}")
-    return sorted(encoded)
+    return sorted(encoded), tuple(value(docs[file_id(value(approach, name))][1], "m_LocalPosition")
+                                  for name in ("approachStart", "sink", "safeDeck"))
 
 
 def motion(edition):
@@ -95,19 +123,23 @@ def motion(edition):
         name = f"Coach {i}"
         keys = tracks[name]
         ground = keys[0]
-        require(ground[1] < .15 and ground == keys[220] and ground == keys[36], "Ground dwell/return missing")
-        require(keys[116][1] > 55 and keys[116] == keys[146], "Summit layover missing")
-        require(keys[36][1] < keys[80][1] < keys[116][1], "Outbound trip must climb")
-        require(keys[146][1] > keys[180][1] > keys[214][1], "Inbound trip must descend")
+        require(ground[1] < .15 and ground == keys[320] and ground == keys[36], "Ground dwell/return missing")
+        require(keys[166][1] > 220 and keys[166][2] > 120 and keys[166] == keys[196], "Extended summit layover missing")
+        require(keys[36][1] < keys[101][1] < keys[166][1], "Outbound trip must climb")
+        require(keys[196][1] > keys[255][1] > keys[314][1], "Inbound trip must descend")
+        approach = tuple(b-a for a,b in zip(keys[140], keys[150]))
+        along = math.sqrt(sum(v*v for v in approach))
+        require(along > 1 and sum(a*b for a,b in zip(approach,(0,.743144825,.669130606)))/along > .999,
+                "Final train approach must point at the black-hole sky pole")
         for leaf, direction in [("Door aft", -1), ("Door forward", 1)]:
             door = tracks[f"{name}/{leaf}"]
             require(math.isclose(door[0][2], direction*1.49, abs_tol=.002), "Doorway obstructed at platform")
             require(math.isclose(door[35][2], direction*.49, abs_tol=.002), "Door remains open in motion")
-            require(door[0] == door[220], "Door must reopen for next passengers")
+            require(door[0] == door[320], "Door must reopen for next passengers")
     return hashlib.sha256(positions.encode()).hexdigest()
 
 
 if __name__ == "__main__":
     require(scene("PC") == scene("Quest"), "Seat and dock paths differ across platforms")
     require(motion("PC") == motion("Quest"), "Physical rolling stock follows different trajectories across platforms")
-    print("Aperture Express: 3 level-boarding coaches, 6 matching moving VRCStations, six sliding doors, same summit and ground timetable on both platforms.")
+    print("Aperture Express: 3 level-boarding coaches, 6 protected VRCStations, extended pole-aligned route, safe overlook, local pull/audio/sky bindings, and matching timetable on both platforms.")

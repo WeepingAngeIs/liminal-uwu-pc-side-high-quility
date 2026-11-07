@@ -39,7 +39,7 @@ public static class WorldPhotography
                 trip.SampleAnimation(consist,78f);
                 Shot(c,output,"On the helix",front.TransformPoint(new Vector3(-.43f,1.70f,.65f)),
                     front.TransformDirection(new Vector3(-.10f,.045f,1)),74);
-                trip.SampleAnimation(consist,124f);
+                trip.SampleAnimation(consist,181f);
                 Shot(c,output,"Summit",front.TransformPoint(new Vector3(-.32f,1.74f,1.46f)),
                     front.TransformDirection(new Vector3(.021f,.002f,1)),67);
             }finally{trip.SampleAnimation(consist,0);}

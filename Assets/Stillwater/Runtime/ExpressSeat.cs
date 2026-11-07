@@ -8,7 +8,11 @@ public class ExpressSeat : UdonSharpBehaviour
 {
     public ApertureExpress service;
     public VRCStation seat;
+    public Transform apertureExit;
+    public ApertureApproach approach;
     private VRCPlayerApi occupant;
+    private bool pendingApertureExit;
+    private float respawnedAt=-1000;
 
     public override void Interact()
     {
@@ -18,12 +22,43 @@ public class ExpressSeat : UdonSharpBehaviour
     public override void OnStationEntered(VRCPlayerApi player)
     {
         occupant=player;
-        if (player.isLocal) service.localSeated=true;
+        if (player.isLocal) {
+            pendingApertureExit=false;
+            service.localSeated=true;
+            if (Utilities.IsValid(approach)) approach.CancelPullForSeat();
+        }
     }
     public override void OnStationExited(VRCPlayerApi player)
     {
         if (Utilities.IsValid(occupant) && occupant.playerId==player.playerId) occupant=null;
-        if (player.isLocal) service.localSeated=false;
+        if (player.isLocal) {
+            service.localSeated=false;
+            // The SDK first uses the ordinary stationary platform exit. Complete
+            // the optional summit disembark on the following frame, after it exits.
+            pendingApertureExit=Time.time-respawnedAt>.5f && Utilities.IsValid(apertureExit) && service.AtApertureLayover();
+            if(pendingApertureExit) SendCustomEventDelayedFrames(nameof(DisembarkAtAperture),1);
+        }
+    }
+    public void DisembarkAtAperture()
+    {
+        if(!pendingApertureExit) return;
+        pendingApertureExit=false;
+        var player=Networking.LocalPlayer;
+        if(!Utilities.IsValid(player) || service.localSeated || !Utilities.IsValid(apertureExit)) return;
+        player.TeleportTo(apertureExit.position,apertureExit.rotation);
+        player.SetVelocity(Vector3.zero);
+    }
+    public override void OnPlayerRespawn(VRCPlayerApi player)
+    {
+        if(Utilities.IsValid(player) && player.isLocal) {
+            pendingApertureExit=false;
+            respawnedAt=Time.time;
+        }
+    }
+    private void OnDisable()
+    {
+        pendingApertureExit=false;
+        if(Utilities.IsValid(occupant) && occupant.isLocal && Utilities.IsValid(service)) service.localSeated=false;
     }
     public override void OnPlayerLeft(VRCPlayerApi player)
     {

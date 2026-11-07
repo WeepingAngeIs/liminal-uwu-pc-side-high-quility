@@ -1,0 +1,6 @@
+The Surreal Truth — Joth
+Source: https://opengameart.org/content/ambience-pack-1-sci-fi-horror
+Download: https://opengameart.org/sites/default/files/The%20Surreal%20Truth.mp3
+License: CC0 1.0 Universal https://creativecommons.org/publicdomain/zero/1.0/
+Retrieved 2026-11-06. Original audio retained in this directory.
+The game uses a quieter mono 28-second crossfaded excerpt, reproduced by ArtTools/room_audio.py.

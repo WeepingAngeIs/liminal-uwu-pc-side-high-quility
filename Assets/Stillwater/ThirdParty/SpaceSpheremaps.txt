@@ -1,0 +1,7 @@
+Blue Nebulae 1 by TonyS / Space Spheremaps
+Source: https://www.spacespheremaps.com/blue-nebulae-spheremaps/
+Asset: https://www.spacespheremaps.com/wp-content/uploads/blue_nebulae_1.png
+License: https://www.spacespheremaps.com/about/#licensing-terms
+Retrieved 2026-11-06. SHA-256 a1f5b045469166c1ea7d20fc42734f63c51f506cd67fb497c4ac1c4a97a8f761
+
+Creator permits redistribution and modification for personal/commercial games without royalties. Terms based on CC BY 4.0, attribution waived (credit supplied here). Additional restriction: no AI image training. This asset is used as a game sky texture, not for training. Source image unmodified; Unity imports reduced PC/Android resolutions; shader masks the black-hole vicinity.
