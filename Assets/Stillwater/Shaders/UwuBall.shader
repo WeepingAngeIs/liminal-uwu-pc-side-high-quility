@@ -32,8 +32,12 @@ Shader "Liminal uwu/Soft terminal ball"
             fixed4 frag(varying i):SV_Target {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
                 half3 n=normalize(i.normal), eye=normalize(_WorldSpaceCameraPos-i.world);
-                half light=saturate(dot(n,normalize(half3(-.35,.8,-.48))));
-                half gloss=pow(saturate(dot(n,normalize(eye+half3(-.35,.8,-.48)))),34);
+                half3 incident=normalize(half3(-.35,.8,-.48));
+                #ifdef SW_FIXTURE_VOLUME
+                    incident=FixtureIncidentDirection(i.world,n);
+                #endif
+                half light=saturate(dot(n,incident));
+                half gloss=pow(saturate(dot(n,normalize(eye+incident))),34);
                 half rim=pow(1-saturate(dot(n,eye)),3);
                 half3 color=_Color.rgb*(.22+.55*light)+gloss*.65+rim*.13;
                 #ifdef SW_FIXTURE_VOLUME

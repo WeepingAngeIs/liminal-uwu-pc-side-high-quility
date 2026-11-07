@@ -69,6 +69,24 @@ internal static class UwuBallRoom
                 mesh.Box("brass", x, .014f, sign * 25.0f, .7f, .027f, .06f);
             }
         }
+        // Four displaced fluorescent fixtures float over the court. Their real
+        // luminous faces feed the room's baked irradiance, bringing light down
+        // to the toys without brightening the sky or adding a ceiling/hangers.
+        int fixtureIndex = 0;
+        foreach (int xSide in new[] { -1, 1 }) foreach (int zSide in new[] { -1, 1 }) {
+            var fixture = WorldAuthor.Child(room, "Floating court luminaire " + (++fixtureIndex));
+            fixture.localPosition = new Vector3(xSide * 8, 5.5f, zSide * 8);
+            fixture.localRotation = Quaternion.Euler(zSide * 4, xSide * 8, xSide * zSide * 3);
+            var light = new StationMesh(fixture, gen + "/Architecture");
+            light.Box("metal", 0, .08f, 0, 2.2f, .12f, 1);
+            foreach (int side in new[] { -1, 1 }) {
+                light.Box("metal", side * 1.075f, -.015f, 0, .05f, .14f, 1);
+                light.Box("metal", 0, -.015f, side * .475f, 2.1f, .14f, .05f);
+            }
+            string glow = new[] { "ice", "pink", "amber", "ice" }[fixtureIndex - 1];
+            light.Box(glow, 0, -.045f, 0, 2, .08f, .8f);
+            light.Finish();
+        }
         // The 37 x 48 metre opening above the court contains no cross beams.
         // The black hole is the ceiling, with a quiet continuous perimeter glow.
         mesh.Finish();

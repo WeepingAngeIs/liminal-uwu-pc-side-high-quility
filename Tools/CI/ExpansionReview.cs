@@ -46,6 +46,8 @@ public static class ExpansionReview
         public int fixtureVolumes;
         public int nativeStations;
         public bool wallGravityReady;
+        public int illuminatedBallCenters, ballReadabilityViews;
+        public float minimumBallFixtureEnergy, minimumBallMedianBrightness, minimumBallReadableFraction;
         public List<FixtureRecord> fixtures = new List<FixtureRecord>();
         public bool carriageAudioBound;
         public float carriageAudioSeconds, carriageAudioSpatialBlend;
@@ -206,6 +208,7 @@ public static class ExpansionReview
             View(camera, edition, "personal-platform-lights", new Vector3(14, 2.1f, 51), new Vector3(8.6f, 3.5f, 66), 80);
             View(camera, edition, "suspended-street-life", new Vector3(-9, 1.75f, -20), new Vector3(10, 19, 10), 82);
             View(camera, edition, "uwu-ballroom", new Vector3(640, 1.9f, 376), new Vector3(640, 5.3f, 410), 82);
+            BallReadabilityViews(camera, edition, scene);
             View(camera, edition, "quiet-lounge", new Vector3(800, 1.9f, 377), new Vector3(800, 10, 413), 82);
             View(camera, edition, "lounge-light-pools", new Vector3(800, 2.6f, 386), new Vector3(818, 1.1f, 408), 76);
             var loungeImage = report.images.Last();
@@ -214,8 +217,8 @@ public static class ExpansionReview
             FormationViews(camera, edition);
             var gravityRoom = GameObject.Find("liminal uwu").transform.Find("planet");
             Require(gravityRoom, edition + " missing the new gravity district.");
-            View(camera, edition, "gravity-orbit-room", gravityRoom.position + new Vector3(0, 5, -32),
-                gravityRoom.position + new Vector3(0, 25, 0), 88);
+            View(camera, edition, "gravity-orbit-room", gravityRoom.position + new Vector3(17, 8, -34),
+                gravityRoom.position + new Vector3(0, 27, 0), 88);
             Sky(camera, edition, "sky-far", 1, 77);
             camera.fieldOfView = 110;
             camera.transform.rotation = Quaternion.LookRotation(-Pole);
@@ -363,6 +366,21 @@ public static class ExpansionReview
             Require(ball.GetComponentsInChildren<Collider>(true).Length == 0 && ball.GetComponentsInChildren<Rigidbody>(true).Length == 0,
                 edition + " balls must use the bounded analytic player-contact simulation.");
         }
+        result.minimumBallFixtureEnergy = float.PositiveInfinity;
+        foreach (var ball in balls.balls) {
+            var material = ball.GetComponent<Renderer>().sharedMaterial;
+            Require(material && material.IsKeywordEnabled("SW_FIXTURE_VOLUME"), edition + " ball lacks fixture lighting.");
+            var volume = material.GetTexture("_FixtureColor") as Texture3D;
+            Require(volume, edition + " ball has no readable fixture volume.");
+            Vector3 origin = material.GetVector("_FixtureMin"), size = material.GetVector("_FixtureSize");
+            Vector3 p = ball.position - origin;
+            Color energy = volume.GetPixelBilinear(Mathf.Clamp01(p.x / size.x), Mathf.Clamp01(p.y / size.y), Mathf.Clamp01(p.z / size.z));
+            float maximum = Mathf.Max(energy.r, Mathf.Max(energy.g, energy.b)) * 4;
+            result.minimumBallFixtureEnergy = Mathf.Min(result.minimumBallFixtureEnergy, maximum);
+            if (maximum > .005f) result.illuminatedBallCenters++;
+        }
+        Require(result.illuminatedBallCenters == 24,
+            edition + " contains uwu balls outside the reach of the actual fluorescent fixtures; minimum energy=" + result.minimumBallFixtureEnergy);
         var formation = root.GetComponentInChildren<RoomFormation>(true);
         Require(formation && formation.space && formation.space.IsChildOf(root.Find("formation")), edition + " room reconstruction bindings missing.");
         result.formationPieces = formation.pieces.Length;
@@ -429,6 +447,56 @@ public static class ExpansionReview
                 litMaterials = materials.Length, width = color.width, height = color.height, depth = color.depth, maximumChannel = maximum, meanChannel = mean });
         }
         result.fixtureVolumes = result.fixtures.Count;
+    }
+
+    static void BallReadabilityViews(Camera camera, string edition, SceneRecord scene)
+    {
+        var pit = UnityEngine.Object.FindObjectOfType<UwuBallPit>();
+        var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>(true);
+        var enabled = renderers.Select(r => r.enabled).ToArray();
+        var oldBackground = camera.backgroundColor;
+        scene.minimumBallMedianBrightness = float.PositiveInfinity;
+        scene.minimumBallReadableFraction = float.PositiveInfinity;
+        try {
+            // Render only each selected ball, with its real material/probe and
+            // baked lighting intact. Neither the bright sky, fixture faces nor
+            // a glowing floor can make a black ball pass this check.
+            foreach (var renderer in renderers) renderer.enabled = false;
+            Vector3 entranceView = pit.room.TransformPoint(new Vector3(0, 1.9f, -24));
+            foreach (int index in new[] { 7, 10, 13, 16 }) {
+                var ball = pit.balls[index]; var renderer = ball.GetComponent<Renderer>();
+                renderer.enabled = true;
+                float radius = pit.radii[index];
+                camera.orthographic = true; camera.orthographicSize = radius * 1.3f; camera.cullingMask = -1;
+                camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = Color.black;
+                Vector3 towardsViewer = (entranceView - ball.position).normalized;
+                camera.transform.SetPositionAndRotation(ball.position + towardsViewer * radius * 4, Quaternion.LookRotation(-towardsViewer));
+                var image = Capture(camera, edition + "/uwu-ball-readability-" + (index + 1).ToString("00"), 256, 256);
+                try {
+                    var pixels = image.GetPixels32(); var body = new List<float>(); int readable = 0;
+                    for (int y = 0; y < image.height; y++) for (int x = 0; x < image.width; x++) {
+                        float dx = ((x + .5f) / image.width * 2 - 1) * 1.3f;
+                        float dy = ((y + .5f) / image.height * 2 - 1) * 1.3f;
+                        if (dx * dx + dy * dy > .75f * .75f) continue;
+                        var pixel = pixels[y * image.width + x];
+                        float value = (pixel.r + pixel.g + pixel.b) / (255f * 3);
+                        body.Add(value); if (value > .04f) readable++;
+                    }
+                    Require(body.Count > 1000, edition + " ball readability crop missed its sphere.");
+                    body.Sort(); float median = body[body.Count / 2], fraction = (float)readable / body.Count;
+                    scene.minimumBallMedianBrightness = Mathf.Min(scene.minimumBallMedianBrightness, median);
+                    scene.minimumBallReadableFraction = Mathf.Min(scene.minimumBallReadableFraction, fraction);
+                    scene.ballReadabilityViews++;
+                    Require(median > .025f && fraction > .35f, edition + " uwu ball " + (index + 1)
+                        + " remains an unreadable silhouette: median=" + median + ", readable body fraction=" + fraction);
+                }
+                finally { UnityEngine.Object.DestroyImmediate(image); renderer.enabled = false; }
+            }
+        }
+        finally {
+            for (int i = 0; i < renderers.Length; i++) if (renderers[i]) renderers[i].enabled = enabled[i];
+            camera.orthographic = false; camera.clearFlags = CameraClearFlags.Skybox; camera.backgroundColor = oldBackground;
+        }
     }
 
     static void FormationViews(Camera camera, string edition)

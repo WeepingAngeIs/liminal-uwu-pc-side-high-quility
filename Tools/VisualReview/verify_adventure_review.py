@@ -46,6 +46,29 @@ def main():
                 "Reviewed scene uses stale district isolation")
         require(record.get("personalPlatformLights") == 2 and record.get("carriageAudioBound") is True,
                 "Review lacks the two personal platform lights or private carriage sound")
+        quest = record["edition"] == "Quest"
+        require(record.get("loungeSeats") == 4 and record.get("uwuBalls") == 24
+                and record.get("nativeStations") == 11 and record.get("wallGravityReady") is True,
+                "Reviewed new rooms lack their seats, toys or original wall-gravity wiring")
+        require(record.get("formationPieces") == (16 if quest else 32)
+                and record.get("floatingStreetObjects") == (28 if quest else 44),
+                "Reviewed moving architecture or floating props have the wrong platform budget")
+        require(record.get("authoredEnabledLights") == 0
+                and (record.get("practicalLights") == 0 if quest else record.get("practicalLights", 0) > 0)
+                and record.get("reflectionCount") == (0 if quest else 21),
+                "Reviewed lighting or reflection budget does not match the platform")
+        fixtures = record.get("fixtures", [])
+        require(record.get("fixtureVolumes") == 4 and len(fixtures) == 4
+                and {f["room"] for f in fixtures} == {"hub", "ballroom", "lounge", "formation"},
+                "The hosted review did not inspect the new rooms' baked fixture lighting")
+        require(all(f.get("litMaterials", 0) > 0 and f.get("maximumChannel", 0) > .02
+                    and f.get("meanChannel", 0) > .00001 for f in fixtures),
+                "The reviewed fixture lighting is empty or unbound")
+        require(record.get("illuminatedBallCenters") == 24 and record.get("ballReadabilityViews") == 4
+                and record.get("minimumBallFixtureEnergy", 0) > .005
+                and record.get("minimumBallMedianBrightness", 0) > .025
+                and record.get("minimumBallReadableFraction", 0) > .35,
+                "The reviewed balls are not visibly illuminated by the room's fixtures")
         measurements.append({k: record[k] for k in ("edition", "sha256", "adventureDoors", "colliderCount",
                                                     "trainSeats", "trianglesAllLods", "reflectionCount", "personalPlatformLights", "carriageAudioBound")})
     # Scene hashes alone cannot catch a changed runtime source which has not yet
@@ -62,15 +85,25 @@ def main():
     passes = [line for line in runtime.splitlines() if "EXPANSION_CLIENTSIM_PASS " in line]
     require(len(checks) >= 30 and len(passes) == 1 and "EXPANSION_CLIENTSIM_FAIL" not in runtime,
             "Hosted ClientSim adventure evidence is incomplete or failed")
+    new_runtime = (evidence / "NewRooms-runtime.txt").read_text(encoding="utf-8-sig")
+    new_checks = [line for line in new_runtime.splitlines() if "NEW_ROOMS_CLIENTSIM_CHECK " in line]
+    new_passes = [line for line in new_runtime.splitlines() if "NEW_ROOMS_CLIENTSIM_PASS " in line]
+    require(len(new_checks) == 18 and len(new_passes) == 1 and "NEW_ROOMS_CLIENTSIM_FAIL" not in new_runtime,
+            "Hosted ClientSim new-room evidence is incomplete or failed")
+    for feature in ("player, floor and pair contacts", "independently", "reverses incomplete formation",
+                    "native VRChat station", "four nearby shadowless", "sideways wall orientation",
+                    "upside-down ceiling orientation", "respawning during staged gravity exit"):
+        require(feature in new_runtime, "Hosted new-room evidence is missing: " + feature)
     args.output.mkdir(parents=True, exist_ok=True)
     result = {"author_revision": revision, "method": "Serialized graph and scene hashes bound to the hosted Unity physics, image and compiled-Udon review.",
-              "runtime_checks": len(checks), "scenes": measurements,
+              "runtime_checks": len(checks), "new_room_runtime_checks": len(new_checks), "scenes": measurements,
               "routes": [{"from": edge[0], "to": edge[1]} for edge in pc],
               "limitations": "No headset frame-rate, external video URL or multi-client networking measurement."}
     (args.output / "adventure-review.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     (args.output / "hosted-unity-review.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (args.output / "hosted-runtime-checks.txt").write_text(runtime, encoding="utf-8")
-    print(f"PC/Quest: 19 matching adventure doors; exact hosted scene hashes; {len(checks)} ClientSim checks passed.")
+    (args.output / "hosted-new-room-checks.txt").write_text(new_runtime, encoding="utf-8")
+    print(f"PC/Quest: 19 matching adventure doors; exact hosted scene hashes; {len(checks)} adventure and {len(new_checks)} new-room ClientSim checks passed.")
     return 0
 
 
