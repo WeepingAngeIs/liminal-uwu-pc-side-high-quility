@@ -3,14 +3,6 @@
 // See ../ThirdParty/Tantaneity-LICENSE.txt. This Built-in sky implementation uses
 // an offline Schwarzschild transfer and four gas layers instead of runtime ray integration.
 
-float3 BlackHoleStars(float3 d,float mip)
-{
-    float2 uv=float2(atan2(d.z,d.x)/PI2+.5,asin(clamp(d.y,-1.,1.))/3.14159265+.5);
-    float3 cloud=tex2Dlod(_Nebula,float4(uv+float2(.17,0),0,mip)).rgb;
-    float3 stars=tex2Dlod(_Stars,float4(uv,0,mip)).rgb;
-    return cloud*.68+stars*.15;
-}
-
 float4 AccretionGas(float r,float angle,float time,float layer,
                     float2 radialGradient,float2 angularGradient)
 {
@@ -92,12 +84,7 @@ float3 BlackHolePC(float3 direction,float radius,float2 unit,float azimuth,float
     // Near the critical orbit a single pixel spans many source directions.
     // Filter that unresolved light instead of letting point stars flash.
     float skyMip=clamp(log2(1.+pixel/max(radius-edge,.00001)*16.),0.,6.);
-    float3 background=BlackHoleStars(source,skyMip);
-    float horizon=exp2(-abs(direction.y-.015)*10.);
-    background+=float3(.021,.032,.044)*horizon;
-    // Broad starless void surrounds the whole accretion field.
-    // Radius is already scaled by local approach, so the void grows with the aperture.
-    background*=smoothstep(.80,1.14,radius);
+    float3 background=distantSky(source,direction,radius,time,skyMip);
     // Finish both emission and absorption before the lookup boundary. The table's
     // outermost crossing still lies inside the material's radial fade.
     float exteriorFade=1.-smoothstep(2.0,2.72,gap);

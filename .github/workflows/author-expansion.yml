@@ -13,6 +13,11 @@ on:
       - 'Tools/CI/ExpansionRuntimeSmoke.cs'
       - '.github/workflows/author-expansion.yml'
   workflow_dispatch:
+    inputs:
+      sky_preview_only:
+        description: Photograph the sky in both saved scenes without rebuilding the world
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -108,7 +113,7 @@ jobs:
             liminal-unity-mesa:expansion --noprofile --norc /mesa-preflight \
             2>&1 | tee Builds/ExpansionReview/mesa-device.txt
           grep -qi llvmpipe Builds/ExpansionReview/mesa-device.txt
-      - name: Author both editions and render their review
+      - name: Render both editions
         timeout-minutes: 50
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
         env:
@@ -119,23 +124,28 @@ jobs:
         with:
           targetPlatform: StandaloneWindows64
           customImage: liminal-unity-mesa:expansion
-          buildMethod: ExpansionReview.AuthorAndCapture
+          buildMethod: ${{ inputs.sky_preview_only && 'ExpansionReview.CaptureSkyPreview' || 'ExpansionReview.AuthorAndCapture' }}
           enableGpu: true
           customParameters: -force-glcore
           allowDirtyBuild: true
           versioning: None
-      - name: Require the authored scene report to pass
+      - name: Require the selected scene review to pass
+        env:
+          SKY_PREVIEW: ${{ inputs.sky_preview_only && 'true' || 'false' }}
         run: |
           python3 - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
           p=Path('Builds/ExpansionReview/report.json')
           r=json.loads(p.read_text()) if p.is_file() else {}
-          if not (r.get('authoringSucceeded') and r.get('reviewPassed')):
+          preview=os.environ['SKY_PREVIEW']=='true'
+          if not (r.get('revision') == os.environ['GITHUB_SHA'] and r.get('reviewPassed')
+                  and r.get('skyPreviewOnly') == preview and (preview or r.get('authoringSucceeded'))):
               details=r.get('failures',[])+r.get('errors',[])
-              raise SystemExit('Authoring failed: '+str(list(dict.fromkeys(details)) or 'missing or incomplete report'))
+              raise SystemExit('Scene review failed: '+str(list(dict.fromkeys(details)) or 'missing or incomplete report'))
           PY
       - name: Exercise local controls and the aperture in ClientSim
+        if: ${{ !inputs.sky_preview_only }}
         timeout-minutes: 12
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
         env:
@@ -153,6 +163,7 @@ jobs:
           allowDirtyBuild: true
           versioning: None
       - name: Exercise the new rooms and practical lighting in ClientSim
+        if: ${{ !inputs.sky_preview_only }}
         timeout-minutes: 12
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
         env:
@@ -180,11 +191,12 @@ jobs:
             sudo chown -R -- "$(id -u):$(id -g)" "$review_output"
           fi
       - name: Preserve owner-licensed authoring outputs as encrypted data
+        if: ${{ !inputs.sky_preview_only }}
         env:
           LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
         run: python3 Tools/CI/package_personal_assets.py --output Builds/AuthoredExpansion/PersonalAssets.bin
       - name: Package verified authored assets and write the review summary
-        if: always()
+        if: ${{ always() && !inputs.sky_preview_only }}
         run: |
           python3 - <<'PY'
           import hashlib, json, os, subprocess, zipfile
@@ -235,7 +247,7 @@ jobs:
               else: summary.write(status['diagnostic'] + '\n')
           PY
       - name: Upload authored assets for review and adoption
-        if: success()
+        if: ${{ success() && !inputs.sky_preview_only }}
         uses: actions/upload-artifact@v4
         with:
           name: liminal-authored-expansion-${{ github.run_number }}
@@ -246,7 +258,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: liminal-expansion-review-${{ github.run_number }}
+          name: ${{ inputs.sky_preview_only && 'liminal-sky-preview' || 'liminal-expansion-review' }}-${{ github.run_number }}
           path: |
             Builds/ExpansionReview/
             Builds/author-revision.txt

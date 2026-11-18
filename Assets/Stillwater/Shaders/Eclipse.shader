@@ -41,10 +41,59 @@ Shader "Stillwater/Eclipse sky"
                 return o;
             }
 
-            float3 starChart(float3 d)
+            // A folded emitting sheet evaluated on the unit sphere. The sky direction
+            // stays fixed while three slow displacements deform the gas locally.
+            float3 nebulaSheet(float3 d,float drift)
             {
-                float2 uv=float2(atan2(d.z,d.x)/PI2+.5,asin(clamp(d.y,-1.,1.))/3.14159+.5);
-                return tex2Dlod(_Nebula,float4(uv+float2(.17,0),0,0)).rgb*.68;
+                float3 warp=sin(d.yzx*3.7+d.zxy*1.5+float3(.34,2.4,4.1)
+                                +drift*float3(1.,-.72,.53));
+                float3 p=d*3.15+warp*1.34;
+                float fold=.62*p.y+sin(1.28*p.x-.68*p.z)
+                           +.66*sin(1.81*p.z+.52*p.x+.68*sin(1.64*p.y))
+                           +.17*sin(2.73*p.x+1.52*p.y);
+                float density=clamp(.78+.34*sin(dot(p,float3(.78,.58,-.62)))+.17*warp.y,.10,1.);
+                return float3(fold,density,warp.x);
+            }
+
+            float3 distantSky(float3 source,float3 direction,float radius,float time,float mip)
+            {
+                // Radius follows the train's approach scale. Every sky layer fades
+                // out together, leaving the existing clear space outside the ring.
+                if(radius<=.80) return 0.;
+                float2 uv=float2(atan2(source.z,source.x)/PI2+.5,asin(clamp(source.y,-1.,1.))/3.14159265+.5);
+                float3 background=tex2Dlod(_Nebula,float4(uv+float2(.17,0),0,mip)).rgb*.68;
+                float drift=time*.008;
+                float3 sheet=nebulaSheet(source,drift);
+                float fold=sheet.x, density=sheet.y;
+                float haze=exp2(-.92*fold*fold);
+                float thickness=max(fold,0.)*1.35+max(-fold,0.)*5.1;
+                float veil=exp2(-thickness*thickness);
+                float crest=exp2(-52.*fold*fold);
+                float3 gas=float3(.007,.014,.036)
+                          +float3(.022,.155,.32)*haze*(.52+.48*density)
+                          +float3(.017,.182,.219)*veil*density
+                          +float3(.115,.371,.273)*crest*density*density;
+                #if !defined(SW_MOBILE)
+                    // A slower rear sheet shows through gaps in the nearer one.
+                    float3 rear=nebulaSheet(float3(source.z,-source.x,source.y),drift*.61+1.024);
+                    float dust=exp2(-5.*(rear.x+.41)*(rear.x+.41));
+                    gas+=float3(.105,.061,.215)*exp2(-2.5*rear.x*rear.x)*rear.y*(1.-.72*veil);
+                    float echo=fold-.19-.045*sheet.z;
+                    gas+=float3(.028,.125,.16)*exp2(-44.*echo*echo)*density*(.5+.5*rear.z);
+                    // Reuse the filtered gas texture along the sheet for wisps;
+                    // no extra scene texture, transparent shell or raymarch.
+                    float2 flowUV=float2(dot(source,float3(.28,0,.14))+.09*sheet.z,.14*fold+.04*sheet.z);
+                    float3 stream=tex2Dlod(_Plasma,float4(flowUV,0,max(mip,2.5))).rgb;
+                    gas*=1.-.24*(1.-stream.b)*haze;
+                    gas+=float3(.033,.083,.105)*haze*density*(.6+.58*stream.r)*stream.r*stream.r;
+                    gas*=1.-.33*dust*(1.-.8*crest);
+                    background+=tex2Dlod(_Stars,float4(uv,0,mip)).rgb*.15;
+                #endif
+                #ifndef UNITY_COLORSPACE_GAMMA
+                    gas=GammaToLinearSpace(gas);
+                #endif
+                background+=gas+float3(.021,.032,.044)*exp2(-abs(direction.y-.015)*10.);
+                return background*smoothstep(.80,1.14,radius);
             }
 
             #if !defined(SW_MOBILE)
@@ -77,8 +126,7 @@ Shader "Stillwater/Eclipse sky"
                 float sourceAngle=radius-deflection;
                 float3 tangent=float3(unit.x,0,0)+unit.y*north;
                 float3 source=pole*cos(sourceAngle)+tangent*sin(sourceAngle);
-                float horizon=exp2(-abs(direction.y-.015)*10.);
-                float3 bg=(starChart(source)+float3(.021,.032,.044)*horizon)*smoothstep(.80,1.14,radius);
+                float3 bg=distantSky(source,direction,radius,time,0.);
                 if(gap>1.65)
                     return half4(bg,1);
 
@@ -128,15 +176,6 @@ Shader "Stillwater/Eclipse sky"
                 float3 halo=float3(.68,.255,.084)*atmosphere*doppler;
                 float3 light=plasma+halo+float3(1.10,.85,.58)*(critical*1.3+photon*.73)*(.77+.28*doppler)
                            +float3(.91,.58,.32)*secondary*.60;
-                #if !defined(SW_MOBILE)
-                    // The lens produces a second, compressed image of the background
-                    // at the photon orbit. Its view direction rotates around the shadow.
-                    float rev=1.72+log(max(gap+.006,.006))*.76;
-                    float3 mirrored=pole*cos(rev)-tangent*sin(rev);
-                    bg+=starChart(mirrored)*exp(-gap*7.)*.7;
-                    float cold=sin(azimuth*2.+gap*6.-.7)*.5+.5;
-                    light+=float3(.035,.11,.17)*cold*exp(-abs(rho-.42)*7.);
-                #endif
                 float fade=1.-smoothstep(1.2,1.65,gap);
                 // Background sampling is in the render colour space. Emission above is
                 // expressed as display colours so arc exposure also agrees across platforms.

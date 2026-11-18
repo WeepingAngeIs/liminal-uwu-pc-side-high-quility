@@ -98,6 +98,8 @@ The architecture, train, observatory film and wall prints were authored for **li
 
 The PC gas shading adapts equations from [tantaneity's MIT black-hole shader](https://github.com/tantaneity/urp-black-hole) for this Built-in project; the wet finish adapts parts of [Mochie's MIT shaders](https://github.com/MochiesCode/Mochies-Unity-Shaders). Their license notices are retained in `Assets/Stillwater/ThirdParty`.
 
+The distant blue nebula slowly folds against a fixed star field. PC shades two layers of gas and fine teal filaments. Quest uses one broad layer and the existing sky texture. Both fade the clouds and stars away from the black hole as the train approaches. The animated folds are original to this project. [Cozy Galaxy Home by Shadowhearth](https://vrchat.com/home/world/wrld_ed70bd9c-b971-4ae0-a644-65f9127a8113) provided the visual reference.
+
 Scanned surface maps come from Poly Haven under CC0. [Blue Floor Tiles 01](https://polyhaven.com/a/blue_floor_tiles_01) · [Brick Wall 005](https://polyhaven.com/a/brick_wall_005) · [Grey Roof Tiles](https://polyhaven.com/a/grey_roof_tiles) · [Wood Plank Wall](https://polyhaven.com/a/wood_plank_wall) · [Painted Plaster Wall](https://polyhaven.com/a/painted_plaster_wall) · [Granite Tile](https://polyhaven.com/a/granite_tile) · [License](https://polyhaven.com/license)
 
 For future art passes, search suitable free asset libraries and open repositories first. Verify the license, retain attribution, and adapt useful detailed models, textures or shaders before defaulting to primitive-built replacements. Preserve clear walking routes and prepare reduced Quest versions alongside the PC assets.

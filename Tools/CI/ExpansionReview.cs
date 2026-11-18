@@ -21,7 +21,7 @@ public static class ExpansionReview
     [Serializable] sealed class Report
     {
         public string revision, unity, device, graphicsApi, utc;
-        public bool authoringSucceeded, reviewPassed;
+        public bool authoringSucceeded, reviewPassed, skyPreviewOnly;
         public string method = "Both scenes authored from this revision on hosted Mesa/OpenGL, including all PC reflection captures. These editor images exercise shaders and serialized wiring, not live VRChat networking, XR, URL decoding, or headset performance. Quest materials are reviewed in the desktop editor; this is not an Android build.";
         public List<SceneRecord> scenes = new List<SceneRecord>();
         public List<ImageRecord> images = new List<ImageRecord>();
@@ -96,7 +96,10 @@ public static class ExpansionReview
         public Material[] materials;
     }
 
-    public static void AuthorAndCapture()
+    public static void AuthorAndCapture() { RunReview(false); }
+    public static void CaptureSkyPreview() { RunReview(true); }
+
+    static void RunReview(bool skyPreviewOnly)
     {
         Directory.CreateDirectory(Output);
         report = new Report {
@@ -110,12 +113,17 @@ public static class ExpansionReview
             Require(Application.isBatchMode, "Run the authoring review on the hosted batch runner.");
             Require(SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore, "Authoring requires the hosted Mesa OpenGL graphics context.");
             Require(report.revision != "unspecified", "The workflow did not record its checked-out revision.");
-            WorldAuthor.Author(); // Includes all 21 PC custom reflection cubemap captures.
-            CheckPrograms();
-            AssetDatabase.SaveAssets();
-            report.authoringSucceeded = report.failures.Count == 0 && report.errors.Count == 0;
-            ReviewScene(false);
-            ReviewScene(true);
+            report.skyPreviewOnly = skyPreviewOnly;
+            if (skyPreviewOnly) {
+                report.method = "Sky art preview from the two committed Unity scenes, rendered with their own materials on hosted OpenGL. Quest is the mobile shader in the editor, not an Android device capture. Reflection probes use the existing bake.";
+            } else {
+                WorldAuthor.Author(); // Includes all 21 PC custom reflection cubemap captures.
+                CheckPrograms();
+                AssetDatabase.SaveAssets();
+                report.authoringSucceeded = report.failures.Count == 0 && report.errors.Count == 0;
+            }
+            ReviewScene(false, skyPreviewOnly);
+            ReviewScene(true, skyPreviewOnly);
             CheckShaders(); // After rendering, so newly encountered shader variants are included.
             Require(report.scenes.Count == 2, "Both editions must be reviewed.");
         }
@@ -123,12 +131,12 @@ public static class ExpansionReview
         finally {
             Camera.onPreRender -= SetClock;
             Application.logMessageReceived -= CaptureError;
-            report.reviewPassed = report.authoringSucceeded && report.failures.Count == 0 && report.errors.Count == 0;
+            report.reviewPassed = (skyPreviewOnly || report.authoringSucceeded) && report.failures.Count == 0 && report.errors.Count == 0;
             File.WriteAllText(Output + "/report.json", JsonUtility.ToJson(report, true));
             File.WriteAllLines(Output + "/authoring-errors.log", report.errors.Concat(report.shaderMessages).Concat(report.failures));
         }
         if (!report.reviewPassed) throw new InvalidOperationException("Expansion authoring/review failed; see Builds/ExpansionReview/report.json.");
-        Debug.Log("LIMINAL_EXPANSION_AUTHORED_AND_REVIEWED");
+        Debug.Log(skyPreviewOnly ? "LIMINAL_SKY_PREVIEW_CAPTURED" : "LIMINAL_EXPANSION_AUTHORED_AND_REVIEWED");
     }
 
     static void Require(bool condition, string message)
@@ -172,12 +180,14 @@ public static class ExpansionReview
                 "Missing original gravity program: " + name);
     }
 
-    static void ReviewScene(bool quest)
+    static void ReviewScene(bool quest, bool skyPreviewOnly)
     {
         string edition = quest ? "Quest" : "PC";
         string path = quest ? WorldAuthor.QuestScene : WorldAuthor.PCScene;
         EditorSceneManager.OpenScene(path);
-        var scene = InspectScene(edition, path);
+        var scene = skyPreviewOnly
+            ? new SceneRecord { edition = edition, scene = path, sha256 = Digest(File.ReadAllBytes(path)) }
+            : InspectScene(edition, path);
         report.scenes.Add(scene);
         Directory.CreateDirectory(Output + "/" + edition);
         var originals = UnityEngine.Object.FindObjectsOfType<Renderer>(true).Select(r => new RendererMaterials { renderer = r, materials = r.sharedMaterials }).ToArray();
@@ -196,6 +206,10 @@ public static class ExpansionReview
             camera.nearClipPlane = .08f; camera.farClipPlane = 600;
             camera.allowHDR = false; camera.allowMSAA = false;
             camera.renderingPath = RenderingPath.Forward; camera.useOcclusionCulling = false;
+            if (skyPreviewOnly) {
+                PreviewSkyViews(camera, edition, quest);
+                return;
+            }
             View(camera, edition, "rain-exchange", new Vector3(0, 1.72f, -23), new Vector3(2, 6, 20));
             View(camera, edition, "side-street-receiver", new Vector3(18, 1.74f, -17), new Vector3(24, 2.09f, -20));
             View(camera, edition, "ad-alley", new Vector3(229, 1.75f, -23), new Vector3(263, 10, 8));
@@ -235,9 +249,36 @@ public static class ExpansionReview
             foreach (var material in TemporaryMaterials) if (material) UnityEngine.Object.DestroyImmediate(material);
             TemporaryMaterials.Clear();
             if (camera) UnityEngine.Object.DestroyImmediate(camera.gameObject);
+            Require(scene.sha256 == Digest(File.ReadAllBytes(path)), "Image capture changed a serialized scene: " + path);
         }
-        // Review changes are deliberately not saved into authored scene/material assets.
-        Require(scene.sha256 == Digest(File.ReadAllBytes(path)), "Image capture changed a serialized scene: " + path);
+    }
+
+    static void PreviewSkyViews(Camera camera, string edition, bool quest)
+    {
+        var sky = RenderSettings.skybox;
+        Require(sky && sky.HasProperty("_ReviewTime") && sky.IsKeywordEnabled("SW_MOBILE") == quest,
+            edition + " must use its corresponding Eclipse sky material.");
+        var eye = new Vector3(0, 1.75f, -8);
+        var look = new Vector3(-.75f, .60f, -.58f);
+        View(camera, edition, "rain-exchange-nebula", eye, eye + look, 89);
+        View(camera, edition, "observatory", new Vector3(-84.5f, 1.8f, 66), new Vector3(-54.5f, 45f, 104), 86);
+        View(camera, edition, "orbital-causeway", new Vector3(397, 1.75f, 142), new Vector3(440, 45, 222), 82);
+        View(camera, edition, "waterfall-chasm", new Vector3(640, 2, 155), new Vector3(640, 55, 230), 88);
+        Train(camera, edition, quest);
+        Sky(camera, edition, "sky-far", 1, 77);
+        Sky(camera, edition, "sky-approach", 3.1f, 100);
+
+        // Use an isolated patch of distant sky for the motion check. Rain, moving
+        // neon, and inner-ring accretion would otherwise give false positives.
+        sky.SetFloat("_ApproachScale", 1);
+        camera.fieldOfView = 45;
+        camera.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(new Vector3(-.74f, .44f, -.65f)));
+        sky.SetFloat("_ReviewTime", 0);
+        UnityEngine.Object.DestroyImmediate(Capture(camera, edition + "/distant-nebula-00s", 960, 600));
+        string first = report.images.Last().sha256;
+        sky.SetFloat("_ReviewTime", 45);
+        UnityEngine.Object.DestroyImmediate(Capture(camera, edition + "/distant-nebula-45s", 960, 600));
+        Require(report.images.Last().sha256 != first, edition + " distant nebula did not move in 45 seconds.");
     }
 
     static SceneRecord InspectScene(string edition, string path)
