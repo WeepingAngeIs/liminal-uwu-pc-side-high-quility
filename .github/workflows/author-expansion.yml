@@ -179,6 +179,24 @@ jobs:
           manualExit: true
           allowDirtyBuild: true
           versioning: None
+      - name: Restore Observatory readings in a fresh Unity editor
+        if: ${{ inputs.observatory_prototype }}
+        timeout-minutes: 9
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: StandaloneWindows64
+          customImage: liminal-unity-mesa:expansion
+          buildMethod: ObservatoryPrototypeSmoke.BeginRestore
+          enableGpu: true
+          customParameters: -force-glcore
+          manualExit: true
+          allowDirtyBuild: true
+          versioning: None
       - name: Exercise the new rooms and practical lighting in ClientSim
         if: ${{ !inputs.sky_preview_only && !inputs.observatory_prototype }}
         timeout-minutes: 12

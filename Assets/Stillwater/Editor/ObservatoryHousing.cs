@@ -13,22 +13,20 @@ internal static class ObservatoryHousing
         var mesh = AssetDatabase.LoadAllAssetsAtPath(Source + "Receiver " + edition + ".obj").OfType<Mesh>().Single();
         string path = ObservatoryPrototype.Folder + "/Instrument finish " + edition + ".mat";
         var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+        var shader = Shader.Find(quest ? "Unlit/Texture" : "Liminal uwu/Observatory instrument");
+        if (!shader) throw new InvalidOperationException("Missing instrument shader for " + edition);
         if (!material) {
-            var shader = Shader.Find(quest ? "Unlit/Texture" : "Standard");
-            if (!shader) throw new InvalidOperationException("Missing instrument shader for " + edition);
             material = new Material(shader);
             AssetDatabase.CreateAsset(material, path);
         }
+        material.shader = shader;
         var color = AssetDatabase.LoadAssetAtPath<Texture2D>(Source + "Enamel.jpg");
         material.mainTexture = color;
         if (!quest) {
             material.SetTexture("_MetallicGlossMap", AssetDatabase.LoadAssetAtPath<Texture2D>(Source + "Metal and gloss.png"));
             material.SetTexture("_BumpMap", AssetDatabase.LoadAssetAtPath<Texture2D>(Source + "Relief.jpg"));
-            material.SetTexture("_EmissionMap", color);
-            material.SetColor("_EmissionColor", new Color(.16f, .16f, .16f));
-            material.EnableKeyword("_METALLICGLOSSMAP");
-            material.EnableKeyword("_NORMALMAP");
-            material.EnableKeyword("_EMISSION");
+            // Coordinates of the warm strip on the receiver's header, in world space.
+            material.SetVector("_Lamp", mount.parent.TransformPoint(new Vector3(0, 2.015f, -.21f)));
         }
         EditorUtility.SetDirty(material);
         var instrument = WorldAuthor.Child(mount, "Orbital telemetry instrument");

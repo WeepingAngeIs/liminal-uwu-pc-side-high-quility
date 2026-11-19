@@ -170,6 +170,7 @@ public static class ObservatoryInstruments
         m.Box("black", 0, 1.426f, -.197f, 1.59f, .79f, .035f);
         m.Box("teal", .335f, 1.215f, -.227f, .65f, .15f, .05f);
         m.Box("amber", .062f, 1.215f, -.259f, .025f, .086f, .02f);
+        RecordKeyLegend(m, new Vector3(.368f, 1.215f, -.256f));
         m.Box("brass", 0, 1.937f, .08f, 1.78f, .06f, .48f);
         BoxCollision(station, 0, .94f, .075f, 1.73f, 1.88f, .58f);
         m.Bake(station, "Archive clock fittings");
@@ -177,21 +178,47 @@ public static class ObservatoryInstruments
         // floor repeater has the same register and hand, visible seated.
         p.clock = At(station, "Inverted master clock", 0, 16, 0);
         p.clock.localRotation = Quaternion.Euler(0, 0, 180);
-        p.clockHand = ClockFace(m, p.clock, "Master clock", 1.51f, quest);
+        p.clockHand = ClockFace(m, p.clock, "Master clock", 1.51f, quest, "paper");
         var repeater = At(station, "Eye level service dial", -.475f, 1.46f, -.226f);
         repeater.localRotation = Quaternion.Euler(0, 0, 180);
-        p.serviceHand = ClockFace(m, repeater, "Service repeater", .253f, quest);
+        p.serviceHand = ClockFace(m, repeater, "Service repeater", .253f, quest, "amber");
         p.clockButton = Interactable(station, "Record the missing beat", .335f, 1.215f, -.283f, .73f, .25f, .09f);
         var panel = Panel(station, "Service dial lettering", 1.8f, 2.05f);
         p.clockDisplay = Label(panel, "Service display", "CEILING WARD\nCLOCK SERVICE\nLISTEN FOR THE GAP", .328f, 1.571f, -.225f, .80f, .334f, .057f, Mint);
-        Label(panel, "Record button legend", "RECORD BEAT", .365f, 1.215f, -.258f, .51f, .13f, .060f, Paper);
     }
 
-    static Transform ClockFace(Metalwork m, Transform face, string name, float r, bool quest)
+    // The edge-lit inscription is part of the physical key, like the clock ticks.
+    // Each path connects the numbered points on a three-by-five engraver grid.
+    // Rows from the top are 012, 345, 678, 9ab and cde.
+    static void RecordKeyLegend(Metalwork m, Vector3 center)
+    {
+        var paths = new Dictionary<char, string[]> {
+            {'R', new[] {"c01576", "7e"}}, {'E', new[] {"20ce", "68"}},
+            {'C', new[] {"20ce"}}, {'O', new[] {"02ec0"}},
+            {'D', new[] {"c015bdc"}}, {'B', new[] {"c01576", "67bdc"}},
+            {'A', new[] {"c63158be", "68"}}, {'T', new[] {"02", "1d"}}
+        };
+        const string legend = "RECORD BEAT";
+        const float advance = .044f, dx = .014f, dy = .014f;
+        for (int letter = 0; letter < legend.Length; letter++) {
+            if (!paths.TryGetValue(legend[letter], out var strokes)) continue;
+            float origin = (letter - (legend.Length - 1) * .5f) * advance;
+            foreach (string stroke in strokes) {
+                for (int i = 1; i < stroke.Length; i++)
+                    m.Beam("amber", Point(stroke[i-1]), Point(stroke[i]), .0055f, .004f);
+            }
+            Vector3 Point(char digit) {
+                int index = digit <= '9' ? digit - '0' : digit - 'a' + 10;
+                return center + new Vector3(origin + (index % 3 - 1) * dx, (2 - index / 3) * dy, 0);
+            }
+        }
+    }
+
+    static Transform ClockFace(Metalwork m, Transform face, string name, float r, bool quest, string faceFinish)
     {
         m.Disc("metal", 0, 0, 0, r, .18f * r);
         m.Disc("brass", 0, 0, -.095f * r, .978f * r, .052f * r);
-        m.Disc("paper", 0, 0, -.132f * r, .916f * r, .033f * r);
+        m.Disc(faceFinish, 0, 0, -.132f * r, .916f * r, .033f * r);
         int stride = quest ? 2 : 1;
         for (int tick = 0; tick < 60; tick++) {
             bool major = tick % 5 == 0;
