@@ -51,18 +51,25 @@ public static class LiminalExport
 
     public static void Build()
     {
+        bool quest=EditorUserBuildSettings.activeBuildTarget==BuildTarget.Android;
+        BuildScene(quest ? WorldAuthor.QuestScene : WorldAuthor.PCScene,
+            "Builds/" + (quest ? "Quest" : "PC") + "/liminal-uwu.vrcw");
+    }
+
+    public static void BuildScene(string scenePath, string outputPath)
+    {
         var platform=EditorUserBuildSettings.activeBuildTarget;
         bool quest=platform==BuildTarget.Android;
         if(!quest && platform!=BuildTarget.StandaloneWindows64)
             throw new InvalidOperationException("Expected Android or StandaloneWindows64, got "+platform);
-        EditorSceneManager.OpenScene(quest?WorldAuthor.QuestScene:WorldAuthor.PCScene);
+        EditorSceneManager.OpenScene(scenePath);
         if(!UpdateLayers.AreLayersSetup())UpdateLayers.SetupEditorLayers();
         if(!UpdateLayers.IsCollisionLayerMatrixSetup())UpdateLayers.SetupCollisionLayerMatrix();
         GravityValidation.Validate();
         // Bake visibility offline on the runner so rooms behind solid walls can be skipped.
         StaticOcclusionCulling.Compute();
         EditorSceneManager.SaveOpenScenes();
-        string target=Path.GetFullPath("Builds/"+(quest?"Quest":"PC")+"/liminal-uwu.vrcw");
+        string target=Path.GetFullPath(outputPath);
         Directory.CreateDirectory(Path.GetDirectoryName(target));
         if(!VRCBuildPipelineCallbacks.OnVRCSDKBuildRequested(VRCSDKRequestedBuildType.Scene))
             throw new InvalidOperationException("SDK build callback declined the scene.");

@@ -1,0 +1,4 @@
+Vintage Spacecraft Instrument by Michał Wiśniewski, Poly Haven.
+https://polyhaven.com/a/vintage_spacecraft_instrument
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+Adaptations for liminal uwu: opaque housing, simplified Quest mesh, ambient occlusion baked into the shared color atlas, and metallic/smoothness repacking.

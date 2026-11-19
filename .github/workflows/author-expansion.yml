@@ -18,6 +18,10 @@ on:
         description: Photograph the sky in both saved scenes without rebuilding the world
         type: boolean
         default: false
+      observatory_prototype:
+        description: Review isolated listening-bench scenes and export an encrypted PC test bundle
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -55,11 +59,18 @@ jobs:
       - name: Restore official checksummed VRChat packages
         run: python3 Tools/CI/restore_vpm.py
       - name: Stage the authoring review
+        env:
+          PROTOTYPE: ${{ inputs.observatory_prototype }}
+          SKY_ONLY: ${{ inputs.sky_preview_only }}
         run: |
           mkdir -p Assets/Editor Builds/ExpansionReview
-          cp Tools/CI/ExpansionReview.cs Assets/Editor/ExpansionReview.cs
-          cp Tools/CI/ExpansionRuntimeSmoke.cs Assets/Editor/ExpansionRuntimeSmoke.cs
-          cp Tools/CI/NewRoomsSmoke.cs Assets/Editor/NewRoomsSmoke.cs
+          if [[ "$PROTOTYPE" == true ]]; then
+            [[ "$SKY_ONLY" != true ]]
+            cp Tools/CI/ObservatoryPrototypeReview.cs Tools/CI/ObservatoryPrototypeSmoke.cs Assets/Editor/
+            mkdir -p Builds/ObservatoryReview
+          else
+            cp Tools/CI/ExpansionReview.cs Tools/CI/ExpansionRuntimeSmoke.cs Tools/CI/NewRoomsSmoke.cs Assets/Editor/
+          fi
           git rev-parse HEAD > Builds/author-revision.txt
       - name: Make room for the hosted Unity image
         run: |
@@ -124,12 +135,13 @@ jobs:
         with:
           targetPlatform: StandaloneWindows64
           customImage: liminal-unity-mesa:expansion
-          buildMethod: ${{ inputs.sky_preview_only && 'ExpansionReview.CaptureSkyPreview' || 'ExpansionReview.AuthorAndCapture' }}
+          buildMethod: ${{ inputs.observatory_prototype && 'ObservatoryPrototypeReview.Run' || inputs.sky_preview_only && 'ExpansionReview.CaptureSkyPreview' || 'ExpansionReview.AuthorAndCapture' }}
           enableGpu: true
           customParameters: -force-glcore
           allowDirtyBuild: true
           versioning: None
       - name: Require the selected scene review to pass
+        if: ${{ !inputs.observatory_prototype }}
         env:
           SKY_PREVIEW: ${{ inputs.sky_preview_only && 'true' || 'false' }}
         run: |
@@ -144,7 +156,12 @@ jobs:
               details=r.get('failures',[])+r.get('errors',[])
               raise SystemExit('Scene review failed: '+str(list(dict.fromkeys(details)) or 'missing or incomplete report'))
           PY
-      - name: Exercise local controls and the aperture in ClientSim
+      - name: Check the isolated Observatory scenes and SDK export
+        if: ${{ inputs.observatory_prototype }}
+        run: |
+          test -s Builds/ObservatoryReview/report.json
+          test -s Builds/ObservatoryPrivate/observatory-pc.vrcw
+      - name: Exercise the selected scene in ClientSim
         if: ${{ !inputs.sky_preview_only }}
         timeout-minutes: 12
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
@@ -156,14 +173,14 @@ jobs:
         with:
           targetPlatform: StandaloneWindows64
           customImage: liminal-unity-mesa:expansion
-          buildMethod: ExpansionRuntimeSmoke.Begin
+          buildMethod: ${{ inputs.observatory_prototype && 'ObservatoryPrototypeSmoke.Begin' || 'ExpansionRuntimeSmoke.Begin' }}
           enableGpu: true
           customParameters: -force-glcore
           manualExit: true
           allowDirtyBuild: true
           versioning: None
       - name: Exercise the new rooms and practical lighting in ClientSim
-        if: ${{ !inputs.sky_preview_only }}
+        if: ${{ !inputs.sky_preview_only && !inputs.observatory_prototype }}
         timeout-minutes: 12
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00
         env:
@@ -190,13 +207,36 @@ jobs:
           if [[ -d "$review_output" ]]; then
             sudo chown -R -- "$(id -u):$(id -g)" "$review_output"
           fi
+          if [[ -d Builds/ObservatoryReview ]]; then
+            sudo chown -R -- "$(id -u):$(id -g)" Builds/ObservatoryReview
+          fi
+      - name: Verify and encrypt the local Observatory test build
+        if: ${{ success() && inputs.observatory_prototype }}
+        env:
+          LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
+        run: |
+          python3 Tools/CI/package_observatory_test.py
+      - name: Keep the Observatory pictures, measurements and encrypted test build
+        if: ${{ always() && inputs.observatory_prototype }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: liminal-observatory-prototype-${{ github.run_number }}
+          path: |
+            Builds/ObservatoryReview/PC/*.png
+            Builds/ObservatoryReview/Quest/*.png
+            Builds/ObservatoryReview/report.json
+            Builds/ObservatoryReview/runtime.json
+            Builds/ObservatoryReview/bundle.json
+            Builds/ObservatoryReview/observatory-pc.vrcw.enc
+          if-no-files-found: warn
+          retention-days: 1
       - name: Preserve owner-licensed authoring outputs as encrypted data
-        if: ${{ !inputs.sky_preview_only }}
+        if: ${{ !inputs.sky_preview_only && !inputs.observatory_prototype }}
         env:
           LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
         run: python3 Tools/CI/package_personal_assets.py --output Builds/AuthoredExpansion/PersonalAssets.bin
       - name: Package verified authored assets and write the review summary
-        if: ${{ always() && !inputs.sky_preview_only }}
+        if: ${{ always() && !inputs.sky_preview_only && !inputs.observatory_prototype }}
         run: |
           python3 - <<'PY'
           import hashlib, json, os, subprocess, zipfile
@@ -247,7 +287,7 @@ jobs:
               else: summary.write(status['diagnostic'] + '\n')
           PY
       - name: Upload authored assets for review and adoption
-        if: ${{ success() && !inputs.sky_preview_only }}
+        if: ${{ success() && !inputs.sky_preview_only && !inputs.observatory_prototype }}
         uses: actions/upload-artifact@v4
         with:
           name: liminal-authored-expansion-${{ github.run_number }}
@@ -255,7 +295,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Upload images, reports and authoring logs
-        if: always()
+        if: ${{ always() && !inputs.observatory_prototype }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.sky_preview_only && 'liminal-sky-preview' || 'liminal-expansion-review' }}-${{ github.run_number }}
