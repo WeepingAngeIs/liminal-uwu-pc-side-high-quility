@@ -279,6 +279,17 @@ public static class ExpansionReview
         sky.SetFloat("_ReviewTime", 45);
         UnityEngine.Object.DestroyImmediate(Capture(camera, edition + "/distant-nebula-45s", 960, 600));
         Require(report.images.Last().sha256 != first, edition + " distant nebula did not move in 45 seconds.");
+
+        if (!quest) {
+            // A stationary street-level camera records the actual sky motion for the review clip.
+            camera.cullingMask = -1;
+            camera.fieldOfView = 89;
+            camera.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(look));
+            for (int second = 0; second <= 48; second += 2) {
+                sky.SetFloat("_ReviewTime", second);
+                UnityEngine.Object.DestroyImmediate(Capture(camera, edition + "/drift-" + second.ToString("D2"), 768, 480));
+            }
+        }
     }
 
     static SceneRecord InspectScene(string edition, string path)

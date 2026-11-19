@@ -84,7 +84,16 @@ float3 BlackHolePC(float3 direction,float radius,float2 unit,float azimuth,float
     // Near the critical orbit a single pixel spans many source directions.
     // Filter that unresolved light instead of letting point stars flash.
     float skyMip=clamp(log2(1.+pixel/max(radius-edge,.00001)*16.),0.,6.);
-    float3 background=distantSky(source,direction,radius,time,skyMip);
+    #ifdef SW_ANIMATED_NEBULA
+        float3 background=distantSky(source,direction,radius,time,skyMip);
+    #else
+        // The pre-recorded Embankment film uses its original standing sky.
+        float2 uv=float2(atan2(source.z,source.x)/PI2+.5,asin(clamp(source.y,-1.,1.))/3.14159265+.5);
+        float3 cloud=tex2Dlod(_Nebula,float4(uv+float2(.17,0),0,skyMip)).rgb;
+        float3 stars=tex2Dlod(_Stars,float4(uv,0,skyMip)).rgb;
+        float horizon=exp2(-abs(direction.y-.015)*10.);
+        float3 background=(cloud*.68+stars*.15+float3(.021,.032,.044)*horizon)*smoothstep(.80,1.14,radius);
+    #endif
     // Finish both emission and absorption before the lookup boundary. The table's
     // outermost crossing still lies inside the material's radial fade.
     float exteriorFade=1.-smoothstep(2.0,2.72,gap);

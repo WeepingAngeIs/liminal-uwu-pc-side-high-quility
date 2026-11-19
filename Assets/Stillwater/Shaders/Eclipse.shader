@@ -97,6 +97,7 @@ Shader "Stillwater/Eclipse sky"
             }
 
             #if !defined(SW_MOBILE)
+                #define SW_ANIMATED_NEBULA
                 #include "EclipsePC.cginc"
             #endif
 
