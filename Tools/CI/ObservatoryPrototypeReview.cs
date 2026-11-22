@@ -29,8 +29,15 @@ public static class ObservatoryPrototypeReview
         var releaseScenes = new[] { WorldAuthor.PCScene, WorldAuthor.QuestScene };
         var originals = releaseScenes.Select(path => Digest(File.ReadAllBytes(path))).ToArray();
         ObservatoryPrototype.AuthorBoth();
-        Inspect("PC", ObservatoryPrototype.PCScene, report);
-        Inspect("Quest", ObservatoryPrototype.QuestScene, report);
+        var failures = new List<Exception>();
+        foreach (string edition in new[] { "PC", "Quest" }) {
+            try {
+                Inspect(edition, edition == "PC" ? ObservatoryPrototype.PCScene : ObservatoryPrototype.QuestScene, report);
+            } catch (Exception ex) {
+                failures.Add(new InvalidOperationException(edition + " scene review failed", ex));
+            }
+        }
+        if (failures.Count != 0) throw new AggregateException(failures);
         LiminalExport.BuildScene(ObservatoryPrototype.PCScene, Bundle);
         for (int i = 0; i < originals.Length; i++)
             Check(Digest(File.ReadAllBytes(releaseScenes[i])) == originals[i], "Production scene was modified.");
