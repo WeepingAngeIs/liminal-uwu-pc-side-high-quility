@@ -1,6 +1,11 @@
 name: Export PC and Quest world bundles
 on:
   workflow_dispatch:
+    inputs:
+      private_test_bundles:
+        description: Encrypt the two test bundles before retaining them for the owner
+        type: boolean
+        default: false
   push:
     tags:
       - 'liminal-build-*'
@@ -70,7 +75,37 @@ jobs:
         env:
           EDITION: ${{ matrix.edition }}
         run: python3 Tools/CI/check_bundle.py "$EDITION"
+      - name: Encrypt owner test build
+        if: inputs.private_test_bundles
+        env:
+          EDITION: ${{ matrix.edition }}
+          LIMINAL_PERSONAL_ASSET_KEY: ${{ secrets.LIMINAL_PERSONAL_ASSET_KEY }}
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json, os
+          from pathlib import Path
+          from nacl.secret import SecretBox
+          folder = Path("Builds") / os.environ["EDITION"]
+          bundle = (folder / "liminal-uwu.vrcw").read_bytes()
+          record = json.loads((folder / "size-report.json").read_text())
+          assert record["downloadBytes"] == len(bundle) and bundle.startswith(b"UnityFS\x00")
+          key = base64.b64decode(os.environ["LIMINAL_PERSONAL_ASSET_KEY"], validate=True)
+          (folder / "liminal-uwu.vrcw.enc").write_bytes(SecretBox(key).encrypt(bundle))
+          metadata = {"revision": os.environ["GITHUB_SHA"], "bundleSha256": hashlib.sha256(bundle).hexdigest()}
+          (folder / "checksum.json").write_text(json.dumps(metadata))
+          PY
       - uses: actions/upload-artifact@v4
+        if: inputs.private_test_bundles
+        with:
+          name: private-test-${{ matrix.edition }}
+          path: |
+            Builds/${{ matrix.edition }}/liminal-uwu.vrcw.enc
+            Builds/${{ matrix.edition }}/size-report.json
+            Builds/${{ matrix.edition }}/checksum.json
+          if-no-files-found: error
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        if: ${{ !inputs.private_test_bundles }}
         with:
           name: liminal-uwu-${{ matrix.edition }}
           path: |

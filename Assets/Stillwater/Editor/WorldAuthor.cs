@@ -215,9 +215,13 @@ public static class WorldAuthor
             foreach(int side in new[]{-1,1}){
                 float width=(w-gap)*.5f;float mid=side*(gap/2+width/2);
                 m.Box(r.id=="rail"||r.id=="hub"?"brickwork":"limestone",mid,h*.5f,.2f,width,h,.46f,true);
-                m.Box(r.id=="service"?"ochre":r.id=="hub"||r.id=="motor"?"bath tile":"tile",mid,1.02f,-.11f,width,2.04f,.21f);
-                m.Box("metal",mid,.17f,-.22f,width,.32f,.11f);
-                m.Box(r.id=="gallery"?"brass":"teal",mid,2.12f,-.18f,width,.13f,.19f);
+                // North/south courses span the corner; the east/west returns meet
+                // their inside faces. The opening-side ends stay in place.
+                float tileTrim=k%2==1?.215f:0f, bandTrim=k%2==1?.275f:0f;
+                float tileMid=mid-side*tileTrim*.5f, bandMid=mid-side*bandTrim*.5f;
+                m.Box(r.id=="service"?"ochre":r.id=="hub"||r.id=="motor"?"bath tile":"tile",tileMid,1.02f,-.11f,width-tileTrim,2.04f,.21f);
+                m.Box("metal",bandMid,.17f,-.22f,width-bandTrim,.32f,.11f);
+                m.Box(r.id=="gallery"?"brass":"teal",bandMid,2.12f,-.18f,width-bandTrim,.13f,.19f);
             }
             if(gap>0){
                 m.Box("concrete",0,(h+doorH)/2,.2f,gap,h-doorH,.46f,true);
@@ -383,7 +387,9 @@ public static class WorldAuthor
         foreach(int s in new[]{-1,1}){
             m.Box("plaster",s*4.7f,height/2,0,.38f,height,len+.18f,true);
             m.Box((a.number+b.number)%2==0?"teal":"tile",s*4.46f,.84f,0,.15f,1.68f,len);
-            m.Box("brass",s*4.36f,1.69f,0,.09f,.08f,len);
+            // Rest the cap on the 1.68 m tile lining; its exposed end cannot
+            // occupy the same plane and area as the tile's end face.
+            m.Box("brass",s*4.36f,1.72f,0,.09f,.08f,len);
             if((a.number+b.number)%3!=0){
                 for(int pipe=0;pipe<(mobile?1:3);pipe++)m.Rod(pipe==0?"rust":"metal",new Vector3(s*(3.94f-pipe*.22f),height-.38f,-len/2),new Vector3(s*(3.94f-pipe*.22f),height-.38f,len/2),.095f,8);
             }
