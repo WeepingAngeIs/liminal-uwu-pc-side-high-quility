@@ -66,7 +66,7 @@ jobs:
           mkdir -p Assets/Editor Builds/ExpansionReview
           if [[ "$PROTOTYPE" == true ]]; then
             [[ "$SKY_ONLY" != true ]]
-            cp Tools/CI/ObservatoryPrototypeReview.cs Tools/CI/ObservatoryPrototypeSmoke.cs Assets/Editor/
+            cp Tools/CI/ObservatoryPrototypeReview.cs Tools/CI/ObservatoryPrototypeSmoke.cs Tools/CI/SurfaceSeamReview.cs Assets/Editor/
             mkdir -p Builds/ObservatoryReview
           else
             cp Tools/CI/ExpansionReview.cs Tools/CI/ExpansionRuntimeSmoke.cs Tools/CI/NewRoomsSmoke.cs Assets/Editor/
@@ -228,6 +228,14 @@ jobs:
           if [[ -d Builds/ObservatoryReview ]]; then
             sudo chown -R -- "$(id -u):$(id -g)" Builds/ObservatoryReview
           fi
+      - name: Keep the tunnel movement captures and depth checks
+        if: ${{ always() && inputs.observatory_prototype }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rain-exchange-seams-${{ github.run_number }}
+          path: Builds/SurfaceReview/
+          if-no-files-found: warn
+          retention-days: 3
       - name: Verify and encrypt the local Observatory test build
         if: ${{ success() && inputs.observatory_prototype }}
         env:

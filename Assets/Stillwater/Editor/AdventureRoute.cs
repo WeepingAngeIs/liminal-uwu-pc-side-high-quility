@@ -47,7 +47,14 @@ internal static class AdventureRoute
             // the ceiling services instead of driving a standard five-metre gate through them.
             float height=From[i]=="service"?2.8f:5.4f;
             var mesh=new StationMesh(portal,gen+"/Architecture");
-            mesh.Box("metal",-3.8f,height*.5f,0,.4f,height,.6f,true);mesh.Box("metal",3.8f,height*.5f,0,.4f,height,.6f,true);
+            // The lintel owns the full width across the top. End the visible posts at
+            // its underside so their front, back and outer faces never compete.
+            float postHeight=height-.20f;
+            foreach(int side in new[]{-1,1}) {
+                float x=side*3.8f;
+                mesh.Box("metal",x,postHeight*.5f,0,.4f,postHeight,.6f);
+                mesh.Solid(new Vector3(x,height*.5f,0),new Vector3(.4f,height,.6f),Quaternion.identity,"metal");
+            }
             mesh.Box("metal",0,height-.05f,0,8,.3f,.6f,true);
             mesh.Box("pink",-3.57f,height*.5f,-.33f,.07f,height-.4f,.07f);mesh.Box("ice",3.57f,height*.5f,-.33f,.07f,height-.4f,.07f);
             mesh.Print(mat,0,height*.5f-.05f,0,7.1f,height-.2f,new Rect(0,0,1,1));

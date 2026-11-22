@@ -62,7 +62,7 @@ public static class ObservatoryInstruments
         desk.localRotation = Quaternion.Euler(0, 180, 0);
         p.bench = desk;
         m.Box("teal", 0, .46f, -.12f, 3.26f, .87f, .59f);
-        m.Box("black", 0, .12f, -.23f, 3.12f, .19f, .58f);
+        m.Box("black", 0, .112f, -.23f, 3.12f, .20f, .58f);
         m.Box("metal", 0, .928f, -.25f, 3.48f, .11f, .86f);
         m.Box("brass", 0, .925f, -.69f, 3.44f, .034f, .025f);
         BoxCollision(desk, 0, .48f, -.22f, 3.44f, .96f, .84f);
@@ -70,25 +70,15 @@ public static class ObservatoryInstruments
         m.Box("teal", 0, 2.32f, .014f, 3.39f, .49f, .21f);
         m.Box("brass", 0, 2.54f, -.105f, 3.34f, .027f, .028f);
         m.Box("black", 0, 2.063f, -.08f, 3.46f, .097f, .29f);
-        m.Box("amber", 0, 2.015f, -.21f, 3.00f, .027f, .033f);
-        m.Box("teal", .86f, 1.53f, -.18f, 1.06f, .95f, .38f);
+        m.Box("amber", 0, 2.008f, -.219f, 3.00f, .027f, .033f);
+        m.Box("teal", .86f, 1.53f, -.18f, 1.06f, .91f, .38f);
         m.Box("brass", .86f, 1.63f, -.384f, .94f, .52f, .035f);
         m.Box("black", .86f, 1.63f, -.407f, .91f, .49f, .034f);
         // Strip chart, ink grid, feed rollers and the replaceable spool socket.
         m.Box("metal", -.29f, 1.43f, -.19f, 1.37f, .75f, .41f);
         m.Box("brass", -.29f, 1.43f, -.409f, 1.28f, .67f, .031f);
         m.Box("black", -.29f, 1.43f, -.432f, 1.24f, .63f, .03f);
-        m.Box("paper", -.31f, 1.43f, -.461f, .73f, .39f, .022f);
-        for (int i = -3; i <= 3; i++)
-            m.Box("brass", -.31f + i * .092f, 1.43f, -.477f, .004f, .375f, .004f);
-        for (int i = -1; i <= 1; i++)
-            m.Box("brass", -.31f, 1.43f + i * .09f, -.478f, .715f, .004f, .004f);
-        float[] trace = {0, .02f, .01f, .058f, -.023f, .004f, .01f, .008f, .076f, -.037f, .012f, .01f};
-        for (int i = 1; i < trace.Length; i++) {
-            var a = new Vector3(-.64f + (i - 1) * .061f, 1.42f + trace[i-1], -.483f);
-            var b = new Vector3(-.64f + i * .061f, 1.42f + trace[i], -.483f);
-            m.Beam("black", a, b, .01f, .004f);
-        }
+        m.PrintedBox(new Vector3(-.31f, 1.43f, -.461f), new Vector3(.73f, .39f, .022f), 8, 272);
         m.Disc("brass", .197f, 1.435f, -.46f, .105f, .035f);
         m.Disc("black", .197f, 1.435f, -.485f, .079f, .015f);
         m.Box("brass", -.31f, 1.215f, -.487f, .75f, .024f, .025f);
@@ -109,7 +99,7 @@ public static class ObservatoryInstruments
         p.secondSpool.SetActive(false);
         p.pen = At(desk, "Recording stylus pivot", -.29f, 1.216f, -.506f);
         m.Box("black", 0, .10f, 0, .021f, .20f, .021f);
-        m.Box("brass", 0, .199f, -.002f, .017f, .083f, .015f);
+        m.Box("brass", 0, .199f, -.011f, .017f, .083f, .015f);
         m.Disc("brass", 0, 0, 0, .042f, .043f);
         m.Bake(p.pen, "Strip chart stylus");
         p.pendulum = At(desk, "Recovered pendulum", -1.29f, 1.98f, -.31f);
@@ -133,7 +123,7 @@ public static class ObservatoryInstruments
         for (int i = 0; i < 4; i++)
             m.Box("bark", 0, .50f, -.21f + i * .14f, 1.57f, .087f, .124f);
         m.Box("teal", 0, .78f, -.318f, 1.55f, .34f, .093f);
-        m.Box("brass", 0, .956f, -.318f, 1.55f, .025f, .10f);
+        m.Box("brass", 0, .956f, -.318f, 1.576f, .025f, .114f);
         m.Bake(seat, "Observatory side banquette");
         BoxCollision(seat, 0, .26f, 0, 1.57f, .52f, .56f);
         Seat(seat, -.39f); Seat(seat, .39f);
@@ -147,7 +137,8 @@ public static class ObservatoryInstruments
         int spokes = quest ? 3 : 5;
         for (int i = 0; i < spokes; i++) {
             var end = Quaternion.Euler(0, 0, i * 360f / spokes) * (Vector3.up * r * .81f);
-            m.Beam("paper", new Vector3(0, 0, -.036f), new Vector3(end.x, end.y, -.036f), r * .12f, .008f);
+            var start = end.normalized * (r * .16f);
+            m.Beam("paper", new Vector3(start.x, start.y, -.036f), new Vector3(end.x, end.y, -.036f), r * .12f, .008f);
         }
         m.Disc("brass", 0, 0, -.045f, r * .22f, .016f);
         m.Bake(spool, name);
@@ -168,9 +159,7 @@ public static class ObservatoryInstruments
         m.Box("teal", 0, 1.425f, .07f, 1.73f, .96f, .45f);
         m.Box("brass", 0, 1.426f, -.168f, 1.64f, .84f, .039f);
         m.Box("black", 0, 1.426f, -.197f, 1.59f, .79f, .035f);
-        m.Box("teal", .335f, 1.215f, -.227f, .65f, .15f, .05f);
-        m.Box("amber", .062f, 1.215f, -.259f, .025f, .086f, .02f);
-        RecordKeyLegend(m, new Vector3(.368f, 1.215f, -.256f));
+        m.PrintedBox(new Vector3(.335f, 1.215f, -.231f), new Vector3(.65f, .15f, .058f), 320, 432);
         m.Box("brass", 0, 1.937f, .08f, 1.78f, .06f, .48f);
         BoxCollision(station, 0, .94f, .075f, 1.73f, 1.88f, .58f);
         m.Bake(station, "Archive clock fittings");
@@ -187,56 +176,33 @@ public static class ObservatoryInstruments
         p.clockDisplay = Label(panel, "Service display", "CEILING WARD\nCLOCK SERVICE\nLISTEN FOR THE GAP", .328f, 1.571f, -.225f, .80f, .334f, .057f, Mint);
     }
 
-    // The edge-lit inscription is part of the physical key, like the clock ticks.
-    // Each path connects the numbered points on a three-by-five engraver grid.
-    // Rows from the top are 012, 345, 678, 9ab and cde.
-    static void RecordKeyLegend(Metalwork m, Vector3 center)
-    {
-        var paths = new Dictionary<char, string[]> {
-            {'R', new[] {"c01576", "7e"}}, {'E', new[] {"20ce", "68"}},
-            {'C', new[] {"20ce"}}, {'O', new[] {"02ec0"}},
-            {'D', new[] {"c015bdc"}}, {'B', new[] {"c01576", "67bdc"}},
-            {'A', new[] {"c63158be", "68"}}, {'T', new[] {"02", "1d"}}
-        };
-        const string legend = "RECORD BEAT";
-        const float advance = .044f, dx = .014f, dy = .014f;
-        for (int letter = 0; letter < legend.Length; letter++) {
-            if (!paths.TryGetValue(legend[letter], out var strokes)) continue;
-            float origin = (letter - (legend.Length - 1) * .5f) * advance;
-            foreach (string stroke in strokes) {
-                for (int i = 1; i < stroke.Length; i++)
-                    m.Beam("amber", Point(stroke[i-1]), Point(stroke[i]), .0055f, .004f);
-            }
-            Vector3 Point(char digit) {
-                int index = digit <= '9' ? digit - '0' : digit - 'a' + 10;
-                return center + new Vector3(origin + (index % 3 - 1) * dx, (2 - index / 3) * dy, 0);
-            }
-        }
-    }
-
     static Transform ClockFace(Metalwork m, Transform face, string name, float r, bool quest, string faceFinish)
     {
-        m.Disc("metal", 0, 0, 0, r, .18f * r);
-        m.Disc("brass", 0, 0, -.095f * r, .978f * r, .052f * r);
-        m.Disc(faceFinish, 0, 0, -.132f * r, .916f * r, .033f * r);
+        // A small register still needs room between the enamel, ticks and turning
+        // hands. Scaling its depth with the dial radius left the hands only a
+        // few millimetres apart when viewed across the gallery.
+        float depth = Mathf.Max(r, .76f);
+        m.Disc("metal", 0, 0, 0, r, .18f * depth);
+        m.Disc("brass", 0, 0, -.095f * depth, .978f * r, .052f * depth);
+        m.Disc(faceFinish, 0, 0, -.132f * depth, .916f * r, .033f * depth);
         int stride = quest ? 2 : 1;
         for (int tick = 0; tick < 60; tick++) {
             bool major = tick % 5 == 0;
             if (!major && tick % stride != 0) continue;
             var dir = new Vector3(Mathf.Sin(tick * Mathf.PI / 30f), Mathf.Cos(tick * Mathf.PI / 30f), 0);
-            var outer = dir * (.87f * r); outer.z = -.158f * r;
+            var outer = dir * (.87f * r); outer.z = -.158f * depth;
             var inner = dir * ((major ? .68f : .81f) * r); inner.z = outer.z;
-            m.Beam("black", inner, outer, r * (major ? .038f : .014f), .010f * r);
+            m.Beam("black", inner, outer, r * (major ? .038f : .014f), .010f * depth);
         }
         // A double bar at twelve and a fixed short hour hand identify the
         // dial's orientation even from the opposite end of the gallery.
         foreach (float x in new[] {-.065f, .065f})
-            m.Box("black", x * r, .585f * r, -.161f * r, .038f * r, .119f * r, .012f * r);
-        m.Beam("teal", new Vector3(0, 0, -.176f * r), new Vector3(-.34f * r, -.20f * r, -.176f * r), .080f * r, .022f * r);
+            m.Box("black", x * r, .585f * r, -.161f * depth, .038f * r, .119f * r, .012f * depth);
+        m.Beam("teal", new Vector3(0, 0, -.176f * depth), new Vector3(-.34f * r, -.20f * r, -.176f * depth), .080f * r, .022f * depth);
         m.Bake(face, name + " register");
-        var needle = At(face, name + " hand", 0, 0, -.200f * r);
-        m.Box("black", 0, .284f * r, 0, .047f * r, .825f * r, .017f * r);
-        m.Disc("brass", 0, 0, -.018f * r, .071f * r, .032f * r);
+        var needle = At(face, name + " hand", 0, 0, -.200f * depth);
+        m.Box("black", 0, .284f * r, 0, .047f * r, .825f * r, .017f * depth);
+        m.Disc("brass", 0, 0, -.018f * depth, .071f * r, .032f * depth);
         m.Bake(needle, name + " hand");
         return needle;
     }
@@ -309,6 +275,7 @@ public static class ObservatoryInstruments
     {
         readonly string finishes, folder, district;
         readonly Dictionary<string, List<CombineInstance>> pieces = new Dictionary<string, List<CombineInstance>>();
+        readonly List<Mesh> printedMeshes = new List<Mesh>();
 
         public Metalwork(string edition, string district, string folder)
         {
@@ -325,6 +292,44 @@ public static class ObservatoryInstruments
         public void Box(string finish, float x, float y, float z, float w, float h, float d)
         {
             Piece(finish, cube, new Vector3(x,y,z), Quaternion.identity, new Vector3(w,h,d));
+        }
+
+        // Ink and enamel share the front two triangles. A mipmapped image keeps
+        // crossings, lettering joints and hairlines stable at a distance.
+        public void PrintedBox(Vector3 center, Vector3 size, int topPixel, int bottomPixel)
+        {
+            var plate = UnityEngine.Object.Instantiate(cube);
+            var vertices = plate.vertices;
+            var normals = plate.normals;
+            var uv = new Vector2[vertices.Length];
+            for (int i = 0; i < uv.Length; i++) {
+                var p = vertices[i];
+                uv[i] = normals[i].z < -.99f
+                    ? new Vector2(Mathf.Lerp(8, 504, p.x + .5f), 512 - Mathf.Lerp(bottomPixel, topPixel, p.y + .5f)) / 512f
+                    : new Vector2(10, 512 - topPixel - 2) / 512f;
+            }
+            plate.uv = uv;
+            printedMeshes.Add(plate);
+            Piece("faceplate", plate, center, Quaternion.identity, size);
+        }
+
+        Material FaceplateMaterial()
+        {
+            bool backlit = district == "gravity";
+            var original = AssetDatabase.LoadAssetAtPath<Material>(finishes + district + " lit " + (backlit ? "amber" : "paper") + ".mat");
+            var atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(WorldAuthor.Root + "/Media/Prints/Observatory instrument faces.png");
+            if (!original || !atlas) throw new InvalidOperationException("Missing Observatory faceplate assets");
+            string path = folder + "/" + district + " faceplate.mat";
+            var result = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (!result) {
+                result = new Material(original);
+                AssetDatabase.CreateAsset(result, path);
+            } else result.CopyPropertiesFromMaterial(original);
+            result.mainTexture = atlas;
+            result.color = Color.white;
+            result.EnableKeyword("SW_PRINT");
+            EditorUtility.SetDirty(result);
+            return result;
         }
 
         public void Beam(string finish, Vector3 a, Vector3 b, float w, float d)
@@ -345,7 +350,7 @@ public static class ObservatoryInstruments
             var mesh = new Mesh { name = name };
             foreach (var entry in pieces) {
                 string path = finishes + district + " lit " + entry.Key + ".mat";
-                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                var mat = entry.Key == "faceplate" ? FaceplateMaterial() : AssetDatabase.LoadAssetAtPath<Material>(path);
                 if (!mat) throw new InvalidOperationException("Missing district instrument finish " + path);
                 materials.Add(mat);
                 var sub = new Mesh();
@@ -354,6 +359,8 @@ public static class ObservatoryInstruments
             }
             mesh.CombineMeshes(merged.ToArray(), false, false);
             foreach (var part in merged) UnityEngine.Object.DestroyImmediate(part.mesh);
+            foreach (var temporary in printedMeshes) UnityEngine.Object.DestroyImmediate(temporary);
+            printedMeshes.Clear();
             pieces.Clear();
             string file = folder + "/" + name + ".asset";
             var saved = AssetDatabase.LoadAssetAtPath<Mesh>(file);

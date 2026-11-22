@@ -42,6 +42,7 @@ public static class ObservatoryPrototypeReview
     {
         Check(path != WorldAuthor.PCScene && path != WorldAuthor.QuestScene, "Expected an isolated prototype scene.");
         EditorSceneManager.OpenScene(path);
+        SurfaceSeamReview.InspectCurrentScene(edition, "Builds/SurfaceReview", Photograph);
         var receiver = UnityEngine.Object.FindObjectsOfType<ObservatoryReceiver>(true).Single();
         var controls = UnityEngine.Object.FindObjectsOfType<ObservatoryControl>(true);
         Check(controls.Length == 2 && controls.Count(c => c.recordsClock) == 1 && controls.All(c => c.receiver == receiver),
