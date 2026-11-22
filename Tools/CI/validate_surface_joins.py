@@ -3,6 +3,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import cache, cached_property
+from itertools import combinations
 import re
 import struct
 
@@ -145,8 +146,8 @@ def ground_faces(mesh):
     return [f for f in mesh if f.up and abs(f.low[1]) < EPSILON]
 
 
-def intersection(a, b):
-    return tuple(min(a.high[i], b.high[i])-max(a.low[i], b.low[i]) for i in (0, 2))
+def intersection(a, b, axes=(0, 2)):
+    return tuple(min(a.high[i], b.high[i])-max(a.low[i], b.low[i]) for i in axes)
 
 
 def joined(a, b, label, failures):
@@ -155,6 +156,35 @@ def joined(a, b, label, failures):
         failures.append(f"{label} has coplanar floor overlap {overlap[0]:.5f} x {overlap[1]:.5f} m")
     elif min(overlap) < -EPSILON:
         failures.append(f"{label} leaves a rendered floor gap of {-min(overlap):.5f} m")
+
+
+def check_face_plane(mesh, axis, position, sign, count, label, failures):
+    """These trim and frame quads are rectangles aligned with the local mesh axes."""
+    faces_on_plane = [f for f in mesh if sign*f.normal[axis] > 0 and
+                      max(abs(f.low[axis]-position), abs(f.high[axis]-position)) < EPSILON]
+    require(len(faces_on_plane) == count, f"Expected {count} rendered faces at {label}, found {len(faces_on_plane)}")
+    axes = tuple(i for i in range(3) if i != axis)
+    for a, b in combinations(faces_on_plane, 2):
+        overlap = intersection(a, b, axes)
+        if min(overlap) > EPSILON:
+            failures.append(f"{label} has coplanar overlap {overlap[0]:.5f} x {overlap[1]:.5f} m")
+
+
+def frames_and_courses(scene, local, failures):
+    gates = [path for path in scene.named if len(path) == 4 and path[-1] == "Architecture"
+             and path[-2].startswith("Adventure door to ")]
+    require(len(gates) == 19, "Missing adventure gate in saved scene")
+    for path in gates:
+        mesh = scene.mesh(path[1:], path[-2])
+        # Each front comprises exactly two posts and the full-width lintel.
+        check_face_plane(mesh, 2, -.3, -1, 3, f"{path[1]} / {path[-2]} frame", failures)
+    for room in sorted(ROOMS):
+        # Each of the four walls has two long narrow courses at each trim height.
+        strips = [f for f in local[room] if f.up and
+                  max(f.high[i]-f.low[i] for i in (0, 2)) > 9 and min(f.high[i]-f.low[i] for i in (0, 2)) < .3]
+        for height in (.33, 2.04, 2.185):
+            check_face_plane(strips, 1, height, 1, 8, f"{room} perimeter course at {height} m", failures)
+    return len(gates)
 
 
 def openings(mesh, room, doorways, failures):
@@ -207,6 +237,11 @@ def check(edition):
     require(len(passages) == PASSAGES, "Expected eighteen rendered main passages")
     for passage in passages:
         a, b = re.fullmatch(r"Passage (\w+) to (\w+)", passage).groups()
+        mesh = scene.mesh((passage, "Architecture"), passage)
+        end = floor(mesh).high[2]+.16  # Visible passage floor ends at the room floor overhang.
+        lining = [f for f in mesh if f.high[1] < 2]
+        for side in (-1, 1):
+            check_face_plane(lining, 2, side*end, side, 4, f"{passage} trim at {side*end:.2f} m", failures)
         sheet = floor(scene.mesh((passage, "Architecture"), passage, world=True))
         for room, other in ((a, b), (b, a)):
             # The space road has a west branch and a main deck; check the actual joined sheet.
@@ -244,7 +279,10 @@ def check(edition):
     for deck in balcony:
         if deck is not cross_deck:
             joined(deck, cross_deck, "Gallery balcony junction", failures)
-    print(f"{edition}: checked {2*len(passages)} passage endpoints, {jamb_count} jambs, {bay_count} shrinking bays, 2 balcony joins and the causeway branch")
+    gates = frames_and_courses(scene, local, failures)
+    print(f"{edition}: checked {2*len(passages)} passage endpoints and trim ends, {jamb_count} jambs, "
+          f"{gates} adventure gate frames, {3*len(ROOMS)} perimeter courses, {bay_count} shrinking bays, "
+          "2 balcony joins and the causeway branch")
     for failure in failures:
         print("  "+failure)
     return failures
