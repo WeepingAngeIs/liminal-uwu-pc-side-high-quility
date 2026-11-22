@@ -86,22 +86,23 @@ jobs:
           from pathlib import Path
           from nacl.secret import SecretBox
           folder = Path("Builds") / os.environ["EDITION"]
+          output = Path(os.environ["RUNNER_TEMP"]) / "private-test"
+          output.mkdir(exist_ok=True)
           bundle = (folder / "liminal-uwu.vrcw").read_bytes()
-          record = json.loads((folder / "size-report.json").read_text())
+          size_report = (folder / "size-report.json").read_bytes()
+          record = json.loads(size_report)
           assert record["downloadBytes"] == len(bundle) and bundle.startswith(b"UnityFS\x00")
           key = base64.b64decode(os.environ["LIMINAL_PERSONAL_ASSET_KEY"], validate=True)
-          (folder / "liminal-uwu.vrcw.enc").write_bytes(SecretBox(key).encrypt(bundle))
+          (output / "liminal-uwu.vrcw.enc").write_bytes(SecretBox(key).encrypt(bundle))
+          (output / "size-report.json").write_bytes(size_report)
           metadata = {"revision": os.environ["GITHUB_SHA"], "bundleSha256": hashlib.sha256(bundle).hexdigest()}
-          (folder / "checksum.json").write_text(json.dumps(metadata))
+          (output / "checksum.json").write_text(json.dumps(metadata))
           PY
       - uses: actions/upload-artifact@v4
         if: inputs.private_test_bundles
         with:
           name: private-test-${{ matrix.edition }}
-          path: |
-            Builds/${{ matrix.edition }}/liminal-uwu.vrcw.enc
-            Builds/${{ matrix.edition }}/size-report.json
-            Builds/${{ matrix.edition }}/checksum.json
+          path: ${{ runner.temp }}/private-test/
           if-no-files-found: error
           retention-days: 1
       - uses: actions/upload-artifact@v4
