@@ -62,6 +62,7 @@ public static class ObservatoryPrototype
         var pipeline = descriptor.GetComponent<PipelineManager>();
         if (pipeline) pipeline.blueprintId = string.Empty;
 
+        RoomTravel.Install(root, descriptor.spawns[0], quest);
         var parts = ObservatoryInstruments.Build(hub, gravity, quest);
         ObservatoryHousing.Place(parts.housingMount, quest);
         var receiver = WorldAuthor.Child(root, "Observatory receiver").gameObject.AddUdonSharpComponent<ObservatoryReceiver>();
@@ -81,7 +82,7 @@ public static class ObservatoryPrototype
         var sectors = DistrictSystems.SectorRoots(root);
         var renderers = visibility.renderers.ToList();
         var indices = visibility.rendererSector.ToList();
-        foreach (var room in new[] { hub, gravity }) {
+        foreach (var room in sectors) {
             int sector = sectors.IndexOf(room);
             if (sector < 0) throw new InvalidOperationException("Missing district: " + room.name);
             var known = new HashSet<Renderer>(renderers);

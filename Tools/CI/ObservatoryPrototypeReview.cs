@@ -50,6 +50,13 @@ public static class ObservatoryPrototypeReview
         Check(path != WorldAuthor.PCScene && path != WorldAuthor.QuestScene, "Expected an isolated prototype scene.");
         EditorSceneManager.OpenScene(path);
         SurfaceSeamReview.InspectCurrentScene(edition, "Builds/SurfaceReview", Photograph);
+        var journey = UnityEngine.Object.FindObjectsOfType<AdventureJourney>(true).Single();
+        Check(journey.roomTracker && journey.destinations.All(t => journey.roomCheckpoints.Any(a => a && a.parent == t.parent)),
+            "Missing room checkpoint.");
+        Check(journey.belts.Any(t => t.name == "Express walkway") && journey.belts.Any(t => t.name == "Return walkway"),
+            "Missing moving walkway direction.");
+        Debug.Log(edition + " travel: " + journey.belts.Length + " clear walkway sections across " +
+            journey.belts.Select(t => t.parent).Distinct().Count() + " rooms.");
         var receiver = UnityEngine.Object.FindObjectsOfType<ObservatoryReceiver>(true).Single();
         var controls = UnityEngine.Object.FindObjectsOfType<ObservatoryControl>(true);
         Check(controls.Length == 2 && controls.Count(c => c.recordsClock) == 1 && controls.All(c => c.receiver == receiver),
